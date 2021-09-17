@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.villagerquests.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "VillagerEntityMixin",
+    "MerchantScreenHandlerMixin",
+    "MerchantEntityMixin",
+    "PlayerEntityMixin",
+    "ServerPlayerEntityMixin",
+    "WanderingTraderEntityMixin"
+  ],
+  "client": [
+    "MerchantScreenMixin",
+    "MouseMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

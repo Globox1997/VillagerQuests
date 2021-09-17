@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "villagerquests",
+  "version": "${version}",
+  "name": "Villager Quests",
+  "description": "Adds quests to villagers",
+  "authors": [
+    "Globox_Z"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "MIT",
+  "icon": "assets/villagerquests/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.villagerquests.VillagerQuestsMain"
+    ],
+    "client": [
+      "net.villagerquests.VillagerQuestsClient"
+    ],
+    "modmenu": [
+      "net.villagerquests.config.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "villagerquests.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17.x",
+    "java": ">=16"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

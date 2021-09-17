@@ -1,0 +1,11 @@
+{
+  "text.autoconfig.villagerquests.title": "Villager Quests Config",
+  "text.autoconfig.villagerquests.category.level_setting": "Level Settings",
+  "text.autoconfig.villagerquests.category.default": "Skill Settings",
+  "text.autoconfig.villagerquests.option.hardMode": "Hard Mode",
+
+  "text.villagerquests.accept_button": "Accept",
+  "text.villagerquests.complete_button": "Complete",
+
+  "merchant.quests": "Quests"
+}

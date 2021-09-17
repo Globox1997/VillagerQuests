@@ -1,0 +1,29 @@
+{
+    "id": 2,
+    "title": "ABCDEFGHIJKLMNO",
+    "level": 0,
+    "type": "fight",
+    "profession": "toolsmith",
+    "task": [
+        "kill",
+        "minecraft:zombie",
+        50,
+        "kill",
+        "minecraft:skeleton",
+        3,
+        "farm",
+        "minecraft:wheat",
+        40,
+        "submit",
+        "minecraft:creeper_head",
+        4
+    ],
+    "description": "This is a test description for the first quest",
+    "experience": 30,
+    "reward": [
+        "minecraft:stick",
+        30,
+        "minecraft:bucket",
+        1
+    ]
+}
