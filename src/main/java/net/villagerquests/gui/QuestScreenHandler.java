@@ -31,17 +31,17 @@ public class QuestScreenHandler extends SyncedGuiDescription {
         this.questIdList.clear();
         this.questIdList.addAll(((MerchantAccessor) offerer).getQuestIdList());
 
-        // Remove quests if currently in use of other quest giver and if finished this particular quest
+        // Remove quests if currently in use of other quest giver and if finished this particular quest while not show up when no refresh timer exist
         Iterator<Integer> iterator = this.questIdList.iterator();
         while (iterator.hasNext()) {
             int check = iterator.next();
             if ((((PlayerAccessor) playerInventory.player).getPlayerQuestIdList().contains(this.questIdList.get(this.questIdList.indexOf(check)))
                     && !((PlayerAccessor) playerInventory.player).isOriginalQuestGiver(offerer.getUuid(), this.questIdList.get(this.questIdList.indexOf(check))))
-                    || ((PlayerAccessor) playerInventory.player).getFinishedPlayerQuestIdList().contains(this.questIdList.get(this.questIdList.indexOf(check))))
+                    || (((PlayerAccessor) playerInventory.player).getPlayerFinishedQuestIdList().contains(this.questIdList.get(this.questIdList.indexOf(check)))
+                            && ((PlayerAccessor) playerInventory.player).getPlayerQuestRefreshTimerList()
+                                    .get(((PlayerAccessor) playerInventory.player).getPlayerFinishedQuestIdList().indexOf(this.questIdList.get(this.questIdList.indexOf(check)))) != -1))
                 iterator.remove();
         }
-
-        System.out.println("LOL:" + this.questIdList);
 
         WPlainPanel root = new WPlainPanel();
         setRootPanel(root);
