@@ -136,7 +136,7 @@ public class QuestServerPacket {
             buf.writeIntList(new IntArrayList(killedMobQuestCount.get(u)));
         }
 
-        buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getFinishedPlayerQuestIdList()));
+        buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerFinishedQuestIdList()));
         buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerQuestTimerList()));
         buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerQuestRefreshTimerList()));
 
