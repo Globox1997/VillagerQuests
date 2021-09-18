@@ -29,8 +29,6 @@ public interface PlayerAccessor {
 
     public boolean canAddKilledMobQuestCount(int entityRawId);
 
-    public List<Integer> getFinishedPlayerQuestIdList();
-
     public void finishPlayerQuest(int id);
 
     public void syncPlayerQuest(List<Integer> questIds, List<List<Integer>> killedCount, List<UUID> traderUuids, List<Integer> finishedIds, List<Integer> timers, List<Integer> refresher);

@@ -153,7 +153,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     }
 
     @Override
-    public List<Integer> getFinishedPlayerQuestIdList() {
+    public List<Integer> getPlayerFinishedQuestIdList() {
         return this.finishedQuestIdList;
     }
 
