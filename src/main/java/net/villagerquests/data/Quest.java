@@ -42,14 +42,14 @@ public class Quest {
 
     public ItemStack getQuestTypeStack() {
         switch (type) {
-            case "fight":
-                return new ItemStack(Items.IRON_SWORD);
-            case "farm":
-                return new ItemStack(Items.IRON_HOE);
-            case "mine":
-                return new ItemStack(Items.IRON_PICKAXE);
-            default:
-                return ItemStack.EMPTY;
+        case "fight":
+            return new ItemStack(Items.IRON_SWORD);
+        case "farm":
+            return new ItemStack(Items.IRON_HOE);
+        case "mine":
+            return new ItemStack(Items.IRON_PICKAXE);
+        default:
+            return ItemStack.EMPTY;
         }
     }
 
@@ -79,7 +79,7 @@ public class Quest {
                         + (count > 1 ? "s" : "");
             }
         } catch (Exception e) {
-            LOGGER.error("Error occurred while loading quest {}. {}", this.title, e.toString());
+            LOGGER.error("Error occurred while loading quest tasks {}. {}", this.title, e.toString());
         }
 
         return taskListString;
@@ -88,7 +88,7 @@ public class Quest {
     public String[] getStringRewards() {
         boolean rewardsExperience = getExperienceAmount() > 0;
         String[] taskListString = new String[this.rewardList.size() / 2 + (rewardsExperience ? 1 : 0)];
-        if (getExperienceAmount() > 0) {
+        if (rewardsExperience) {
             taskListString[0] = getExperienceAmount() + " Experience";
         }
         try {
@@ -97,7 +97,7 @@ public class Quest {
                 taskListString[i + (rewardsExperience ? 1 : 0)] = count + " " + getTranslatedRegistryName("submit", (String) this.rewardList.get(i * 2)) + (count > 1 ? "s" : "");
             }
         } catch (Exception e) {
-            LOGGER.error("Error occurred while loading quest {}. {}", this.title, e.toString());
+            LOGGER.error("Error occurred while loading quest rewards {}. {}", this.title, e.toString());
         }
 
         return taskListString;
@@ -111,28 +111,36 @@ public class Quest {
         return refreshTime;
     }
 
-    // public ItemStack getDrawableStack(String string) {
+    public ItemStack getTaskStack(int index) {
+        String string = (String) this.taskList.get(index * 3 + 1);
+        if (((String) this.taskList.get(index * 3)).equals("kill"))
+            return ItemStack.EMPTY;
+        else
+            return new ItemStack(Registry.ITEM.get(new Identifier(string)));
+    }
 
-    // }
+    public ItemStack getRewardStack(int index) {
+        boolean rewardsExperience = getExperienceAmount() > 0;
+        if (index == 0 && rewardsExperience)
+            return new ItemStack(Items.EXPERIENCE_BOTTLE);
+        String string = (String) this.rewardList.get(rewardsExperience ? (index - 1) * 2 : index * 2);
+        return new ItemStack(Registry.ITEM.get(new Identifier(string)));
+    }
 
     private String getTranslatedRegistryName(String task, String identifier) {
         switch (task) {
-            case "kill":
-                return Registry.ENTITY_TYPE.get(new Identifier(identifier)).getName().getString();
-            case "farm":
-                return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
-            case "submit":
-                return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
-            case "mine":
-                return Registry.BLOCK.get(new Identifier(identifier)).getName().getString();
-            default:
-                return "";
+        case "kill":
+            return Registry.ENTITY_TYPE.get(new Identifier(identifier)).getName().getString();
+        case "farm":
+            return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
+        case "submit":
+            return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
+        case "mine":
+            return Registry.BLOCK.get(new Identifier(identifier)).getName().getString();
+        default:
+            return "";
         }
     }
-
-    // public boolean completedQuest(PlayerEntity playerEntity){
-
-    // }
 
     public void getRewards(PlayerEntity playerEntity) {
         playerEntity.addExperience(getExperienceAmount());
@@ -184,14 +192,10 @@ public class Quest {
             } else {
                 int itemCount = 0;
                 for (int k = 0; k < playerEntity.getInventory().size(); k++) {
-                    System.out.println((playerEntity.getInventory().getStack(k).isItemEqualIgnoreDamage((new ItemStack(Registry.ITEM.get(new Identifier((String) this.taskList.get(i * 3 + 1))))))));
-
                     if (playerEntity.getInventory().getStack(k).isItemEqualIgnoreDamage(new ItemStack(Registry.ITEM.get(new Identifier((String) this.taskList.get(i * 3 + 1))))))
                         itemCount += playerEntity.getInventory().getStack(k).getCount();
-
                 }
                 if (itemCount == 0 || itemCount < (int) this.taskList.get(i * 3 + 2)) {
-                    System.out.println("THISFALSE" + itemCount + ":" + (String) this.taskList.get(i * 3 + 1) + ":" + playerEntity.getInventory().size());
                     return false;
                 }
 

@@ -1,8 +1,6 @@
 package net.villagerquests.gui;
 
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -26,24 +24,17 @@ public interface DrawableExtension {
         matrices.push();
         matrices.scale(scale, scale, 1F);
         matrices.translate(centerX / scale, (y + textRenderer.fontHeight / 2F) / scale, 0);
-        // DrawableHelper.drawCenteredText(matrices, textRenderer, text, 0, -textRenderer.fontHeight / 2, color);
-        // textRenderer.drawWithShadow(matrices, text, (float)(centerX - textRenderer.getWidth(text) / 2), (float)y, color);
-        // textRenderer.drawWithShadow(matrices, text, (float)(centerX - textRenderer.getWidth(text) / 2), (float)y, color);
         textRenderer.draw(matrices, text, (float) (-textRenderer.getWidth(text) / 2), (float) -textRenderer.fontHeight / 2, color);
         matrices.pop();
     }
 
-    static void renderQuestItems(MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, ItemRenderer itemRenderer, ItemStack itemStack, int x, int y, float scale) {
+    static void renderQuestItems(MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, ItemRenderer itemRenderer, ItemStack itemStack, double x, double y, float scale) {
         matrices.push();
-        matrices.scale(scale, scale, 1F);
-        matrices.translate(x / scale, (y + 16 / 2F) / scale, 0);
-        // itemRenderer.renderInGui(itemStack, x, y);
-
-        // LightmapTextureManager.MAX_LIGHT_COORDINATE
-        itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GUI, 100, OverlayTexture.DEFAULT_UV, matrices, vertexConsumerProvider, 0);
-        // public void renderItem(ItemStack stack, ModelTransformation.Mode transformationType, int light, int overlay, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int seed) {
-        // this.renderItem((LivingEntity)null, stack, transformationType, false, matrices, vertexConsumers, (World)null, light, overlay, seed);
-        // }
+        x = x / 16.0D;
+        y = y / 16.0D;
+        matrices.translate(x, y, 0.0D);
+        matrices.scale(scale, scale, 1.0F);
+        itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GUI, 15728880, OverlayTexture.DEFAULT_UV, matrices, vertexConsumerProvider, 0);
         matrices.pop();
     }
 }
