@@ -74,5 +74,12 @@ If you know how to create one, the folder path has to be ```data\villagerquests\
 ### Additions
 
 "refresh": is the time in ticks at which the quest is available again from the same villager when it was finished, otherwise it won't show up for the specific player anymore.\
-"time": is the time in ticks in which the quest has to get done. Non-compliance leads to failure of the quest\
+"timer": is the time in ticks in which the quest has to get done. Non-compliance leads to failure of the quest\
 Info: 20 ticks in minecraft are 1 second in real life.
+
+### Limitations
+
+Titles shouldn't be longer than 20 characters.\
+Descriptions shouldn't be longer than 220 characters.\
+Tasks are limited to 4 different tasks.\
+Rewards are limited to 3 different reward items.\
