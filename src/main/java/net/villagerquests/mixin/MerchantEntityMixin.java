@@ -130,6 +130,7 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
 
     @Override
     public void setQuestIdList(List<Integer> idList) {
+        this.questIdList.clear();
         this.questIdList.addAll(idList);
     }
 

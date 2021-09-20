@@ -34,17 +34,16 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
         int j = (this.height - this.backgroundHeight) / 2;
 
         RenderSystem.setShaderTexture(0, QuestScreenHandler.GUI_ICONS);
-        if (this.isPointWithinBounds(275, 0, 20, 20, (double) mouseX, (double) mouseY)) {
-            this.drawTexture(matrices, i + 275, j, 20, 0, 20, 20);
+        if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY)) {
+            this.drawTexture(matrices, i + 276, j, 20, 0, 20, 20);
         } else
-            this.drawTexture(matrices, i + 275, j, 0, 0, 20, 20);
+            this.drawTexture(matrices, i + 276, j, 0, 0, 20, 20);
     }
 
-    // 275 and 0
-    // 251 and 5
+    // In window: 251 and 5
     @Inject(method = "mouseClicked", at = @At(value = "HEAD"), cancellable = true)
     private void mouseClickedMixin(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> info) {
-        if (this.isPointWithinBounds(275, 0, 20, 20, (double) mouseX, (double) mouseY)) {
+        if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY)) {
             QuestClientPacket.writeC2SScreenPacket(((MerchantAccessor) this.client.player).getCurrentOfferer(), (int) this.client.mouse.getX(), (int) this.client.mouse.getY());
             info.cancel();
         }

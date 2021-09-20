@@ -51,7 +51,7 @@ public abstract class WanderingTraderEntityRendererMixin extends MobEntityRender
     @Override
     public void render(WanderingTraderEntity mobEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
         super.render(mobEntity, f, g, matrixStack, vertexConsumerProvider, i);
-        if (VillagerQuestsMain.CONFIG.showQuestIcon) {
+        if (VillagerQuestsMain.CONFIG.showQuestIcon && this.dispatcher.getSquaredDistanceToCamera(mobEntity) < VillagerQuestsMain.CONFIG.iconDistace) {
             matrixStack.push();
             float height = VillagerQuestsMain.CONFIG.flatQuestIcon ? mobEntity.getHeight() + 1.1F : mobEntity.getHeight() + 2.0F;
             matrixStack.translate(0.0D, height, 0.0D);

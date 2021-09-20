@@ -129,10 +129,10 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
         i = (this.width - this.backgroundWidth) / 2;
         j = (this.height - this.backgroundHeight) / 2;
         RenderSystem.setShaderTexture(0, QuestScreenHandler.GUI_ICONS);
-        if (this.isPointWithinBounds(275, 0, 20, 20, (double) mouseX, (double) mouseY)) {
-            this.drawTexture(matrices, i + 275, j, 60, 0, 20, 20);
+        if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY)) {
+            this.drawTexture(matrices, i + 276, j, 60, 0, 20, 20);
         } else
-            this.drawTexture(matrices, i + 275, j, 40, 0, 20, 20);
+            this.drawTexture(matrices, i + 276, j, 40, 0, 20, 20);
     }
 
     @Override
@@ -216,7 +216,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
             this.scrolling = true;
         }
         // Set villager trade screen
-        if (this.isPointWithinBounds(275, 0, 20, 20, (double) mouseX, (double) mouseY)) {
+        if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY)) {
             // this.onClose(); = brigher background for a mili second
             QuestClientPacket.writeC2STradePacket(this.questScreenHandler.offerer, (int) this.client.mouse.getX(), (int) this.client.mouse.getY());
             closedToTradeScreen = true;

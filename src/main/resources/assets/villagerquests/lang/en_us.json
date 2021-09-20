@@ -1,12 +1,19 @@
 {
+  "category.villagerquests.keybind": "VillagerQuests Keybinds",
+  "key.villagerquests.openquestscreen":"Quest Screen",
+
   "text.autoconfig.villagerquests.title": "Villager Quests Config",
   "text.autoconfig.villagerquests.option.rememberQuests": "Remember Quests",
   "text.autoconfig.villagerquests.option.wanderingTraderDespawnAddition": "Wandering Trader Addition",
   "text.autoconfig.villagerquests.option.showQuestIcon": "Show Quest Icon",
   "text.autoconfig.villagerquests.option.flatQuestIcon": "Flat Quest Icon",
+  "text.autoconfig.villagerquests.option.iconDistace": "Icon Distance",
 
   "text.villagerquests.accept_button": "Accept",
   "text.villagerquests.complete_button": "Complete",
+  "text.villagerquests.info": "Quests",
+  "text.villagerquests.active": "Active",
+  "text.villagerquests.finished": "Finished",
 
   "merchant.quests": "Quests"
 }
