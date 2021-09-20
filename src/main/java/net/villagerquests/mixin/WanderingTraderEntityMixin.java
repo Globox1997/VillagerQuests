@@ -22,24 +22,26 @@ import net.villagerquests.network.QuestServerPacket;
 @Mixin(WanderingTraderEntity.class)
 public abstract class WanderingTraderEntityMixin extends MerchantEntity {
 
+    private final MerchantEntity merchantEntity = (MerchantEntity) (Object) this;
+
     public WanderingTraderEntityMixin(EntityType<? extends MerchantEntity> entityType, World world) {
         super(entityType, world);
     }
 
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/WanderingTraderEntity;sendOffers(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/text/Text;I)V"))
     private void interactMobMixin(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> info) {
-        ((MerchantAccessor) player).setCurrentOfferer((MerchantEntity) (Object) this);
-        QuestServerPacket.writeS2COffererPacket((ServerPlayerEntity) player, (MerchantEntity) (Object) this);
+        ((MerchantAccessor) player).setCurrentOfferer(merchantEntity);
+        QuestServerPacket.writeS2COffererPacket((ServerPlayerEntity) player, merchantEntity, ((MerchantAccessor) merchantEntity).getQuestIdList());
     }
 
     @Inject(method = "tickDespawnDelay", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/WanderingTraderEntity;discard()V"))
     private void tickDespawnDelayMixin(CallbackInfo info) {
-        Quest.failMerchantQuest((WanderingTraderEntity) (Object) this);
+        Quest.failMerchantQuest(merchantEntity);
     }
 
     @Override
     public void onDeath(DamageSource source) {
-        Quest.failMerchantQuest((WanderingTraderEntity) (Object) this);
+        Quest.failMerchantQuest(merchantEntity);
         super.onDeath(source);
     }
 

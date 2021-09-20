@@ -9,14 +9,9 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.passive.MerchantEntity;
-import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.village.VillagerData;
-import net.minecraft.village.VillagerType;
 import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.accessor.MouseAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
@@ -25,19 +20,15 @@ public class QuestClientPacket {
 
     public static void init() {
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_QUEST_OFFERER, (client, handler, buf, sender) -> {
-            if (client.player != null) {
-                MerchantEntity merchantEntity = (MerchantEntity) Registry.ENTITY_TYPE.get(buf.readVarInt()).create(client.world);
-                merchantEntity.setUuid(buf.readUuid());
-                merchantEntity.setId(buf.readVarInt());
-                ((MerchantAccessor) merchantEntity).setQuestIdList(buf.readIntList());
-                if (merchantEntity instanceof VillagerEntity) {
-                    Identifier profession = buf.readIdentifier();
-                    int villagerLevel = buf.readInt();
-                    ((VillagerEntity) merchantEntity).setVillagerData(new VillagerData(VillagerType.PLAINS, Registry.VILLAGER_PROFESSION.get(profession), villagerLevel));
-                }
+            PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
+            newBuffer.writeVarInt(buf.readVarInt());
+            newBuffer.writeIntList(buf.readIntList());
+            client.execute(() -> {
+                MerchantEntity merchantEntity = (MerchantEntity) client.world.getEntityById(newBuffer.readVarInt());
+                ((MerchantAccessor) merchantEntity).setQuestIdList(newBuffer.readIntList());
                 ((MerchantAccessor) client.player).setCurrentOfferer(merchantEntity);
                 merchantEntity.setCurrentCustomer(client.player);
-            }
+            });
         });
 
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.QUEST_KILL_ADDITION, (client, handler, buf, sender) -> {

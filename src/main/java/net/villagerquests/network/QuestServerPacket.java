@@ -19,8 +19,6 @@ import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.village.VillagerData;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
@@ -51,7 +49,7 @@ public class QuestServerPacket {
                 merchantEntity.setCurrentCustomer(player);
                 // Send back to make sure customer is set on client
                 // Maybe unnecessary
-                writeS2COffererPacket(player, merchantEntity);
+                writeS2COffererPacket(player, merchantEntity, ((MerchantAccessor) merchantEntity).getQuestIdList());
                 writeS2CMousePositionPacket(player, buffer.readInt(), buffer.readInt());
             }
         });
@@ -88,18 +86,10 @@ public class QuestServerPacket {
         });
     }
 
-    public static void writeS2COffererPacket(ServerPlayerEntity serverPlayerEntity, MerchantEntity merchantEntity) {
+    public static void writeS2COffererPacket(ServerPlayerEntity serverPlayerEntity, MerchantEntity merchantEntity, List<Integer> list) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeVarInt(Registry.ENTITY_TYPE.getRawId(merchantEntity.getType()));
-        buf.writeUuid(merchantEntity.getUuid());
         buf.writeVarInt(merchantEntity.getId());
-        List<Integer> idList = ((MerchantAccessor) merchantEntity).getQuestIdList();
-        buf.writeIntList(new IntArrayList(idList));
-        if (merchantEntity instanceof VillagerEntity) {
-            VillagerData villagerData = ((VillagerEntity) merchantEntity).getVillagerData();
-            buf.writeIdentifier(Registry.VILLAGER_PROFESSION.getId(villagerData.getProfession()));
-            buf.writeInt(villagerData.getLevel());
-        }
+        buf.writeIntList(new IntArrayList(list));
         CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(SET_QUEST_OFFERER, buf);
         serverPlayerEntity.networkHandler.sendPacket(packet);
     }
@@ -145,26 +135,10 @@ public class QuestServerPacket {
 
     public static void writeS2CMerchantQuestsPacket(ServerPlayerEntity serverPlayerEntity, MerchantEntity merchantEntity, List<Integer> list) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        // buf.writeVarInt(Registry.ENTITY_TYPE.getRawId(merchantEntity.getType()));
-        // buf.writeUuid(merchantEntity.getUuid());
         buf.writeVarInt(merchantEntity.getId());
-        // List<Integer> idList = ((MerchantAccessor) merchantEntity).getQuestIdList();
         buf.writeIntList(new IntArrayList(list));
-        // if (merchantEntity instanceof VillagerEntity) {
-        // VillagerData villagerData = ((VillagerEntity) merchantEntity).getVillagerData();
-        // buf.writeIdentifier(Registry.VILLAGER_PROFESSION.getId(villagerData.getProfession()));
-        // buf.writeInt(villagerData.getLevel());
-        // }
-        // buf.writeIntList(new IntArrayList(list));
         CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(SET_MERCHANT_QUEST, buf);
         serverPlayerEntity.networkHandler.sendPacket(packet);
-
-        // PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        // buf.writeVarInt(Registry.ENTITY_TYPE.getRawId(merchantEntity.getType()));
-        // buf.writeVarInt(merchantEntity.getId());
-        // buf.writeIntList(new IntArrayList(list));
-        // CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(SET_MERCHANT_QUEST, buf);
-        // serverPlayerEntity.networkHandler.sendPacket(packet);
     }
 
 }
