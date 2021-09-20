@@ -1,15 +1,19 @@
 package net.villagerquests.data;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.villagerquests.accessor.PlayerAccessor;
@@ -42,14 +46,14 @@ public class Quest {
 
     public ItemStack getQuestTypeStack() {
         switch (type) {
-        case "fight":
-            return new ItemStack(Items.IRON_SWORD);
-        case "farm":
-            return new ItemStack(Items.IRON_HOE);
-        case "mine":
-            return new ItemStack(Items.IRON_PICKAXE);
-        default:
-            return ItemStack.EMPTY;
+            case "fight":
+                return new ItemStack(Items.IRON_SWORD);
+            case "farm":
+                return new ItemStack(Items.IRON_HOE);
+            case "mine":
+                return new ItemStack(Items.IRON_PICKAXE);
+            default:
+                return ItemStack.EMPTY;
         }
     }
 
@@ -129,16 +133,16 @@ public class Quest {
 
     private String getTranslatedRegistryName(String task, String identifier) {
         switch (task) {
-        case "kill":
-            return Registry.ENTITY_TYPE.get(new Identifier(identifier)).getName().getString();
-        case "farm":
-            return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
-        case "submit":
-            return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
-        case "mine":
-            return Registry.BLOCK.get(new Identifier(identifier)).getName().getString();
-        default:
-            return "";
+            case "kill":
+                return Registry.ENTITY_TYPE.get(new Identifier(identifier)).getName().getString();
+            case "farm":
+                return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
+            case "submit":
+                return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
+            case "mine":
+                return Registry.BLOCK.get(new Identifier(identifier)).getName().getString();
+            default:
+                return "";
         }
     }
 
@@ -217,6 +221,19 @@ public class Quest {
 
     public static Quest getQuestById(int questId) {
         return new Quest(questId);
+    }
+
+    public static void failMerchantQuest(MerchantEntity merchantEntity) {
+        if (merchantEntity.world instanceof ServerWorld) {
+            Iterator<ServerPlayerEntity> var2 = ((ServerWorld) merchantEntity.world).getServer().getPlayerManager().getPlayerList().iterator();
+            while (var2.hasNext()) {
+                ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) var2.next();
+                if (((PlayerAccessor) serverPlayerEntity).getPlayerQuestTraderIdList().contains(merchantEntity.getUuid())) {
+                    ((PlayerAccessor) serverPlayerEntity).failPlayerQuest(
+                            ((PlayerAccessor) serverPlayerEntity).getPlayerQuestIdList().get(((PlayerAccessor) serverPlayerEntity).getPlayerQuestTraderIdList().indexOf(merchantEntity.getUuid())));
+                }
+            }
+        }
     }
 
 }
