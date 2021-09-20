@@ -2,23 +2,21 @@ package net.villagerquests.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 
 import org.spongepowered.asm.mixin.injection.At;
 
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.entity.passive.WanderingTraderEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.village.TradeOfferList;
 import net.minecraft.village.TradeOffers;
 import net.minecraft.village.VillagerData;
 import net.villagerquests.accessor.MerchantAccessor;
+import net.villagerquests.data.Quest;
 import net.villagerquests.network.QuestServerPacket;
 
 @Mixin(VillagerEntity.class)
@@ -30,6 +28,11 @@ public class VillagerEntityMixin {
         QuestServerPacket.writeS2COffererPacket((ServerPlayerEntity) customer, (MerchantEntity) (Object) this);
     }
 
+    @Inject(method = "onDeath", at = @At(value = "HEAD"))
+    private void onDeathMixin(DamageSource source, CallbackInfo info) {
+        Quest.failMerchantQuest((VillagerEntity) (Object) this);
+    }
+
     // Lnet/minecraft/entity/passive/MerchantEntity;fillRecipesFromPool(Lnet/minecraft/village/TradeOfferList;[Lnet/minecraft/village/TradeOffers$Factory;I)V
     // net/minecraft/entity/passive/VillagerEntity.fillRecipesFromPool
     // (Lnet/minecraft/village/TradeOfferList;[Lnet/minecraft/village/TradeOffers$Factory;I)V
@@ -39,7 +42,6 @@ public class VillagerEntityMixin {
     // LocalCapture.CAPTURE_FAILSOFT)
     // protected void fillRecipesMixin(CallbackInfo info, VillagerData villagerData, Int2ObjectMap<TradeOffers.Factory[]> int2ObjectMap, TradeOffers.Factory factorys[], TradeOfferList tradeOfferList)
     // {
-    // // // System.out.println(villagerData.getProfession().getId() + "::XXX::" + villagerData.getProfession().toString());
 
     // // VillagerData villagerData = this.getVillagerData();
     // // Int2ObjectMap<TradeOffers.Factory[]> int2ObjectMap =

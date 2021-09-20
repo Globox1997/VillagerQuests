@@ -15,6 +15,7 @@ import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.village.Merchant;
 import net.minecraft.village.TradeOfferList;
 import net.minecraft.village.TradeOffers;
@@ -23,6 +24,7 @@ import net.minecraft.world.World;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.data.QuestData;
+import net.villagerquests.network.QuestServerPacket;
 
 @Mixin(MerchantEntity.class)
 public abstract class MerchantEntityMixin extends PassiveEntity implements Merchant, MerchantAccessor {
@@ -103,6 +105,13 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
             }
         }
 
+    }
+
+    @Override
+    public void onStartedTrackingBy(ServerPlayerEntity player) {
+        super.onStartedTrackingBy(player);
+        if (!this.questIdList.isEmpty())
+            QuestServerPacket.writeS2CMerchantQuestsPacket(player, (MerchantEntity) (Object) this, this.questIdList);
     }
 
     @Override

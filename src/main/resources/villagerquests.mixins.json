@@ -12,8 +12,10 @@
     "WanderingTraderEntityMixin"
   ],
   "client": [
-    "MerchantScreenMixin",
-    "MouseMixin"
+    "client.MerchantScreenMixin",
+    "client.MouseMixin",
+    "client.VillagerEntityRendererMixin",
+    "client.WanderingTraderEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

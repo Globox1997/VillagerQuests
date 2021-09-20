@@ -89,7 +89,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
                 if (timerList.get(i) != -1) {
                     timerList.set(i, timerList.get(i) + 1);
                     if (isFailingQuest(this.acceptedQuestIdList.get(timerList.indexOf(i)), timerList.get(i)))
-                        failQuest(this.acceptedQuestIdList.get(timerList.indexOf(i)));
+                        failPlayerQuest(this.acceptedQuestIdList.get(timerList.indexOf(i)));
                 }
 
         if (!refreshQuestList.isEmpty())
@@ -193,6 +193,19 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     }
 
     @Override
+    public void failPlayerQuest(int id) {
+        this.finishedQuestIdList.add(id);
+        this.refreshQuestList.add(Quest.getQuestById(id).getQuestRefreshTimer());
+
+        this.acceptedQuestTraderIdList.remove(this.acceptedQuestIdList.indexOf(id));
+        this.killedMobQuestCount.remove(this.acceptedQuestIdList.indexOf(id));
+        this.timerList.remove(this.acceptedQuestIdList.indexOf(id));
+        this.acceptedQuestIdList.remove(id);
+
+        // Send info for failing
+    }
+
+    @Override
     public void addPlayerQuestId(int id, UUID uuid) {
         if (this.acceptedQuestIdList.isEmpty() || !this.acceptedQuestIdList.contains(id)) {
             this.acceptedQuestIdList.add(id);
@@ -219,17 +232,6 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     }
 
     // Methods used in this class
-    private void failQuest(int id) {
-        this.finishedQuestIdList.add(id);
-        this.refreshQuestList.add(Quest.getQuestById(id).getQuestRefreshTimer());
-
-        this.acceptedQuestTraderIdList.remove(this.acceptedQuestIdList.indexOf(id));
-        this.killedMobQuestCount.remove(this.acceptedQuestIdList.indexOf(id));
-        this.timerList.remove(this.acceptedQuestIdList.indexOf(id));
-        this.acceptedQuestIdList.remove(id);
-
-        // Send info for failing
-    }
 
     private void refreshQuest(int index) {
         this.finishedQuestIdList.remove(index);

@@ -15,12 +15,12 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.VillagerEntityRenderer;
+import net.minecraft.client.render.entity.WanderingTraderEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.VillagerResemblingModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.MerchantEntity;
-import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.entity.passive.WanderingTraderEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -33,13 +33,13 @@ import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.data.Quest;
 import net.villagerquests.feature.QuestEntityModel;
 
-@Mixin(VillagerEntityRenderer.class)
-public abstract class VillagerEntityRendererMixin extends MobEntityRenderer<VillagerEntity, VillagerResemblingModel<VillagerEntity>> {
+@Mixin(WanderingTraderEntityRenderer.class)
+public abstract class WanderingTraderEntityRendererMixin extends MobEntityRenderer<WanderingTraderEntity, VillagerResemblingModel<WanderingTraderEntity>> {
     private static final Identifier QUEST_TEXTURE = new Identifier("villagerquests:textures/entity/quest.png");
     private QuestEntityModel<MerchantEntity> questModel;
 
-    public VillagerEntityRendererMixin(EntityRendererFactory.Context context) {
-        super(context, new VillagerResemblingModel<>(context.getPart(EntityModelLayers.VILLAGER)), 0.5F);
+    public WanderingTraderEntityRendererMixin(EntityRendererFactory.Context context) {
+        super(context, new VillagerResemblingModel<>(context.getPart(EntityModelLayers.WANDERING_TRADER)), 0.5F);
 
     }
 
@@ -49,7 +49,7 @@ public abstract class VillagerEntityRendererMixin extends MobEntityRenderer<Vill
     }
 
     @Override
-    public void render(VillagerEntity mobEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+    public void render(WanderingTraderEntity mobEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
         super.render(mobEntity, f, g, matrixStack, vertexConsumerProvider, i);
         if (VillagerQuestsMain.CONFIG.showQuestIcon) {
             matrixStack.push();

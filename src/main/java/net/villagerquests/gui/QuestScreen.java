@@ -94,7 +94,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
 
     private void acceptQuest() {
         acceptButton.setMessage(new TranslatableText("text.villagerquests.complete_button"));
-        QuestClientPacket.acceptMerchantQuestC2SPacket(client.player, this.selectedQuest.getQuestId(), questScreenHandler.offerer.getUuid());
+        QuestClientPacket.acceptMerchantQuestC2SPacket(client.player, this.selectedQuest.getQuestId(), questScreenHandler.offerer.getUuid(), questScreenHandler.offerer.getId());
         if (this.selectedQuest.canCompleteQuest(this.playerEntity))
             this.acceptButton.active = true;
         else

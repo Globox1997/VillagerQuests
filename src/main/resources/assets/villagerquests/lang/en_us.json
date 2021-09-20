@@ -1,8 +1,9 @@
 {
   "text.autoconfig.villagerquests.title": "Villager Quests Config",
-  "text.autoconfig.villagerquests.category.level_setting": "Level Settings",
-  "text.autoconfig.villagerquests.category.default": "Skill Settings",
-  "text.autoconfig.villagerquests.option.hardMode": "Hard Mode",
+  "text.autoconfig.villagerquests.option.rememberQuests": "Remember Quests",
+  "text.autoconfig.villagerquests.option.wanderingTraderDespawnAddition": "Wandering Trader Addition",
+  "text.autoconfig.villagerquests.option.showQuestIcon": "Show Quest Icon",
+  "text.autoconfig.villagerquests.option.flatQuestIcon": "Flat Quest Icon",
 
   "text.villagerquests.accept_button": "Accept",
   "text.villagerquests.complete_button": "Complete",

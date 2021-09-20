@@ -53,12 +53,9 @@ public class QuestClientPacket {
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.PLAYER_QUEST_DATA, (client, handler, buf, sender) -> {
-            System.out.println("PLAYER QUEST DATA TO CLIENT");
-
             if (client.player != null)
                 executePlayerQuestData(client.player, buf);
             else {
-                System.out.println("PLAYER QUEST DATA TO CLIENT LL");
                 PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
                 newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
 
@@ -78,10 +75,18 @@ public class QuestClientPacket {
                 newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
                 newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
                 client.execute(() -> {
-                    System.out.println("PLAYER QUEST DATA TO CLIENT XX");
                     executePlayerQuestData(client.player, newBuffer);
                 });
             }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MERCHANT_QUEST, (client, handler, buf, sender) -> {
+            PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
+            newBuffer.writeVarInt(buf.readVarInt());
+            newBuffer.writeIntList(buf.readIntList());
+            client.execute(() -> {
+                ((MerchantAccessor) client.world.getEntityById(newBuffer.readVarInt())).setQuestIdList(newBuffer.readIntList());
+            });
+
         });
 
     }
@@ -95,13 +100,14 @@ public class QuestClientPacket {
         MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
     }
 
-    public static void acceptMerchantQuestC2SPacket(PlayerEntity playerEntity, int id, UUID uuid) {
+    public static void acceptMerchantQuestC2SPacket(PlayerEntity playerEntity, int questId, UUID uuid, int entityId) {
         // Set on client
-        ((PlayerAccessor) playerEntity).addPlayerQuestId(id, uuid);
+        ((PlayerAccessor) playerEntity).addPlayerQuestId(questId, uuid);
 
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(id);
+        buf.writeInt(questId);
         buf.writeUuid(uuid);
+        buf.writeInt(entityId);
         CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.ACCEPT_MERCHANT_QUEST, buf);
         MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
     }

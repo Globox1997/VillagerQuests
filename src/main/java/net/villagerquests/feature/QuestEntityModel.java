@@ -1,10 +1,7 @@
 package net.villagerquests.feature;
 
-import java.util.List;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelPartBuilder;
@@ -15,16 +12,12 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.MerchantEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.villagerquests.VillagerQuestsMain;
-import net.villagerquests.accessor.MerchantAccessor;
-import net.villagerquests.accessor.PlayerAccessor;
-import net.villagerquests.data.Quest;
 
 @Environment(EnvType.CLIENT)
 public class QuestEntityModel<T extends MerchantEntity> extends EntityModel<T> {
     private final ModelPart exclamation;
     private final ModelPart question;
+    public boolean questionMark = true;
 
     public QuestEntityModel(ModelPart root) {
         this.exclamation = root.getChild("exclamation");
@@ -54,31 +47,10 @@ public class QuestEntityModel<T extends MerchantEntity> extends EntityModel<T> {
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
         this.question.visible = false;
         this.exclamation.visible = false;
-        this.exclamation.pivotY = VillagerQuestsMain.CONFIG.s10;
-        this.question.pivotY = VillagerQuestsMain.CONFIG.s10;
-        PlayerEntity player = MinecraftClient.getInstance().player;
-        List<Integer> merchantQuestList = ((MerchantAccessor) entity).getQuestIdList();
+        if (this.questionMark)
+            this.question.visible = true;
+        else
+            this.exclamation.visible = true;
 
-        // System.out.print(merchantQuestList);
-        // System.out.println(entity.world.getEntityById(5));
-        //
-        if (player != null && !merchantQuestList.isEmpty()) {
-            List<Integer> finishedQuestIdList = ((PlayerAccessor) player).getPlayerFinishedQuestIdList();
-            List<Integer> questIdList = ((PlayerAccessor) player).getPlayerQuestIdList();
-            for (int i = 0; i < merchantQuestList.size(); i++) {
-                int questId = merchantQuestList.get(i);
-                boolean containsQuest = questIdList.contains(questId);
-                if (!containsQuest && !finishedQuestIdList.contains(questId)) {
-                    this.question.visible = true;
-                    break;
-                } else if (containsQuest && ((PlayerAccessor) player).isOriginalQuestGiver(entity.getUuid(), questId) && Quest.getQuestById(questId).canCompleteQuest(player)) {
-                    this.exclamation.visible = true;
-                }
-            }
-            if ((this.question.visible || this.exclamation.visible) && entity.hasCustomName()) {
-                this.exclamation.pivotY = VillagerQuestsMain.CONFIG.s11;
-                this.question.pivotY = VillagerQuestsMain.CONFIG.s11;
-            }
-        }
     }
 }
