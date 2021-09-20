@@ -39,8 +39,6 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     // Mixins
     @Inject(method = "readCustomDataFromNbt", at = @At(value = "TAIL"))
     public void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
-        // Read
-        System.out.println("READ???");
         this.acceptedQuestIdList.clear();
         this.acceptedQuestTraderIdList.clear();
         this.killedMobQuestCount.clear();
@@ -65,9 +63,6 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
 
     @Inject(method = "writeCustomDataToNbt", at = @At(value = "TAIL"))
     public void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
-        // Write
-        System.out.println("WRITE???");
-
         nbt.putIntArray("AcceptedQuests", this.acceptedQuestIdList);
         nbt.putIntArray("FinishedQuests", this.finishedQuestIdList);
         nbt.putIntArray("QuestTimer", this.timerList);
@@ -178,7 +173,6 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     @Override
     public void finishPlayerQuest(int id) {
         Quest quest = Quest.getQuestById(id);
-        System.out.println(quest);
         this.finishedQuestIdList.add(id);
         this.refreshQuestList.add(quest.getQuestRefreshTimer());
 
@@ -200,7 +194,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
         this.acceptedQuestTraderIdList.remove(this.acceptedQuestIdList.indexOf(id));
         this.killedMobQuestCount.remove(this.acceptedQuestIdList.indexOf(id));
         this.timerList.remove(this.acceptedQuestIdList.indexOf(id));
-        this.acceptedQuestIdList.remove(id);
+        this.acceptedQuestIdList.remove(this.acceptedQuestIdList.indexOf(id));
 
         // Send info for failing
     }
@@ -212,13 +206,11 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
             this.acceptedQuestTraderIdList.add(uuid);
             this.killedMobQuestCount.add(Quest.getQuestById(id).getKillTaskEntityIds());
             this.timerList.add(Quest.getQuestById(id).getQuestTimer());
-            System.out.println("Add Quest: " + this.acceptedQuestIdList);
         }
         if (this.finishedQuestIdList.contains(id)) {
             this.refreshQuestList.remove(this.finishedQuestIdList.indexOf(id));
-            this.finishedQuestIdList.remove(id);
+            this.finishedQuestIdList.remove(this.finishedQuestIdList.indexOf(id));
         }
-        System.out.println("Quest got Added?");
     }
 
     @Override

@@ -30,10 +30,10 @@ public class ServerPlayerEntityMixin {
     // }
 
     // Gets called on screen opening???
-    @Inject(method = "onSpawn", at = @At(value = "TAIL"))
-    private void onSpawnMixin(CallbackInfo info) {
-        System.out.println("ON SPAWN");
-        QuestServerPacket.writeS2CPlayerQuestDataPacket((ServerPlayerEntity) (Object) this);
-    }
+    // @Inject(method = "onSpawn", at = @At(value = "TAIL"))
+    // private void onSpawnMixin(CallbackInfo info) {
+    // System.out.println("ON SPAWN");
+    // QuestServerPacket.writeS2CPlayerQuestDataPacket((ServerPlayerEntity) (Object) this);
+    // }
 
 }

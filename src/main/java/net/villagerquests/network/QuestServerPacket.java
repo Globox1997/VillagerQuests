@@ -20,7 +20,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.villagerquests.VillagerQuestsMain;
-import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.gui.QuestScreenHandler;
 
@@ -49,7 +48,7 @@ public class QuestServerPacket {
                 merchantEntity.setCurrentCustomer(player);
                 // Send back to make sure customer is set on client
                 // Maybe unnecessary
-                writeS2COffererPacket(player, merchantEntity, ((MerchantAccessor) merchantEntity).getQuestIdList());
+                // writeS2COffererPacket(player, merchantEntity, ((MerchantAccessor) merchantEntity).getQuestIdList());
                 writeS2CMousePositionPacket(player, buffer.readInt(), buffer.readInt());
             }
         });
