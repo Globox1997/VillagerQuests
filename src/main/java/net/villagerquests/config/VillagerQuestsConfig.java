@@ -28,5 +28,7 @@ public class VillagerQuestsConfig implements ConfigData {
     public boolean flatQuestIcon = true;
     @Comment("Squared distance showing up quest icon")
     public double iconDistace = 300.0D;
+    @Comment("Loose quests on death")
+    public boolean hardMode = false;
 
 }

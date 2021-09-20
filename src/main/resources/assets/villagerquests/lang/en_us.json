@@ -8,6 +8,7 @@
   "text.autoconfig.villagerquests.option.showQuestIcon": "Show Quest Icon",
   "text.autoconfig.villagerquests.option.flatQuestIcon": "Flat Quest Icon",
   "text.autoconfig.villagerquests.option.iconDistace": "Icon Distance",
+  "text.autoconfig.villagerquests.option.hardMode": "Hard Mode",
 
   "text.villagerquests.accept_button": "Accept",
   "text.villagerquests.complete_button": "Complete",

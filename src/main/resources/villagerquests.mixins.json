@@ -5,11 +5,11 @@
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "VillagerEntityMixin",
-    "MerchantScreenHandlerMixin",
     "MerchantEntityMixin",
     "PlayerEntityMixin",
     "ServerPlayerEntityMixin",
-    "WanderingTraderEntityMixin"
+    "WanderingTraderEntityMixin",
+    "PlayerManagerMixin"
   ],
   "client": [
     "client.MerchantScreenMixin",
