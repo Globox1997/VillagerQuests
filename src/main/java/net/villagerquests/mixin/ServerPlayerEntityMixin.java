@@ -29,6 +29,7 @@ public class ServerPlayerEntityMixin {
     // // return OptionalInt.empty();
     // }
 
+    // Gets called on screen opening???
     @Inject(method = "onSpawn", at = @At(value = "TAIL"))
     private void onSpawnMixin(CallbackInfo info) {
         System.out.println("ON SPAWN");

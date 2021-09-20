@@ -21,22 +21,8 @@ public class VillagerQuestsMain implements ModInitializer {
 
     @Override
     public void onInitialize() {
-
-        // QUEST_SCREEN_HANDLER_TYPE = ScreenHandlerRegistry.registerSimple(new Identifier("villagerquests", "quest_screen_type"),
-        // (syncId, inventory) -> new QuestScreenHandler(syncId, inventory, ScreenHandlerContext.EMPTY, null));
-
-        // Screenhandlercontext can be erased?
         QUEST_SCREEN_HANDLER_TYPE = ScreenHandlerRegistry.registerSimple(new Identifier("villagerquests", "quest_screen_type"),
                 (syncId, inventory) -> new QuestScreenHandler(syncId, inventory, ScreenHandlerContext.EMPTY, new MerchantScreenHandler(syncId, inventory)));
-        // int syncId, PlayerInventory inventory, PacketByteBuf buf
-        // QUEST_SCREEN_HANDLER_TYPE = ScreenHandlerRegistry.registerExtended(new Identifier("villagerquests", "quest_screen_type"),
-        // (syncId, inventory,buf) -> new QuestScreenHandler(syncId, inventory, ScreenHandlerContext.EMPTY, new MerchantScreenHandler(syncId, inventory)));
-
-        // (MerchantScreenHandler) inventory.player.currentScreenHandler
-        // COPPER_CHEST = ScreenHandlerRegistry.registerSimple(new Identifier(IronChests.MOD_ID, "copper_chest"),
-        // (syncId, inventory) -> new ChestScreenHandler(COPPER_CHEST, ChestTypes.COPPER, syncId, inventory, ScreenHandlerContext.EMPTY));
-        // System.out.println(QUEST_SCREEN_HANDLER_TYPE);
-
         AutoConfig.register(VillagerQuestsConfig.class, JanksonConfigSerializer::new);
         CONFIG = AutoConfig.getConfigHolder(VillagerQuestsConfig.class).getConfig();
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new QuestLoader());
