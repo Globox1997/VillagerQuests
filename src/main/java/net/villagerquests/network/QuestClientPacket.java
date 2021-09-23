@@ -43,7 +43,7 @@ public class QuestClientPacket {
                 ((MouseAccessor) client.mouse).setMousePosition(mouseX, mouseY);
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.PLAYER_QUEST_DATA, (client, handler, buf, sender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SYNC_PLAYER_QUEST_DATA, (client, handler, buf, sender) -> {
             if (client.player != null)
                 executePlayerQuestData(client.player, buf);
             else {
@@ -70,14 +70,22 @@ public class QuestClientPacket {
                 });
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MERCHANT_QUEST, (client, handler, buf, sender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.FAIL_MERCHANT_QUEST, (client, handler, buf, sender) -> {
             PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
-            newBuffer.writeVarInt(buf.readVarInt());
-            newBuffer.writeIntList(buf.readIntList());
+            newBuffer.writeInt(buf.readInt());
+            newBuffer.writeInt(buf.readInt());
             client.execute(() -> {
-                ((MerchantAccessor) client.world.getEntityById(newBuffer.readVarInt())).setQuestIdList(newBuffer.readIntList());
+                ((PlayerAccessor) client.player).failPlayerQuest(newBuffer.readInt(), newBuffer.readInt());
             });
 
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MOUSE_POSITION, (client, handler, buf, sender) -> {
+            int mouseX = buf.readInt();
+            int mouseY = buf.readInt();
+            client.execute(() -> {
+                ((MouseAccessor) client.mouse).setMousePosition(mouseX, mouseY);
+            });
         });
 
     }
@@ -122,7 +130,7 @@ public class QuestClientPacket {
     public static void writeC2SQuestCompletionPacket(int questId) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(questId);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.COMPLET_MERCHANT_QUEST, buf);
+        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.COMPLETE_MERCHANT_QUEST, buf);
         MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
     }
 

@@ -36,12 +36,12 @@ public abstract class WanderingTraderEntityMixin extends MerchantEntity {
 
     @Inject(method = "tickDespawnDelay", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/WanderingTraderEntity;discard()V"))
     private void tickDespawnDelayMixin(CallbackInfo info) {
-        Quest.failMerchantQuest(merchantEntity);
+        Quest.failMerchantQuest(merchantEntity, 1);
     }
 
     @Override
     public void onDeath(DamageSource source) {
-        Quest.failMerchantQuest(merchantEntity);
+        Quest.failMerchantQuest(merchantEntity, 2);
         super.onDeath(source);
     }
 

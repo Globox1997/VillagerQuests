@@ -17,6 +17,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.registry.Registry;
 import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
@@ -79,22 +80,21 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     private void tickMixin(CallbackInfo info) {
-        if (!timerList.isEmpty())
-            for (int i = 0; i < timerList.size(); i++)
-                if (timerList.get(i) != -1) {
-                    timerList.set(i, timerList.get(i) + 1);
-                    if (isFailingQuest(this.acceptedQuestIdList.get(timerList.indexOf(i)), timerList.get(i)))
-                        failPlayerQuest(this.acceptedQuestIdList.get(timerList.indexOf(i)));
+        if (!this.timerList.isEmpty())
+            for (int i = 0; i < this.timerList.size(); i++)
+                if (this.timerList.get(i) != -1) {
+                    this.timerList.set(i, this.timerList.get(i) - 1);
+                    if (isFailingOrRefreshQuest(this.timerList.get(i)))
+                        failPlayerQuest(this.acceptedQuestIdList.get(this.timerList.indexOf(this.timerList.get(i))), 0);
                 }
 
-        if (!refreshQuestList.isEmpty())
-            for (int u = 0; u < refreshQuestList.size(); u++)
-                if (refreshQuestList.get(u) != -1) {
-                    refreshQuestList.set(u, refreshQuestList.get(u) + 1);
-                    if (canRefreshQuest(finishedQuestIdList.get(refreshQuestList.indexOf(u)), refreshQuestList.get(u)))
-                        refreshQuest(refreshQuestList.indexOf(u));
+        if (!this.refreshQuestList.isEmpty())
+            for (int u = 0; u < this.refreshQuestList.size(); u++)
+                if (this.refreshQuestList.get(u) != -1) {
+                    this.refreshQuestList.set(u, this.refreshQuestList.get(u) - 1);
+                    if (isFailingOrRefreshQuest(this.refreshQuestList.get(u)))
+                        refreshQuest(this.refreshQuestList.indexOf(this.refreshQuestList.get(u)));
                 }
-
     }
 
     // Only called on Server
@@ -187,9 +187,10 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     }
 
     @Override
-    public void failPlayerQuest(int id) {
+    public void failPlayerQuest(int id, int reason) {
         this.finishedQuestIdList.add(id);
-        this.refreshQuestList.add(Quest.getQuestById(id).getQuestRefreshTimer());
+        Quest quest = Quest.getQuestById(id);
+        this.refreshQuestList.add(quest.getQuestRefreshTimer());
 
         this.acceptedQuestTraderIdList.remove(this.acceptedQuestIdList.indexOf(id));
         this.killedMobQuestCount.remove(this.acceptedQuestIdList.indexOf(id));
@@ -197,6 +198,15 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
         this.acceptedQuestIdList.remove(this.acceptedQuestIdList.indexOf(id));
 
         // Send info for failing
+        if (!playerEntity.world.isClient) {
+            if (reason == 0)
+                playerEntity.sendMessage(new TranslatableText("text.villagerquests.questTimeout", quest.getTitle()), true);
+            else if (reason == 1)
+                playerEntity.sendMessage(new TranslatableText("text.villagerquests.questGiverDespawn", quest.getTitle()), true);
+            else
+                playerEntity.sendMessage(new TranslatableText("text.villagerquests.questGiverDied", quest.getTitle()), true);
+        }
+
     }
 
     @Override
@@ -207,6 +217,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
             this.killedMobQuestCount.add(Quest.getQuestById(id).getKillTaskEntityIds());
             this.timerList.add(Quest.getQuestById(id).getQuestTimer());
         }
+
         if (this.finishedQuestIdList.contains(id)) {
             this.refreshQuestList.remove(this.finishedQuestIdList.indexOf(id));
             this.finishedQuestIdList.remove(this.finishedQuestIdList.indexOf(id));
@@ -230,17 +241,10 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
         this.refreshQuestList.remove(index);
     }
 
-    private boolean isFailingQuest(int id, int time) {
-        if (Quest.getQuestById(id).getQuestTimer() <= time)
+    private boolean isFailingOrRefreshQuest(int time) {
+        if (time <= 0) {
             return true;
-        else
-            return false;
-    }
-
-    private boolean canRefreshQuest(int id, int time) {
-        if (Quest.getQuestById(id).getQuestRefreshTimer() <= time)
-            return true;
-        else
+        } else
             return false;
     }
 

@@ -30,11 +30,12 @@ public class QuestServerPacket {
     public static final Identifier CLOSE_SCREEN = new Identifier("levelz", "close_screen");
     public static final Identifier SET_QUEST_OFFERER = new Identifier("levelz", "set_quest_offerer");
     public static final Identifier ACCEPT_MERCHANT_QUEST = new Identifier("levelz", "accept_merchant_quest");
-    public static final Identifier COMPLET_MERCHANT_QUEST = new Identifier("levelz", "complet_merchant_quest");
+    public static final Identifier COMPLETE_MERCHANT_QUEST = new Identifier("levelz", "complete_merchant_quest");
     public static final Identifier QUEST_KILL_ADDITION = new Identifier("levelz", "quest_kill_addition");
     public static final Identifier SET_MOUSE_POSITION = new Identifier("levelz", "set_mouse_position");
-    public static final Identifier PLAYER_QUEST_DATA = new Identifier("levelz", "player_quest_data");
+    public static final Identifier SYNC_PLAYER_QUEST_DATA = new Identifier("levelz", "sync_player_quest_data");
     public static final Identifier SET_MERCHANT_QUEST = new Identifier("levelz", "set_merchant_quest");
+    public static final Identifier FAIL_MERCHANT_QUEST = new Identifier("levelz", "fail_merchant_quest");
 
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(SET_QUEST_SCREEN, (server, player, handler, buffer, sender) -> {
@@ -78,7 +79,7 @@ public class QuestServerPacket {
                 ((MerchantEntity) player.world.getEntityById(buffer.readVarInt())).setCurrentCustomer(null);
             }
         });
-        ServerPlayNetworking.registerGlobalReceiver(COMPLET_MERCHANT_QUEST, (server, player, handler, buffer, sender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(COMPLETE_MERCHANT_QUEST, (server, player, handler, buffer, sender) -> {
             if (player != null) {
                 ((PlayerAccessor) player).finishPlayerQuest(buffer.readInt());
             }
@@ -120,7 +121,7 @@ public class QuestServerPacket {
         buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerQuestTimerList()));
         buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerQuestRefreshTimerList()));
 
-        CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(PLAYER_QUEST_DATA, buf);
+        CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(SYNC_PLAYER_QUEST_DATA, buf);
         ((ServerPlayerEntity) playerEntity).networkHandler.sendPacket(packet);
     }
 
@@ -137,6 +138,14 @@ public class QuestServerPacket {
         buf.writeVarInt(merchantEntity.getId());
         buf.writeIntList(new IntArrayList(list));
         CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(SET_MERCHANT_QUEST, buf);
+        serverPlayerEntity.networkHandler.sendPacket(packet);
+    }
+
+    public static void writeS2CFailQuestPacket(ServerPlayerEntity serverPlayerEntity, int questId, int reason) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(questId);
+        buf.writeInt(reason);
+        CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(FAIL_MERCHANT_QUEST, buf);
         serverPlayerEntity.networkHandler.sendPacket(packet);
     }
 

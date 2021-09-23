@@ -51,7 +51,8 @@ public abstract class VillagerEntityRendererMixin extends MobEntityRenderer<Vill
     @Override
     public void render(VillagerEntity mobEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
         super.render(mobEntity, f, g, matrixStack, vertexConsumerProvider, i);
-        if (VillagerQuestsMain.CONFIG.showQuestIcon && this.dispatcher.getSquaredDistanceToCamera(mobEntity) < VillagerQuestsMain.CONFIG.iconDistace) {
+        if (VillagerQuestsMain.CONFIG.showQuestIcon && this.dispatcher.getSquaredDistanceToCamera(mobEntity) < VillagerQuestsMain.CONFIG.iconDistace
+                && mobEntity.world.getBlockState(mobEntity.getBlockPos().up(2)).isAir()) {
             matrixStack.push();
             float height = VillagerQuestsMain.CONFIG.flatQuestIcon ? mobEntity.getHeight() + 1.1F : mobEntity.getHeight() + 2.0F;
             matrixStack.translate(0.0D, height, 0.0D);
@@ -63,8 +64,8 @@ public abstract class VillagerEntityRendererMixin extends MobEntityRenderer<Vill
                 matrixStack.scale(-0.1F, -0.1F, 0.1F);
             else
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);
-
-            PlayerEntity player = MinecraftClient.getInstance().player;
+            MinecraftClient minecraftClient = MinecraftClient.getInstance();
+            PlayerEntity player = minecraftClient.player;
             List<Integer> merchantQuestList = ((MerchantAccessor) mobEntity).getQuestIdList();
             if (player != null && !merchantQuestList.isEmpty()) {
                 List<Integer> finishedQuestIdList = ((PlayerAccessor) player).getPlayerFinishedQuestIdList();
