@@ -35,12 +35,13 @@ public class QuestScreenHandler extends SyncedGuiDescription {
         Iterator<Integer> iterator = this.questIdList.iterator();
         while (iterator.hasNext()) {
             int check = iterator.next();
-            if ((((PlayerAccessor) playerInventory.player).getPlayerQuestIdList().contains(this.questIdList.get(this.questIdList.indexOf(check)))
-                    && !((PlayerAccessor) playerInventory.player).isOriginalQuestGiver(offerer.getUuid(), this.questIdList.get(this.questIdList.indexOf(check))))
-                    || (((PlayerAccessor) playerInventory.player).getPlayerFinishedQuestIdList().contains(this.questIdList.get(this.questIdList.indexOf(check)))
-                            && ((PlayerAccessor) playerInventory.player).getPlayerQuestRefreshTimerList()
-                                    .get(((PlayerAccessor) playerInventory.player).getPlayerFinishedQuestIdList().indexOf(this.questIdList.get(this.questIdList.indexOf(check)))) != -1))
+            int questId = this.questIdList.get(this.questIdList.indexOf(check));
+            if ((((PlayerAccessor) playerInventory.player).getPlayerQuestIdList().contains(questId) && !((PlayerAccessor) playerInventory.player).isOriginalQuestGiver(offerer.getUuid(), questId))
+                    || (((PlayerAccessor) playerInventory.player).getPlayerFinishedQuestIdList().contains(questId) && ((PlayerAccessor) playerInventory.player).getPlayerQuestRefreshTimerList()
+                            .get(((PlayerAccessor) playerInventory.player).getPlayerFinishedQuestIdList().indexOf(questId)).equals(-1))) {
                 iterator.remove();
+            }
+
         }
 
         WPlainPanel root = new WPlainPanel();
