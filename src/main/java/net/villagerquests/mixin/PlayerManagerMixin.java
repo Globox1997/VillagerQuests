@@ -25,6 +25,7 @@ public class PlayerManagerMixin {
     @Inject(method = "onPlayerConnect", at = @At(value = "TAIL"))
     private void onPlayerConnectMixin(ClientConnection connection, ServerPlayerEntity player, CallbackInfo info) {
         QuestServerPacket.writeS2CPlayerQuestDataPacket(player);
+        QuestServerPacket.writeS2CQuestListPacket(player);
     }
 
     @Inject(method = "respawnPlayer", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)

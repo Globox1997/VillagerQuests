@@ -4,18 +4,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
+import net.villagerquests.VillagerQuestsMain;
 
 public class QuestLoader implements SimpleSynchronousResourceReloadListener {
-    private static final Logger LOGGER = LogManager.getLogger("VillagerQuests");
 
     @Override
     public Identifier getFabricId() {
@@ -24,13 +21,13 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
 
     @Override
     public void reload(ResourceManager manager) {
-        this.clearEveryList();
+        QuestLoader.clearEveryList();
         for (Identifier id : manager.findResources("quests", path -> path.endsWith(".json"))) {
             try {
                 InputStream stream = manager.getResource(id).getInputStream();
                 JsonObject data = new JsonParser().parse(new InputStreamReader(stream)).getAsJsonObject();
                 if (QuestData.idList.contains(data.get("id").getAsInt())) {
-                    LOGGER.error("Error occurred while loading resource {}. Quest with Id: {} got loaded more than one time", id.toString(), data.get("id").getAsInt());
+                    VillagerQuestsMain.LOGGER.error("Error occurred while loading resource {}. Quest with Id: {} got loaded more than one time", id.toString(), data.get("id").getAsInt());
                 }
                 // Id
                 QuestData.idList.add(data.get("id").getAsInt());
@@ -76,13 +73,13 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                     QuestData.timerList.add(-1);
 
             } catch (Exception e) {
-                LOGGER.error("Error occurred while loading resource {}. {}", id.toString(), e.toString());
+                VillagerQuestsMain.LOGGER.error("Error occurred while loading resource {}. {}", id.toString(), e.toString());
             }
         }
 
     }
 
-    private void clearEveryList() {
+    public static void clearEveryList() {
         QuestData.descriptionList.clear();
         QuestData.experienceList.clear();
         QuestData.idList.clear();

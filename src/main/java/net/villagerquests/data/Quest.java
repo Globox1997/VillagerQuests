@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,6 +15,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.network.QuestServerPacket;
 
@@ -30,8 +29,6 @@ public class Quest {
     private final int refreshTime;
     private final List<Object> taskList = new ArrayList<>();
     private final List<Object> rewardList = new ArrayList<>();
-
-    private static final Logger LOGGER = LogManager.getLogger("VillagerQuests");
 
     public Quest(int id) {
         this.id = id;
@@ -93,7 +90,7 @@ public class Quest {
                         + getTranslatedRegistryName(task, (String) this.taskList.get(i * 3 + 1)) + (count > 1 ? new TranslatableText("text.villagerquests.stringAddition").getString() : "");
             }
         } catch (Exception e) {
-            LOGGER.error("Error occurred while loading quest tasks {}. {}", this.title, e.toString());
+            VillagerQuestsMain.LOGGER.error("Error occurred while loading quest tasks {}. {}", this.title, e.toString());
         }
 
         return taskListString;
@@ -112,7 +109,7 @@ public class Quest {
                         + (count > 1 ? new TranslatableText("text.villagerquests.stringAddition").getString() : "");
             }
         } catch (Exception e) {
-            LOGGER.error("Error occurred while loading quest rewards {}. {}", this.title, e.toString());
+            VillagerQuestsMain.LOGGER.error("Error occurred while loading quest rewards {}. {}", this.title, e.toString());
         }
 
         return taskListString;

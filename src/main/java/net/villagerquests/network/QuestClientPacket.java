@@ -8,6 +8,7 @@ import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
@@ -15,6 +16,8 @@ import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.accessor.MouseAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
+import net.villagerquests.data.QuestData;
+import net.villagerquests.data.QuestLoader;
 
 public class QuestClientPacket {
 
@@ -87,6 +90,19 @@ public class QuestClientPacket {
                 ((MouseAccessor) client.mouse).setMousePosition(mouseX, mouseY);
             });
         });
+        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.QUEST_LIST_DATA, (client, handler, buf, sender) -> {
+            if (client.player != null) {
+                executeListPacket(buf, client.player);
+            } else {
+                PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
+                while (buf.isReadable()) {
+                    newBuffer.writeString(buf.readString());
+                }
+                client.execute(() -> {
+                    executeListPacket(newBuffer, client.player);
+                });
+            }
+        });
 
     }
 
@@ -153,6 +169,51 @@ public class QuestClientPacket {
         List<Integer> timers = buf.readIntList();
         List<Integer> refreshTimers = buf.readIntList();
         ((PlayerAccessor) player).syncPlayerQuest(questIds, killedMobQuestCount, traderUuids, finishedIds, timers, refreshTimers);
+    }
+
+    private static void executeListPacket(PacketByteBuf buf, ClientPlayerEntity player) {
+        QuestLoader.clearEveryList();
+        ArrayList<String> list = new ArrayList<>();
+        while (buf.isReadable()) {
+            list.add(buf.readString());
+        }
+        for (int i = 0; i < list.size(); i++) {
+            String listName = list.get(i).toString();
+            if (listName.equals("questTaskList") || listName.equals("questRewardList")) {
+                List<Object> newList = new ArrayList<>();
+                for (int u = i + 1; u < list.size(); u++) {
+                    String object = list.get(u).toString();
+                    if (QuestData.getList(object) != null)
+                        break;
+                    else if (object.equals("stop")) {
+                        addToList(listName, null, newList);
+                        newList.clear();
+                    } else if (object.matches("-?(0|[1-9]\\d*)")) {
+                        newList.add(Integer.parseInt(object));
+                    } else
+                        newList.add(object);
+                }
+
+            } else if (QuestData.getList(listName) != null) {
+                for (int u = i + 1; u < list.size(); u++) {
+                    String object = list.get(u).toString();
+                    if (QuestData.getList(object) == null)
+                        addToList(listName, object, null);
+                    else
+                        break;
+                }
+            }
+        }
+    }
+
+    private static void addToList(String listName, String object, List<Object> list) {
+        if (list != null) {
+            QuestData.getList(listName).add(new ArrayList<Object>(list));
+
+        } else if (object.matches("-?(0|[1-9]\\d*)")) {
+            QuestData.getList(listName).add(Integer.parseInt(object));
+        } else
+            QuestData.getList(listName).add(object);
     }
 
 }

@@ -21,6 +21,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.PlayerAccessor;
+import net.villagerquests.data.QuestData;
 import net.villagerquests.gui.QuestScreenHandler;
 
 public class QuestServerPacket {
@@ -36,6 +37,7 @@ public class QuestServerPacket {
     public static final Identifier SYNC_PLAYER_QUEST_DATA = new Identifier("levelz", "sync_player_quest_data");
     public static final Identifier SET_MERCHANT_QUEST = new Identifier("levelz", "set_merchant_quest");
     public static final Identifier FAIL_MERCHANT_QUEST = new Identifier("levelz", "fail_merchant_quest");
+    public static final Identifier QUEST_LIST_DATA = new Identifier("levelz", "quest_list_data");
 
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(SET_QUEST_SCREEN, (server, player, handler, buffer, sender) -> {
@@ -146,6 +148,31 @@ public class QuestServerPacket {
         buf.writeInt(questId);
         buf.writeInt(reason);
         CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(FAIL_MERCHANT_QUEST, buf);
+        serverPlayerEntity.networkHandler.sendPacket(packet);
+    }
+
+    public static void writeS2CQuestListPacket(ServerPlayerEntity serverPlayerEntity) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        for (int i = 0; i < QuestData.getListNames().size(); i++) {
+            String listName = QuestData.getListNames().get(i);
+            if (listName.equals("questTaskList") || listName.equals("questRewardList")) {
+                List<List<Object>> list = QuestData.getList(listName);
+                buf.writeString(listName);
+                for (int k = 0; k < list.size(); k++) {
+                    for (int u = 0; u < list.get(k).size(); u++) {
+                        buf.writeString(list.get(k).get(u).toString());
+                    }
+                    buf.writeString("stop");
+                }
+            } else {
+                List list = QuestData.getList(listName);
+                buf.writeString(listName);
+                for (int u = 0; u < list.size(); u++) {
+                    buf.writeString(list.get(u).toString());
+                }
+            }
+        }
+        CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(QUEST_LIST_DATA, buf);
         serverPlayerEntity.networkHandler.sendPacket(packet);
     }
 

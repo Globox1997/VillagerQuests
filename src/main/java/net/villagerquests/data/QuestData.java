@@ -3,6 +3,8 @@ package net.villagerquests.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+
 public class QuestData {
     // Id
     public static final List<Integer> idList = new ArrayList<>();
@@ -26,5 +28,51 @@ public class QuestData {
     public static final List<Integer> refreshTimeList = new ArrayList<>();
     // Timer
     public static final List<Integer> timerList = new ArrayList<>();
+
+    @Nullable
+    public static List getList(String string) {
+        switch (string) {
+            case "questIdList":
+                return idList;
+            case "questTitleList":
+                return titleList;
+            case "questLevelList":
+                return levelList;
+            case "questTypeList":
+                return typeList;
+            case "questProfessionList":
+                return professionList;
+            case "questTaskList":
+                return taskList;
+            case "questDecriptionList":
+                return descriptionList;
+            case "questExperienceList":
+                return experienceList;
+            case "questRewardList":
+                return rewardList;
+            case "questRefreshTimeList":
+                return refreshTimeList;
+            case "questTimerList":
+                return timerList;
+            default:
+                return null;
+        }
+    }
+
+    public static ArrayList<String> getListNames() {
+        ArrayList<String> listNames = new ArrayList<String>();
+        listNames.add("questIdList");
+        listNames.add("questTitleList");
+        listNames.add("questLevelList");
+        listNames.add("questTypeList");
+        listNames.add("questProfessionList");
+        listNames.add("questTaskList");
+        listNames.add("questDecriptionList");
+        listNames.add("questExperienceList");
+        listNames.add("questRewardList");
+        listNames.add("questRefreshTimeList");
+        listNames.add("questTimerList");
+        return listNames;
+    }
 
 }
