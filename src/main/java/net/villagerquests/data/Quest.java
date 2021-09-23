@@ -14,9 +14,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.villagerquests.accessor.PlayerAccessor;
+import net.villagerquests.network.QuestServerPacket;
 
 public class Quest {
     private final int id;
@@ -73,14 +75,22 @@ public class Quest {
         return experience;
     }
 
+    public int getQuestTimer() {
+        return timer;
+    }
+
+    public int getQuestRefreshTimer() {
+        return refreshTime;
+    }
+
     public String[] getStringTasks() {
         String[] taskListString = new String[this.taskList.size() / 3];
         try {
             for (int i = 0; i < this.taskList.size() / 3; i++) {
                 String task = (String) this.taskList.get(i * 3);
                 int count = (int) this.taskList.get(i * 3 + 2);
-                taskListString[i] = "Task " + i + " - " + WordUtils.capitalize(task) + " " + count + " " + getTranslatedRegistryName(task, (String) this.taskList.get(i * 3 + 1))
-                        + (count > 1 ? "s" : "");
+                taskListString[i] = new TranslatableText("text.villagerquests.task").getString() + (i + 1) + " - " + WordUtils.capitalize(task) + " " + count + " "
+                        + getTranslatedRegistryName(task, (String) this.taskList.get(i * 3 + 1)) + (count > 1 ? new TranslatableText("text.villagerquests.stringAddition").getString() : "");
             }
         } catch (Exception e) {
             LOGGER.error("Error occurred while loading quest tasks {}. {}", this.title, e.toString());
@@ -93,12 +103,13 @@ public class Quest {
         boolean rewardsExperience = getExperienceAmount() > 0;
         String[] taskListString = new String[this.rewardList.size() / 2 + (rewardsExperience ? 1 : 0)];
         if (rewardsExperience) {
-            taskListString[0] = getExperienceAmount() + " Experience";
+            taskListString[0] = getExperienceAmount() + new TranslatableText("text.villagerquests.experience").getString();
         }
         try {
             for (int i = 0; i < this.rewardList.size() / 2; i++) {
                 int count = (int) this.rewardList.get(i * 2 + 1);
-                taskListString[i + (rewardsExperience ? 1 : 0)] = count + " " + getTranslatedRegistryName("submit", (String) this.rewardList.get(i * 2)) + (count > 1 ? "s" : "");
+                taskListString[i + (rewardsExperience ? 1 : 0)] = count + " " + getTranslatedRegistryName("submit", (String) this.rewardList.get(i * 2))
+                        + (count > 1 ? new TranslatableText("text.villagerquests.stringAddition").getString() : "");
             }
         } catch (Exception e) {
             LOGGER.error("Error occurred while loading quest rewards {}. {}", this.title, e.toString());
@@ -107,12 +118,16 @@ public class Quest {
         return taskListString;
     }
 
-    public int getQuestTimer() {
-        return timer;
+    public String getTimerString() {
+        int seconds = timer / 20;
+        if (seconds >= 3600)
+            return String.format("%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
+        else
+            return String.format("%02d:%02d", (seconds % 3600) / 60, (seconds % 60));
     }
 
-    public int getQuestRefreshTimer() {
-        return refreshTime;
+    public int getTaskCount(int index) {
+        return (int) this.taskList.get(index * 3 + 2);
     }
 
     public ItemStack getTaskStack(int index) {
@@ -223,14 +238,16 @@ public class Quest {
         return new Quest(questId);
     }
 
-    public static void failMerchantQuest(MerchantEntity merchantEntity) {
+    public static void failMerchantQuest(MerchantEntity merchantEntity, int reason) {
         if (merchantEntity.world instanceof ServerWorld) {
             Iterator<ServerPlayerEntity> var2 = ((ServerWorld) merchantEntity.world).getServer().getPlayerManager().getPlayerList().iterator();
             while (var2.hasNext()) {
                 ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) var2.next();
                 if (((PlayerAccessor) serverPlayerEntity).getPlayerQuestTraderIdList().contains(merchantEntity.getUuid())) {
-                    ((PlayerAccessor) serverPlayerEntity).failPlayerQuest(
-                            ((PlayerAccessor) serverPlayerEntity).getPlayerQuestIdList().get(((PlayerAccessor) serverPlayerEntity).getPlayerQuestTraderIdList().indexOf(merchantEntity.getUuid())));
+                    int questId = ((PlayerAccessor) serverPlayerEntity).getPlayerQuestIdList()
+                            .get(((PlayerAccessor) serverPlayerEntity).getPlayerQuestTraderIdList().indexOf(merchantEntity.getUuid()));
+                    ((PlayerAccessor) serverPlayerEntity).failPlayerQuest(questId, reason);
+                    QuestServerPacket.writeS2CFailQuestPacket(serverPlayerEntity, questId, reason);
                 }
             }
         }

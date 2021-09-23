@@ -1,6 +1,7 @@
 package net.villagerquests.gui;
 
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -34,7 +35,7 @@ public interface DrawableExtension {
         y = y / 16.0D;
         matrices.translate(x, y, 0.0D);
         matrices.scale(scale, scale, 1.0F);
-        itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GUI, 15728880, OverlayTexture.DEFAULT_UV, matrices, vertexConsumerProvider, 0);
+        itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GUI, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, matrices, vertexConsumerProvider, 0);
         matrices.pop();
     }
 }

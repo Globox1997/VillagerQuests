@@ -27,7 +27,7 @@ public class VillagerEntityMixin {
 
     @Inject(method = "onDeath", at = @At(value = "HEAD"))
     private void onDeathMixin(DamageSource source, CallbackInfo info) {
-        Quest.failMerchantQuest(merchantEntity);
+        Quest.failMerchantQuest(merchantEntity, 2);
     }
 
 }
