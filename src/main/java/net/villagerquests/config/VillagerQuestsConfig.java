@@ -1,23 +1,13 @@
 package net.villagerquests.config;
 
 import me.shedaniel.autoconfig.ConfigData;
-//import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
 @Config(name = "villagerquests")
 @Config.Gui.Background("minecraft:textures/block/stone.png")
 public class VillagerQuestsConfig implements ConfigData {
-    // @ConfigEntry.Category("level_setting")
-
-    public int test0 = 14;
-    public int test1 = 14;
-    public int test2 = 14;
-    public int test3 = 10;
-    public int test4 = 0;
-    public int test5 = 0;
-    public int test6 = 0;
-    public int test7 = 0;
 
     @Comment("Villager will remember quests")
     public boolean rememberQuests = true;
@@ -31,4 +21,45 @@ public class VillagerQuestsConfig implements ConfigData {
     @Comment("Loose quests on death")
     public boolean hardMode = false;
 
+    @ConfigEntry.Category("gui_setting")
+    public int questTabTitleColor = 16777215;
+    @ConfigEntry.Category("gui_setting")
+    public int titleColor = 16777215;
+    @ConfigEntry.Category("gui_setting")
+    public int descriptionColor = 12632256;
+    @ConfigEntry.Category("gui_setting")
+    public int taskHeaderColor = 4210752;
+    @ConfigEntry.Category("gui_setting")
+    public int taskColor = 14540253;
+    @ConfigEntry.Category("gui_setting")
+    public int rewardHeaderColor = 4210752;
+    @ConfigEntry.Category("gui_setting")
+    public int rewardColor = 14540253;
+
+    @ConfigEntry.Category("gui_setting")
+    public int playerInfoColor = 16777215;
+    @ConfigEntry.Category("gui_setting")
+    public int playerActiveColor = 4161378;
+    @ConfigEntry.Category("gui_setting")
+    public int playerFinishedHeaderColor = 8352831;
+    @ConfigEntry.Category("gui_setting")
+    public int playerFinishedColor = 14211288;
+    @ConfigEntry.Category("gui_setting")
+    public int playerTitleColor = 2631720;
+    @ConfigEntry.Category("gui_setting")
+    public int playerDescriptionHeaderColor = 4013373;
+    @ConfigEntry.Category("gui_setting")
+    public int playerDescriptionColor = 14211288;
+    @ConfigEntry.Category("gui_setting")
+    public int playerTaskHeaderColor = 4013373;
+    @ConfigEntry.Category("gui_setting")
+    public int playerTaskColor = 14211288;
+    @ConfigEntry.Category("gui_setting")
+    public int playerRewardHeaderColor = 4013373;
+    @ConfigEntry.Category("gui_setting")
+    public int playerRewardColor = 14211288;
+    @ConfigEntry.Category("gui_setting")
+    public int playerRefreshHeaderColor = 8345919;
+    @ConfigEntry.Category("gui_setting")
+    public int playerRefreshColor = 14211288;
 }
