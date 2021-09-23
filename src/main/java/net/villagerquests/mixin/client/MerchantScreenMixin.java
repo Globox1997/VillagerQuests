@@ -35,9 +35,9 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
 
         RenderSystem.setShaderTexture(0, QuestScreenHandler.GUI_ICONS);
         if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY)) {
-            this.drawTexture(matrices, i + 276, j, 20, 0, 20, 20);
+            MerchantScreenMixin.drawTexture(matrices, i + 276, j, 20, 0, 20, 20, 512, 512);
         } else
-            this.drawTexture(matrices, i + 276, j, 0, 0, 20, 20);
+            MerchantScreenMixin.drawTexture(matrices, i + 276, j, 0, 0, 20, 20, 512, 512);
     }
 
     // In window: 251 and 5
