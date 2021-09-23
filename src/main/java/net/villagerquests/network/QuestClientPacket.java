@@ -103,7 +103,13 @@ public class QuestClientPacket {
                 });
             }
         });
-
+        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MERCHANT_QUEST, (client, handler, buf, sender) -> {
+            int entityId = buf.readVarInt();
+            List<Integer> list = buf.readIntList();
+            client.execute(() -> {
+                ((MerchantAccessor) client.world.getEntityById(entityId)).setQuestIdList(list);
+            });
+        });
     }
 
     public static void writeC2SScreenPacket(MerchantEntity merchantEntity, int mouseX, int mouseY) {
