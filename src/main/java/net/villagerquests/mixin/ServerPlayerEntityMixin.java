@@ -1,7 +1,5 @@
 package net.villagerquests.mixin;
 
-import java.util.OptionalInt;
-
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -9,31 +7,38 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.At;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.villagerquests.accessor.MerchantAccessor;
+import net.minecraft.server.world.ServerWorld;
 import net.villagerquests.network.QuestServerPacket;
 
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin {
 
-    // @Inject(method = "openHandledScreen", at = @At("HEAD"))
-    // private void openHandledScreenMixin(@Nullable NamedScreenHandlerFactory factory, CallbackInfoReturnable<OptionalInt> info) {
-    // System.out.println("JAND");
-    // if (factory != null && ((PlayerEntity) (Object) this).currentScreenHandler.getType().equals(ScreenHandlerType.MERCHANT)) {
-    // System.out.println("OKEEE");
+    private boolean syncQuest = false;
 
-    // }
-    // // return OptionalInt.empty();
-    // }
+    @Inject(method = "playerTick", at = @At(value = "FIELD", target = "Lnet/minecraft/server/network/ServerPlayerEntity;totalExperience:I", ordinal = 0, shift = At.Shift.BEFORE))
+    public void playerTickMixin(CallbackInfo info) {
+        if (this.syncQuest) {
+            QuestServerPacket.writeS2CPlayerQuestDataPacket((ServerPlayerEntity) (Object) this);
+            this.syncQuest = false;
+        }
+    }
 
-    // Gets called on screen opening???
-    // @Inject(method = "onSpawn", at = @At(value = "TAIL"))
-    // private void onSpawnMixin(CallbackInfo info) {
-    // System.out.println("ON SPAWN");
-    // QuestServerPacket.writeS2CPlayerQuestDataPacket((ServerPlayerEntity) (Object) this);
-    // }
+    @Inject(method = "Lnet/minecraft/server/network/ServerPlayerEntity;copyFrom(Lnet/minecraft/server/network/ServerPlayerEntity;Z)V", at = @At(value = "TAIL"))
+    public void copyFromMixinTwo(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo info) {
+        this.syncQuest = true;
+    }
+
+    @Inject(method = "teleport", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayerEntity;setWorld(Lnet/minecraft/server/world/ServerWorld;)V"))
+    void teleportFix(ServerWorld targetWorld, double x, double y, double z, float yaw, float pitch, CallbackInfo info) {
+        this.syncQuest = true;
+    }
+
+    @Nullable
+    @Inject(method = "moveToWorld", at = @At(value = "FIELD", target = "Lnet/minecraft/server/network/ServerPlayerEntity;syncedFoodLevel:I", ordinal = 0))
+    private void moveToWorldMixin(ServerWorld destination, CallbackInfoReturnable<Entity> info) {
+        this.syncQuest = true;
+    }
 
 }
