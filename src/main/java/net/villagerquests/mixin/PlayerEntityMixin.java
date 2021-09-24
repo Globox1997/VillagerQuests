@@ -82,7 +82,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     private void tickMixin(CallbackInfo info) {
         if (!this.timerList.isEmpty())
             for (int i = 0; i < this.timerList.size(); i++)
-                if (this.timerList.get(i) != -1) {
+                if (!this.timerList.get(i).equals(-1)) {
                     this.timerList.set(i, this.timerList.get(i) - 1);
                     if (isFailingOrRefreshQuest(this.timerList.get(i)))
                         failPlayerQuest(this.acceptedQuestIdList.get(this.timerList.indexOf(this.timerList.get(i))), 0);
@@ -90,7 +90,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
 
         if (!this.refreshQuestList.isEmpty())
             for (int u = 0; u < this.refreshQuestList.size(); u++)
-                if (this.refreshQuestList.get(u) != -1) {
+                if (!this.refreshQuestList.get(u).equals(-1)) {
                     this.refreshQuestList.set(u, this.refreshQuestList.get(u) - 1);
                     if (isFailingOrRefreshQuest(this.refreshQuestList.get(u)))
                         refreshQuest(this.refreshQuestList.indexOf(this.refreshQuestList.get(u)));
