@@ -69,42 +69,7 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
 
     @Inject(method = "fillRecipesFromPool", at = @At(value = "HEAD"))
     protected void fillRecipesFromPoolMixin(TradeOfferList recipeList, TradeOffers.Factory[] pool, int count, CallbackInfo info) {
-        if (!this.world.isClient) {
-            boolean isVillager = (Object) this instanceof VillagerEntity;
-            if (isVillager && questIdList.isEmpty() && !jobList.isEmpty() && this.jobList.contains(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())
-                    && VillagerQuestsMain.CONFIG.rememberQuests) {
-                questIdList.addAll(this.oldQuestList.get(this.jobList.indexOf(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())));
-            } else {
-                List<Integer> availableQuests = new ArrayList<>();
-                if (isVillager) {
-                    VillagerData villagerData = ((VillagerEntity) (Object) this).getVillagerData();
-                    for (int i = 0; i < QuestData.idList.size(); i++) {
-                        if (villagerData.getProfession().getId().equals(QuestData.professionList.get(i)) && villagerData.getLevel() >= QuestData.levelList.get(i)
-                                && !questIdList.contains(QuestData.idList.get(i)))
-                            availableQuests.add(QuestData.idList.get(i));
-                    }
-                } else {
-                    // Wandering trader
-                    for (int i = 0; i < QuestData.idList.size(); i++) {
-                        if (QuestData.professionList.get(i).equals("wandering_trader"))
-                            availableQuests.add(QuestData.idList.get(i));
-                    }
-                }
-                if (availableQuests.size() > count) {
-                    int questAdder = 0;
-                    while (questAdder < count) {
-                        int randomInt = random.nextInt(availableQuests.size());
-                        if (!questIdList.contains(availableQuests.get(randomInt))) {
-                            questIdList.add(availableQuests.get(randomInt));
-                            questAdder++;
-                        }
-                    }
-                } else {
-                    questIdList.addAll(availableQuests);
-                }
-            }
-        }
-
+        this.addRandomMerchantQuests(count);
     }
 
     @Override
@@ -132,6 +97,47 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
     public void setQuestIdList(List<Integer> idList) {
         this.questIdList.clear();
         this.questIdList.addAll(idList);
+    }
+
+    private void addRandomMerchantQuests(int count) {
+        if (!this.world.isClient) {
+            boolean isVillager = (Object) this instanceof VillagerEntity;
+            if (isVillager && questIdList.isEmpty() && !jobList.isEmpty() && this.jobList.contains(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())
+                    && VillagerQuestsMain.CONFIG.rememberQuests) {
+                questIdList.addAll(this.oldQuestList.get(this.jobList.indexOf(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())));
+            } else {
+                List<Integer> availableQuests = new ArrayList<>();
+
+                // Villager
+                if (isVillager) {
+                    VillagerData villagerData = ((VillagerEntity) (Object) this).getVillagerData();
+                    for (int i = 0; i < QuestData.idList.size(); i++) {
+                        if (villagerData.getProfession().getId().equals(QuestData.professionList.get(i)) && villagerData.getLevel() >= QuestData.levelList.get(i)
+                                && !questIdList.contains(QuestData.idList.get(i)))
+                            availableQuests.add(QuestData.idList.get(i));
+                    }
+                } else {
+                    // Wandering trader
+                    for (int i = 0; i < QuestData.idList.size(); i++) {
+                        if (QuestData.professionList.get(i).equals("wandering_trader"))
+                            availableQuests.add(QuestData.idList.get(i));
+                    }
+                }
+                count += (isVillager ? VillagerQuestsMain.CONFIG.villagerQuestExtraQuantity : VillagerQuestsMain.CONFIG.wanderingQuestQuantity - 2);
+                if (availableQuests.size() > count) {
+                    int questAdder = 0;
+                    while (questAdder < count) {
+                        int randomInt = random.nextInt(availableQuests.size());
+                        if (!questIdList.contains(availableQuests.get(randomInt))) {
+                            questIdList.add(availableQuests.get(randomInt));
+                            questAdder++;
+                        }
+                    }
+                } else {
+                    questIdList.addAll(availableQuests);
+                }
+            }
+        }
     }
 
 }

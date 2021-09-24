@@ -11,6 +11,8 @@
   "text.autoconfig.villagerquests.option.flatQuestIcon": "Flat Quest Icon",
   "text.autoconfig.villagerquests.option.iconDistace": "Icon Distance",
   "text.autoconfig.villagerquests.option.hardMode": "Hard Mode",
+  "text.autoconfig.villagerquests.option.villagerQuestExtraQuantity": "Villager Quest Extra Quantity",
+  "text.autoconfig.villagerquests.option.wanderingQuestQuantity": "Wandering Trader Quest Quantity",
 
   "text.autoconfig.villagerquests.option.questTabTitleColor": "Tab Title Color",
   "text.autoconfig.villagerquests.option.titleColor": "Title Color",

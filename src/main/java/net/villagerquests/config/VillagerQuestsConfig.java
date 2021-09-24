@@ -11,6 +11,10 @@ public class VillagerQuestsConfig implements ConfigData {
 
     @Comment("Villager will remember quests")
     public boolean rememberQuests = true;
+    @Comment("Extra quantity of quests which get added on level up")
+    public int villagerQuestExtraQuantity = 0;
+    @Comment("Wandering trader quest quantity")
+    public int wanderingQuestQuantity = 8;
     @Comment("Time in ticks added to wandering trader despawn ticker")
     public int wanderingTraderDespawnAddition = 48000;
     public boolean showQuestIcon = true;
