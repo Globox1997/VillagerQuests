@@ -16,6 +16,8 @@ public class VillagerQuestsConfig implements ConfigData {
     public boolean canOnlyAddLevelSpecificQuests = false;
     @Comment("Chance a merchant doesn't offer quests : 0.2 = 20%")
     public float noQuestChance = 0.2F;
+    @Comment("Time in ticks when a villager can offer new quests")
+    public int newQuestTimer = 36000;
     @Comment("Extra quantity of quests which get added on level up")
     public int villagerQuestExtraQuantity = 1;
     @Comment("Wandering trader quest quantity")

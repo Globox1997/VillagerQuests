@@ -16,6 +16,7 @@
   "text.autoconfig.villagerquests.option.noQuestChance": "No Quest Chance",
   "text.autoconfig.villagerquests.option.canOnlyLevelUpWhenCompleted": "Only Level Up When Completed",
   "text.autoconfig.villagerquests.option.canOnlyAddLevelSpecificQuests": "Add Only Level Specific Quests",
+  "text.autoconfig.villagerquests.option.newQuestTimer": "New Quest Timer",
 
   "text.autoconfig.villagerquests.option.questTabTitleColor": "Tab Title Color",
   "text.autoconfig.villagerquests.option.titleColor": "Title Color",

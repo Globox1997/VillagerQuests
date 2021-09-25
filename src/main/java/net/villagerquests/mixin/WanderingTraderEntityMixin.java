@@ -1,7 +1,5 @@
 package net.villagerquests.mixin;
 
-import java.util.List;
-
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -58,11 +56,6 @@ public abstract class WanderingTraderEntityMixin extends MerchantEntity {
     @Override
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
         MerchantQuests.addRandomMerchantQuests(merchantEntity, VillagerQuestsMain.CONFIG.wanderingQuestQuantity);
-        List<Integer> list = ((MerchantAccessor) merchantEntity).getQuestIdList();
-        List<? extends PlayerEntity> playerList = merchantEntity.world.getPlayers();
-        if (!list.isEmpty() && !playerList.isEmpty())
-            for (int i = 0; i < playerList.size(); i++)
-                QuestServerPacket.writeS2CMerchantQuestsPacket((ServerPlayerEntity) playerList.get(i), merchantEntity, list);
         return super.initialize(world, difficulty, spawnReason, (EntityData) entityData, entityNbt);
     }
 

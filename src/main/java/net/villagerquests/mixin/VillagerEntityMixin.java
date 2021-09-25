@@ -1,7 +1,5 @@
 package net.villagerquests.mixin;
 
-import java.util.List;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.At.Shift;
@@ -28,6 +26,7 @@ public abstract class VillagerEntityMixin implements MerchantAccessor {
     private final MerchantEntity merchantEntity = (MerchantEntity) (Object) this;
     private boolean settingDataOnRead = false;
     private boolean finishedAQuest = false;
+    private int newQuestTicker;
 
     @Inject(method = "beginTradeWith", at = @At(value = "HEAD"))
     private void beginTradeWithMixin(PlayerEntity customer, CallbackInfo info) {
@@ -43,11 +42,13 @@ public abstract class VillagerEntityMixin implements MerchantAccessor {
     @Inject(method = "readCustomDataFromNbt", at = @At(value = "TAIL"))
     private void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
         this.finishedAQuest = nbt.getBoolean("FinishedAQuest");
+        this.newQuestTicker = nbt.getInt("NewQuestTicker");
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At(value = "TAIL"))
     private void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
         nbt.putBoolean("FinishedAQuest", this.finishedAQuest);
+        nbt.putInt("NewQuestTicker", this.newQuestTicker);
     }
 
     @Inject(method = "readCustomDataFromNbt", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/DataResult;resultOrPartial(Ljava/util/function/Consumer;)Ljava/util/Optional;", shift = Shift.AFTER))
@@ -62,11 +63,6 @@ public abstract class VillagerEntityMixin implements MerchantAccessor {
                 this.settingDataOnRead = false;
             else {
                 MerchantQuests.addRandomMerchantQuests(merchantEntity, 1);
-                List<Integer> list = ((MerchantAccessor) merchantEntity).getQuestIdList();
-                List<? extends PlayerEntity> playerList = merchantEntity.world.getPlayers();
-                if (!list.isEmpty() && !playerList.isEmpty())
-                    for (int i = 0; i < playerList.size(); i++)
-                        QuestServerPacket.writeS2CMerchantQuestsPacket((ServerPlayerEntity) playerList.get(i), merchantEntity, list);
             }
         }
     }
@@ -85,14 +81,32 @@ public abstract class VillagerEntityMixin implements MerchantAccessor {
             info.setReturnValue(false);
     }
 
+    @Inject(method = "tick", at = @At(value = "TAIL"))
+    private void tickMixin(CallbackInfo info) {
+        if (!this.merchantEntity.world.isClient) {
+            if (this.newQuestTicker >= 0)
+                this.newQuestTicker--;
+            if (this.newQuestTicker == 1)
+                MerchantQuests.addRandomMerchantQuests(merchantEntity, 1);
+        }
+    }
+
     @Override
     public void finishedQuest(int questLevel) {
         if (VillagerQuestsMain.CONFIG.canOnlyAddLevelSpecificQuests) {
             if (((VillagerEntity) merchantEntity).getVillagerData().getLevel() == questLevel)
-                this.finishedAQuest = true;
+                addAndFinishQuestTicker();
         } else
-            this.finishedAQuest = true;
+            addAndFinishQuestTicker();
 
+    }
+
+    private void addAndFinishQuestTicker() {
+        this.finishedAQuest = true;
+        if (this.newQuestTicker > 1)
+            this.newQuestTicker -= this.newQuestTicker / 10;
+        else
+            this.newQuestTicker = VillagerQuestsMain.CONFIG.newQuestTimer + this.merchantEntity.world.random.nextInt(VillagerQuestsMain.CONFIG.newQuestTimer);
     }
 
 }

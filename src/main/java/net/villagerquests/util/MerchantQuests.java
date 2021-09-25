@@ -5,10 +5,13 @@ import java.util.List;
 
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.village.VillagerData;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.data.QuestData;
+import net.villagerquests.network.QuestServerPacket;
 
 public class MerchantQuests {
 
@@ -56,6 +59,11 @@ public class MerchantQuests {
                     currentQuests.addAll(availableQuests);
                 }
             }
+            List<Integer> list = ((MerchantAccessor) merchantEntity).getQuestIdList();
+            List<? extends PlayerEntity> playerList = merchantEntity.world.getPlayers();
+            if (!list.isEmpty() && !playerList.isEmpty())
+                for (int i = 0; i < playerList.size(); i++)
+                    QuestServerPacket.writeS2CMerchantQuestsPacket((ServerPlayerEntity) playerList.get(i), merchantEntity, list);
         }
     }
 }
