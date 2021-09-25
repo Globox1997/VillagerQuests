@@ -20,6 +20,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.villagerquests.VillagerQuestsMain;
+import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.data.QuestData;
 import net.villagerquests.gui.QuestScreenHandler;
@@ -84,6 +85,9 @@ public class QuestServerPacket {
         ServerPlayNetworking.registerGlobalReceiver(COMPLETE_MERCHANT_QUEST, (server, player, handler, buffer, sender) -> {
             if (player != null) {
                 ((PlayerAccessor) player).finishPlayerQuest(buffer.readInt());
+                MerchantEntity merchantEntity = (MerchantEntity) player.world.getEntityById(buffer.readInt());
+                if (merchantEntity instanceof VillagerEntity)
+                    ((MerchantAccessor) merchantEntity).finishedQuest(buffer.readInt());
             }
         });
     }

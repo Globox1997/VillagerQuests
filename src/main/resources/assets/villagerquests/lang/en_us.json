@@ -13,6 +13,9 @@
   "text.autoconfig.villagerquests.option.hardMode": "Hard Mode",
   "text.autoconfig.villagerquests.option.villagerQuestExtraQuantity": "Villager Quest Extra Quantity",
   "text.autoconfig.villagerquests.option.wanderingQuestQuantity": "Wandering Trader Quest Quantity",
+  "text.autoconfig.villagerquests.option.noQuestChance": "No Quest Chance",
+  "text.autoconfig.villagerquests.option.canOnlyLevelUpWhenCompleted": "Only Level Up When Completed",
+  "text.autoconfig.villagerquests.option.canOnlyAddLevelSpecificQuests": "Add Only Level Specific Quests",
 
   "text.autoconfig.villagerquests.option.questTabTitleColor": "Tab Title Color",
   "text.autoconfig.villagerquests.option.titleColor": "Title Color",

@@ -12,8 +12,14 @@ public interface MerchantAccessor {
 
     public List<Integer> getQuestIdList();
 
+    public List<String> getJobList();
+
+    public List<List<Integer>> getOldQuestList();
+
     public void setQuestIdList(List<Integer> idList);
 
     public void setCurrentOfferer(MerchantEntity merchantEntity);
+
+    public void finishedQuest(int questLevel);
 
 }

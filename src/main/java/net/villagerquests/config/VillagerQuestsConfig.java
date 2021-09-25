@@ -11,10 +11,15 @@ public class VillagerQuestsConfig implements ConfigData {
 
     @Comment("Villager will remember quests")
     public boolean rememberQuests = true;
+    @Comment("Villager can only level up when at least one quest was finished")
+    public boolean canOnlyLevelUpWhenCompleted = false;
+    public boolean canOnlyAddLevelSpecificQuests = false;
+    @Comment("Chance a merchant doesn't offer quests : 0.2 = 20%")
+    public float noQuestChance = 0.2F;
     @Comment("Extra quantity of quests which get added on level up")
-    public int villagerQuestExtraQuantity = 0;
+    public int villagerQuestExtraQuantity = 1;
     @Comment("Wandering trader quest quantity")
-    public int wanderingQuestQuantity = 8;
+    public int wanderingQuestQuantity = 6;
     @Comment("Time in ticks added to wandering trader despawn ticker")
     public int wanderingTraderDespawnAddition = 48000;
     public boolean showQuestIcon = true;

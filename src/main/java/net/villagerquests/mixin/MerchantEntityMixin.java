@@ -17,13 +17,9 @@ import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.village.Merchant;
-import net.minecraft.village.TradeOfferList;
-import net.minecraft.village.TradeOffers;
-import net.minecraft.village.VillagerData;
 import net.minecraft.world.World;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.MerchantAccessor;
-import net.villagerquests.data.QuestData;
 import net.villagerquests.network.QuestServerPacket;
 
 @Mixin(MerchantEntity.class)
@@ -67,11 +63,6 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
         }
     }
 
-    @Inject(method = "fillRecipesFromPool", at = @At(value = "HEAD"))
-    protected void fillRecipesFromPoolMixin(TradeOfferList recipeList, TradeOffers.Factory[] pool, int count, CallbackInfo info) {
-        this.addRandomMerchantQuests(count);
-    }
-
     @Override
     public void onStartedTrackingBy(ServerPlayerEntity player) {
         super.onStartedTrackingBy(player);
@@ -99,45 +90,14 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
         this.questIdList.addAll(idList);
     }
 
-    private void addRandomMerchantQuests(int count) {
-        if (!this.world.isClient) {
-            boolean isVillager = (Object) this instanceof VillagerEntity;
-            if (isVillager && questIdList.isEmpty() && !jobList.isEmpty() && this.jobList.contains(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())
-                    && VillagerQuestsMain.CONFIG.rememberQuests) {
-                questIdList.addAll(this.oldQuestList.get(this.jobList.indexOf(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())));
-            } else {
-                List<Integer> availableQuests = new ArrayList<>();
+    @Override
+    public List<String> getJobList() {
+        return this.jobList;
+    }
 
-                // Villager
-                if (isVillager) {
-                    VillagerData villagerData = ((VillagerEntity) (Object) this).getVillagerData();
-                    for (int i = 0; i < QuestData.idList.size(); i++) {
-                        if (villagerData.getProfession().getId().equals(QuestData.professionList.get(i)) && villagerData.getLevel() >= QuestData.levelList.get(i)
-                                && !questIdList.contains(QuestData.idList.get(i)))
-                            availableQuests.add(QuestData.idList.get(i));
-                    }
-                } else {
-                    // Wandering trader
-                    for (int i = 0; i < QuestData.idList.size(); i++) {
-                        if (QuestData.professionList.get(i).equals("wandering_trader"))
-                            availableQuests.add(QuestData.idList.get(i));
-                    }
-                }
-                count += (isVillager ? VillagerQuestsMain.CONFIG.villagerQuestExtraQuantity : VillagerQuestsMain.CONFIG.wanderingQuestQuantity - 2);
-                if (availableQuests.size() > count) {
-                    int questAdder = 0;
-                    while (questAdder < count) {
-                        int randomInt = random.nextInt(availableQuests.size());
-                        if (!questIdList.contains(availableQuests.get(randomInt))) {
-                            questIdList.add(availableQuests.get(randomInt));
-                            questAdder++;
-                        }
-                    }
-                } else {
-                    questIdList.addAll(availableQuests);
-                }
-            }
-        }
+    @Override
+    public List<List<Integer>> getOldQuestList() {
+        return this.oldQuestList;
     }
 
 }

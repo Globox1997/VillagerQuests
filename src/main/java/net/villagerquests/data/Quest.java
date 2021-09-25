@@ -27,6 +27,7 @@ public class Quest {
     private final int experience;
     private final int timer;
     private final int refreshTime;
+    private final int level;
     private final List<Object> taskList = new ArrayList<>();
     private final List<Object> rewardList = new ArrayList<>();
 
@@ -37,10 +38,11 @@ public class Quest {
         this.type = QuestData.typeList.get(index);
         this.description = QuestData.descriptionList.get(index);
         this.experience = QuestData.experienceList.get(index);
-        this.taskList.addAll(QuestData.taskList.get(index));
-        this.rewardList.addAll(QuestData.rewardList.get(index));
         this.timer = QuestData.timerList.get(index);
         this.refreshTime = QuestData.refreshTimeList.get(index);
+        this.level = QuestData.levelList.get(index);
+        this.taskList.addAll(QuestData.taskList.get(index));
+        this.rewardList.addAll(QuestData.rewardList.get(index));
     }
 
     public ItemStack getQuestTypeStack() {
@@ -78,6 +80,10 @@ public class Quest {
 
     public int getQuestRefreshTimer() {
         return refreshTime;
+    }
+
+    public int getQuestLevel() {
+        return level;
     }
 
     public String[] getStringTasks() {

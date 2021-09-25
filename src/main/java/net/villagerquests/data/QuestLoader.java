@@ -34,7 +34,10 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                 // Title
                 QuestData.titleList.add(data.get("title").getAsString());
                 // Level
-                QuestData.levelList.add(data.get("level").getAsInt());
+                if (data.has("level"))
+                    QuestData.levelList.add(data.get("level").getAsInt());
+                else
+                    QuestData.levelList.add(0);
                 // Type
                 QuestData.typeList.add(data.get("type").getAsString());
                 // Profession

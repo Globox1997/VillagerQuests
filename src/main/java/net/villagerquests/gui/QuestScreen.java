@@ -106,7 +106,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
 
     private void completeQuest(int selectedIndex) {
         ((PlayerAccessor) this.playerEntity).finishPlayerQuest(this.selectedQuest.getQuestId());
-        QuestClientPacket.writeC2SQuestCompletionPacket(this.selectedQuest.getQuestId());
+        QuestClientPacket.writeC2SQuestCompletionPacket(this.selectedQuest.getQuestId(), this.questScreenHandler.offerer.getId(), this.selectedQuest.getQuestLevel());
 
         if (((PlayerAccessor) this.playerEntity).getPlayerQuestRefreshTimerList()
                 .get(((PlayerAccessor) this.playerEntity).getPlayerFinishedQuestIdList().indexOf(this.selectedQuest.getQuestId())) != -1)

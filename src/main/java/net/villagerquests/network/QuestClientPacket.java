@@ -149,9 +149,11 @@ public class QuestClientPacket {
         MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
     }
 
-    public static void writeC2SQuestCompletionPacket(int questId) {
+    public static void writeC2SQuestCompletionPacket(int questId, int entityId, int questLevel) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(questId);
+        buf.writeInt(entityId);
+        buf.writeInt(questLevel);
         CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.COMPLETE_MERCHANT_QUEST, buf);
         MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
     }
