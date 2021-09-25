@@ -18,9 +18,6 @@ public class MerchantQuests {
 
             if (isVillager && VillagerQuestsMain.CONFIG.rememberQuests && ((MerchantAccessor) merchantEntity).getQuestIdList().isEmpty() && !((MerchantAccessor) merchantEntity).getJobList().isEmpty()
                     && ((MerchantAccessor) merchantEntity).getJobList().contains(((VillagerEntity) merchantEntity).getVillagerData().getProfession().toString())) {
-
-                System.out.println("Add Old " + ((MerchantAccessor) merchantEntity).getOldQuestList());
-
                 ((MerchantAccessor) merchantEntity).setQuestIdList(((MerchantAccessor) merchantEntity).getOldQuestList()
                         .get(((MerchantAccessor) merchantEntity).getJobList().indexOf(((VillagerEntity) merchantEntity).getVillagerData().getProfession().toString())));
             } else if (merchantEntity.world.random.nextFloat() > VillagerQuestsMain.CONFIG.noQuestChance) {

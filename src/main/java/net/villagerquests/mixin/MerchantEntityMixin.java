@@ -72,11 +72,12 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
 
     @Override
     public void clearQuestList() {
-        if (VillagerQuestsMain.CONFIG.rememberQuests && (Object) this instanceof VillagerEntity) {
-            jobList.add(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString());
-            oldQuestList.add(questIdList);
+        if (VillagerQuestsMain.CONFIG.rememberQuests && (Object) this instanceof VillagerEntity
+                && !this.jobList.contains(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())) {
+            this.jobList.add(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString());
+            this.oldQuestList.add(new ArrayList<Integer>(questIdList));
         }
-        questIdList.clear();
+        this.questIdList.clear();
     }
 
     @Override
