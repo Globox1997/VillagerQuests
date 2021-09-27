@@ -31,7 +31,6 @@ import net.villagerquests.network.QuestClientPacket;
 
 @Environment(EnvType.CLIENT)
 public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
-    private final QuestScreenHandler questScreenHandler;
     private int indexStartOffset;
     private boolean scrolling;
     private int selectedIndex;
@@ -43,10 +42,9 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
     private boolean closedToTradeScreen = false;
     private final PlayerEntity playerEntity;
 
-    public QuestScreen(QuestScreenHandler gui, PlayerEntity player, Text title) {
-        super(gui, player, title);
+    public QuestScreen(QuestScreenHandler handler, PlayerEntity player, Text title) {
+        super(handler, player, title);
         this.playerEntity = player;
-        questScreenHandler = gui;
         acceptedQuestIdList = ((PlayerAccessor) player).getPlayerQuestIdList();
     }
 
@@ -56,7 +54,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
         int i = (this.width - this.backgroundWidth) / 2;
         int j = (this.height - this.backgroundHeight) / 2;
         int k = j + 16 + 2;
-
+        this.selectedQuest = null;
         this.acceptButton = (QuestScreen.AcceptButton) this.addDrawableChild(new QuestScreen.AcceptButton(i + 161, j + 139, (button) -> {
             if (button instanceof QuestScreen.AcceptButton) {
                 if (this.acceptedQuestIdList.contains(this.selectedQuest.getQuestId()) && this.selectedQuest.canCompleteQuest(this.playerEntity))
@@ -77,13 +75,12 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
             this.quests[l] = (QuestScreen.WidgetButtonPage) this.addDrawableChild(new QuestScreen.WidgetButtonPage(i + 5, k, l, (button) -> {
                 if (button instanceof QuestScreen.WidgetButtonPage) {
                     this.selectedIndex = ((QuestScreen.WidgetButtonPage) button).getIndex() + this.indexStartOffset;
-                    this.selectedQuest = new Quest(questScreenHandler.questIdList.get(this.selectedIndex));
-
+                    this.selectedQuest = new Quest(this.handler.questIdList.get(this.selectedIndex));
+                    this.acceptButton.visible = true;
                     if (this.acceptedQuestIdList.contains(this.selectedQuest.getQuestId())) {
-                        if (((PlayerAccessor) this.playerEntity).isOriginalQuestGiver(this.questScreenHandler.offerer.getUuid(), this.selectedQuest.getQuestId())) {
+                        if (((PlayerAccessor) this.playerEntity).isOriginalQuestGiver(this.handler.offerer.getUuid(), this.selectedQuest.getQuestId())) {
                             this.acceptButton.setMessage(new TranslatableText("text.villagerquests.completeButton"));
                             this.declineButton.visible = true;
-
                             if (this.selectedQuest.canCompleteQuest(this.playerEntity))
                                 this.acceptButton.active = true;
                             else
@@ -100,12 +97,11 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
             }));
             k += 20;
         }
-
     }
 
     private void acceptQuest() {
         acceptButton.setMessage(new TranslatableText("text.villagerquests.completeButton"));
-        QuestClientPacket.acceptMerchantQuestC2SPacket(client.player, this.selectedQuest.getQuestId(), questScreenHandler.offerer.getUuid(), questScreenHandler.offerer.getId());
+        QuestClientPacket.acceptMerchantQuestC2SPacket(client.player, this.selectedQuest.getQuestId(), this.handler.offerer.getUuid(), this.handler.offerer.getId());
         if (this.selectedQuest.canCompleteQuest(this.playerEntity))
             this.acceptButton.active = true;
         else
@@ -115,13 +111,13 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
 
     private void completeQuest() {
         ((PlayerAccessor) this.playerEntity).finishPlayerQuest(this.selectedQuest.getQuestId());
-        QuestClientPacket.writeC2SQuestCompletionPacket(this.selectedQuest.getQuestId(), this.questScreenHandler.offerer.getId(), this.selectedQuest.getQuestLevel());
+        QuestClientPacket.writeC2SQuestCompletionPacket(this.selectedQuest.getQuestId(), this.handler.offerer.getId(), this.selectedQuest.getQuestLevel());
         this.removeQuest();
     }
 
     private void declineQuest() {
         ((PlayerAccessor) this.playerEntity).failPlayerQuest(this.selectedQuest.getQuestId(), 3);
-        QuestClientPacket.writeC2SQuestDeclinePacket(this.selectedQuest.getQuestId(), 3, this.questScreenHandler.offerer.getId());
+        QuestClientPacket.writeC2SQuestDeclinePacket(this.selectedQuest.getQuestId(), 3, this.handler.offerer.getId());
         this.removeQuest();
     }
 
@@ -130,7 +126,8 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
                 .equals(-1))
             this.quests[selectedIndex].active = false;
         else {
-            this.questScreenHandler.questIdList.remove(selectedIndex);
+            this.quests[selectedIndex].visible = false;
+            this.handler.questIdList.remove(selectedIndex);
         }
         this.acceptButton.visible = false;
         this.declineButton.visible = false;
@@ -167,11 +164,11 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
         super.drawForeground(matrices, mouseX, mouseY);
         VillagerData villagerData = null;
         int i = 0;
-        if (questScreenHandler.offerer instanceof VillagerEntity) {
-            villagerData = ((VillagerEntity) questScreenHandler.offerer).getVillagerData();
+        if (this.handler.offerer instanceof VillagerEntity) {
+            villagerData = ((VillagerEntity) this.handler.offerer).getVillagerData();
             i = villagerData.getLevel();
         }
-        Text title = villagerData != null ? Text.of(WordUtils.capitalize(villagerData.getProfession().getId())) : questScreenHandler.offerer.getName();
+        Text title = villagerData != null ? Text.of(WordUtils.capitalize(villagerData.getProfession().getId())) : this.handler.offerer.getName();
         if (i > 0 && i <= 5) {
             Text text = title.shallowCopy().append(" - ").append((Text) (new TranslatableText("merchant.level." + i)));
             int j = this.textRenderer.getWidth(text);
@@ -203,7 +200,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        int i = questScreenHandler.questIdList.size();
+        int i = this.handler.questIdList.size();
         if (this.canScroll(i)) {
             int j = i - 7;
             this.indexStartOffset = (int) ((double) this.indexStartOffset - amount);
@@ -219,7 +216,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        int i = questScreenHandler.questIdList.size();
+        int i = this.handler.questIdList.size();
         if (this.scrolling) {
             int j = this.y + 18;
             int k = j + 139;
@@ -238,14 +235,13 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
         this.scrolling = false;
         int i = (this.width - this.backgroundWidth) / 2;
         int j = (this.height - this.backgroundHeight) / 2;
-        if (this.canScroll(questScreenHandler.questIdList.size()) && mouseX > (double) (i + 94) && mouseX < (double) (i + 94 + 6) && mouseY > (double) (j + 18)
-                && mouseY <= (double) (j + 18 + 139 + 1)) {
+        if (this.canScroll(this.handler.questIdList.size()) && mouseX > (double) (i + 94) && mouseX < (double) (i + 94 + 6) && mouseY > (double) (j + 18) && mouseY <= (double) (j + 18 + 139 + 1)) {
             this.scrolling = true;
         }
         // Set villager trade screen
         if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY)) {
             // this.onClose(); = brigher background for a mili second
-            QuestClientPacket.writeC2STradePacket(this.questScreenHandler.offerer, (int) this.client.mouse.getX(), (int) this.client.mouse.getY());
+            QuestClientPacket.writeC2STradePacket(this.handler.offerer, (int) this.client.mouse.getX(), (int) this.client.mouse.getY());
             closedToTradeScreen = true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -254,8 +250,8 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
     @Override
     public void removed() {
         if (!closedToTradeScreen) {
-            questScreenHandler.offerer.setCurrentCustomer((PlayerEntity) null);
-            QuestClientPacket.writeC2SClosePacket(questScreenHandler.offerer);
+            this.handler.offerer.setCurrentCustomer((PlayerEntity) null);
+            QuestClientPacket.writeC2SClosePacket(this.handler.offerer);
         }
         super.removed();
     }
@@ -263,7 +259,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
-        List<Integer> questIds = questScreenHandler.questIdList;
+        List<Integer> questIds = this.handler.questIdList;
         if (!questIds.isEmpty()) {
             int i = (this.width - this.backgroundWidth) / 2;
             int j = (this.height - this.backgroundHeight) / 2;
@@ -368,7 +364,6 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
             DrawableExtension.renderQuestItems(matrices, client.getBufferBuilders().getEntityVertexConsumers(), itemRenderer, selectedQuest.getRewardStack(u),
                     (double) (100 + textRenderer.getWidth(selectedQuest.getStringRewards()[u]) * 0.795D), (double) (-84 - u * 7), 0.4F);
         }
-        acceptButton.visible = true;
     }
 
     private class WidgetButtonPage extends ButtonWidget {

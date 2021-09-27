@@ -43,7 +43,7 @@ public class VillagerQuestsClient implements ClientModInitializer {
                 questKeyBoolean = false;
         });
 
-        ScreenRegistry.<QuestScreenHandler, QuestScreen>register(VillagerQuestsMain.QUEST_SCREEN_HANDLER_TYPE, (gui, inventory, title) -> new QuestScreen(gui, inventory.player, title));
+        ScreenRegistry.<QuestScreenHandler, QuestScreen>register(VillagerQuestsMain.QUEST_SCREEN_HANDLER_TYPE, (handler, inventory, title) -> new QuestScreen(handler, inventory.player, title));
         QuestClientPacket.init();
         EntityModelLayerRegistry.registerModelLayer(QUEST_LAYER, QuestEntityModel::getTexturedModelData);
     }
