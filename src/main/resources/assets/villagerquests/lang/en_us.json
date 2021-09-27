@@ -42,6 +42,7 @@
 
   "text.villagerquests.acceptButton": "Accept",
   "text.villagerquests.completeButton": "Complete",
+  "text.villagerquests.decline": "Decline",
   "text.villagerquests.info": "Quests",
   "text.villagerquests.active": "Active Quests",
   "text.villagerquests.finished": "Finished Quests",

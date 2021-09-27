@@ -38,6 +38,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
     private final QuestScreen.WidgetButtonPage[] quests = new QuestScreen.WidgetButtonPage[7];
     private Quest selectedQuest;
     private QuestScreen.AcceptButton acceptButton;
+    private QuestScreen.DeclineButton declineButton;
     private List<Integer> acceptedQuestIdList;
     private boolean closedToTradeScreen = false;
     private final PlayerEntity playerEntity;
@@ -59,12 +60,18 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
         this.acceptButton = (QuestScreen.AcceptButton) this.addDrawableChild(new QuestScreen.AcceptButton(i + 161, j + 139, (button) -> {
             if (button instanceof QuestScreen.AcceptButton) {
                 if (this.acceptedQuestIdList.contains(this.selectedQuest.getQuestId()) && this.selectedQuest.canCompleteQuest(this.playerEntity))
-                    this.completeQuest(this.selectedIndex);
+                    this.completeQuest();
                 else
                     this.acceptQuest();
             }
         }));
         this.acceptButton.setMessage(new TranslatableText("text.villagerquests.acceptButton"));
+
+        this.declineButton = (QuestScreen.DeclineButton) this.addDrawableChild(new QuestScreen.DeclineButton(i + 247, j + 140, (button) -> {
+            if (button instanceof QuestScreen.DeclineButton) {
+                this.declineQuest();
+            }
+        }));
 
         for (int l = 0; l < 7; ++l) {
             this.quests[l] = (QuestScreen.WidgetButtonPage) this.addDrawableChild(new QuestScreen.WidgetButtonPage(i + 5, k, l, (button) -> {
@@ -75,18 +82,19 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
                     if (this.acceptedQuestIdList.contains(this.selectedQuest.getQuestId())) {
                         if (((PlayerAccessor) this.playerEntity).isOriginalQuestGiver(this.questScreenHandler.offerer.getUuid(), this.selectedQuest.getQuestId())) {
                             this.acceptButton.setMessage(new TranslatableText("text.villagerquests.completeButton"));
+                            this.declineButton.visible = true;
+
                             if (this.selectedQuest.canCompleteQuest(this.playerEntity))
                                 this.acceptButton.active = true;
                             else
                                 this.acceptButton.active = false;
                         } else {
                             this.acceptButton.active = false;
-                            this.acceptButton.unuseable = true;
                         }
                     } else {
                         this.acceptButton.active = true;
-                        this.acceptButton.unuseable = false;
                         this.acceptButton.setMessage(new TranslatableText("text.villagerquests.acceptButton"));
+                        this.declineButton.visible = false;
                     }
                 }
             }));
@@ -102,18 +110,30 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
             this.acceptButton.active = true;
         else
             this.acceptButton.active = false;
+        this.declineButton.visible = true;
     }
 
-    private void completeQuest(int selectedIndex) {
+    private void completeQuest() {
         ((PlayerAccessor) this.playerEntity).finishPlayerQuest(this.selectedQuest.getQuestId());
         QuestClientPacket.writeC2SQuestCompletionPacket(this.selectedQuest.getQuestId(), this.questScreenHandler.offerer.getId(), this.selectedQuest.getQuestLevel());
+        this.removeQuest();
+    }
 
-        if (((PlayerAccessor) this.playerEntity).getPlayerQuestRefreshTimerList()
-                .get(((PlayerAccessor) this.playerEntity).getPlayerFinishedQuestIdList().indexOf(this.selectedQuest.getQuestId())) != -1)
+    private void declineQuest() {
+        ((PlayerAccessor) this.playerEntity).failPlayerQuest(this.selectedQuest.getQuestId(), 3);
+        QuestClientPacket.writeC2SQuestDeclinePacket(this.selectedQuest.getQuestId(), 3, this.questScreenHandler.offerer.getId());
+        this.removeQuest();
+    }
+
+    private void removeQuest() {
+        if (!((PlayerAccessor) this.playerEntity).getPlayerQuestRefreshTimerList().get(((PlayerAccessor) this.playerEntity).getPlayerFinishedQuestIdList().indexOf(this.selectedQuest.getQuestId()))
+                .equals(-1))
             this.quests[selectedIndex].active = false;
-        else
+        else {
             this.questScreenHandler.questIdList.remove(selectedIndex);
+        }
         this.acceptButton.visible = false;
+        this.declineButton.visible = false;
         this.selectedQuest = null;
     }
 
@@ -367,19 +387,10 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
     }
 
     private class AcceptButton extends ButtonWidget {
-        public boolean unuseable = false;
 
         public AcceptButton(int x, int y, ButtonWidget.PressAction onPress) {
             super(x, y, 55, 17, LiteralText.EMPTY, onPress);
             this.visible = false;
-        }
-
-        @Override
-        public void renderTooltip(MatrixStack matrices, int mouseX, int mouseY) {
-            super.renderTooltip(matrices, mouseX, mouseY);
-            if (unuseable) {
-                client.currentScreen.renderTooltip(matrices, Text.of("Unusable"), x, y);
-            }
         }
 
         @Override
@@ -398,5 +409,33 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
             drawCenteredText(matrices, textRenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 6) / 2, j | MathHelper.ceil(this.alpha * 255.0F) << 24);
         }
 
+    }
+
+    private class DeclineButton extends ButtonWidget {
+
+        public DeclineButton(int x, int y, ButtonWidget.PressAction onPress) {
+            super(x, y, 16, 15, LiteralText.EMPTY, onPress);
+            this.visible = false;
+        }
+
+        @Override
+        public void renderTooltip(MatrixStack matrices, int mouseX, int mouseY) {
+            super.renderTooltip(matrices, mouseX, mouseY);
+            client.currentScreen.renderTooltip(matrices, new TranslatableText("text.villagerquests.decline"), mouseX, mouseY);
+        }
+
+        @Override
+        public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, QuestScreenHandler.GUI_ICONS);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.enableDepthTest();
+            WidgetButtonPage.drawTexture(matrices, this.x, this.y, 64, 176 + (this.isHovered() ? 15 : 0), this.width, this.height, 512, 512);
+            if (this.isHovered()) {
+                this.renderTooltip(matrices, mouseX, mouseY);
+            }
+        }
     }
 }

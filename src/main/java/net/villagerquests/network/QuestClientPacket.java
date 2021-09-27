@@ -158,6 +158,15 @@ public class QuestClientPacket {
         MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
     }
 
+    public static void writeC2SQuestDeclinePacket(int questId, int reason, int entityId) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(questId);
+        buf.writeInt(reason);
+        buf.writeInt(entityId);
+        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.DECLINE_MERCHANT_QUEST, buf);
+        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
+    }
+
     private static void executePlayerQuestData(PlayerEntity player, PacketByteBuf buf) {
         List<Integer> questIds = buf.readIntList();
 

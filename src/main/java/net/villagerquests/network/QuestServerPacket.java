@@ -7,6 +7,8 @@ import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityInteraction;
+import net.minecraft.entity.InteractionObserver;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.passive.WanderingTraderEntity;
@@ -17,6 +19,7 @@ import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.villagerquests.VillagerQuestsMain;
@@ -38,6 +41,7 @@ public class QuestServerPacket {
     public static final Identifier SYNC_PLAYER_QUEST_DATA = new Identifier("levelz", "sync_player_quest_data");
     public static final Identifier SET_MERCHANT_QUEST = new Identifier("levelz", "set_merchant_quest");
     public static final Identifier FAIL_MERCHANT_QUEST = new Identifier("levelz", "fail_merchant_quest");
+    public static final Identifier DECLINE_MERCHANT_QUEST = new Identifier("levelz", "decline_merchant_quest");
     public static final Identifier QUEST_LIST_DATA = new Identifier("levelz", "quest_list_data");
 
     public static void init() {
@@ -88,6 +92,14 @@ public class QuestServerPacket {
                 MerchantEntity merchantEntity = (MerchantEntity) player.world.getEntityById(buffer.readInt());
                 if (merchantEntity instanceof VillagerEntity)
                     ((MerchantAccessor) merchantEntity).finishedQuest(buffer.readInt());
+            }
+        });
+        ServerPlayNetworking.registerGlobalReceiver(DECLINE_MERCHANT_QUEST, (server, player, handler, buffer, sender) -> {
+            if (player != null) {
+                ((PlayerAccessor) player).failPlayerQuest(buffer.readInt(), buffer.readInt());
+                MerchantEntity merchantEntity = (MerchantEntity) player.world.getEntityById(buffer.readInt());
+                if (player.world instanceof ServerWorld && merchantEntity instanceof VillagerEntity)
+                    ((ServerWorld) player.world).handleInteraction(EntityInteraction.VILLAGER_HURT, player, (InteractionObserver) merchantEntity);
             }
         });
     }

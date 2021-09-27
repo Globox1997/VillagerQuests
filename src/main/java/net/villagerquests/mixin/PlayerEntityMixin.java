@@ -197,13 +197,12 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
         this.timerList.remove(this.acceptedQuestIdList.indexOf(id));
         this.acceptedQuestIdList.remove(this.acceptedQuestIdList.indexOf(id));
 
-        // Send info for failing
         if (!playerEntity.world.isClient) {
             if (reason == 0)
                 playerEntity.sendMessage(new TranslatableText("text.villagerquests.questTimeout", quest.getTitle()), true);
             else if (reason == 1)
                 playerEntity.sendMessage(new TranslatableText("text.villagerquests.questGiverDespawn", quest.getTitle()), true);
-            else
+            else if (reason == 2)
                 playerEntity.sendMessage(new TranslatableText("text.villagerquests.questGiverDied", quest.getTitle()), true);
         }
 
