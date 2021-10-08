@@ -59,9 +59,14 @@
   "text.villagerquests.refreshing": "Quest refreshes in: ",
   "text.villagerquests.collected": "Collected: ",
   "text.villagerquests.killed": "Killed: ",
+  "text.villagerquests.explored": "Explored: ",
   "text.villagerquests.questTimeout": "Quest %1$s failed due to timeout",
   "text.villagerquests.questGiverDied": "Quest %1$s failed because the quest giver died",
   "text.villagerquests.questGiverDespawn": "Quest %1$s failed because the quest giver run away",
+  "text.villagerquests.questCommandRemoval": "Quest %1$s got removed",
 
-  "merchant.quests": "Quests"
+  "merchant.quests": "Quests",
+
+  "commands.villagerquests.changed":"Quests got edited",
+  "commands.villagerquests.changeFail":"%1$s doesn't have this quest"
 }

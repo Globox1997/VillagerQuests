@@ -13,6 +13,9 @@ public interface PlayerAccessor {
     // Killed Mob Count
     public List<List<Integer>> getPlayerKilledQuestList();
 
+    // Travel Ids
+    public List<List<Object>> getPlayerTravelList();
+
     // Trader Ids
     public List<UUID> getPlayerQuestTraderIdList();
 
@@ -33,6 +36,7 @@ public interface PlayerAccessor {
 
     public void failPlayerQuest(int id, int reason);
 
-    public void syncPlayerQuest(List<Integer> questIds, List<List<Integer>> killedCount, List<UUID> traderUuids, List<Integer> finishedIds, List<Integer> timers, List<Integer> refresher);
+    public void syncPlayerQuest(List<Integer> questIds, List<List<Integer>> killedCount, List<List<Object>> travelIds, List<UUID> traderUuids, List<Integer> finishedIds, List<Integer> timers,
+            List<Integer> refresher);
 
 }

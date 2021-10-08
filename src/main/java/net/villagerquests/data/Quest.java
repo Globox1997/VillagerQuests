@@ -14,6 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.PlayerAccessor;
@@ -53,6 +54,10 @@ public class Quest {
                 return new ItemStack(Items.IRON_HOE);
             case "mine":
                 return new ItemStack(Items.IRON_PICKAXE);
+            case "explore":
+                return new ItemStack(Items.IRON_BOOTS);
+            case "travel":
+                return new ItemStack(Items.IRON_BOOTS);
             default:
                 return ItemStack.EMPTY;
         }
@@ -92,13 +97,13 @@ public class Quest {
             for (int i = 0; i < this.taskList.size() / 3; i++) {
                 String task = (String) this.taskList.get(i * 3);
                 int count = (int) this.taskList.get(i * 3 + 2);
-                taskListString[i] = new TranslatableText("text.villagerquests.task").getString() + (i + 1) + " - " + WordUtils.capitalize(task) + " " + count + " "
-                        + getTranslatedRegistryName(task, (String) this.taskList.get(i * 3 + 1)) + (count > 1 ? new TranslatableText("text.villagerquests.stringAddition").getString() : "");
+                taskListString[i] = new TranslatableText("text.villagerquests.task").getString() + (i + 1) + " - " + WordUtils.capitalize(task) + " "
+                        + (task.equals("explore") || task.equals("travel") ? "the " : count + " ") + getTranslatedRegistryName(task, (String) this.taskList.get(i * 3 + 1))
+                        + (count > 1 ? new TranslatableText("text.villagerquests.stringAddition").getString() : "");
             }
         } catch (Exception e) {
-            VillagerQuestsMain.LOGGER.error("Error occurred while loading quest tasks {}. {}", this.title, e.toString());
+            VillagerQuestsMain.LOGGER.error("Error occurred while loading quest tasks from quest: {}. {}", this.title, e.toString());
         }
-
         return taskListString;
     }
 
@@ -134,11 +139,12 @@ public class Quest {
     }
 
     public ItemStack getTaskStack(int index) {
-        String string = (String) this.taskList.get(index * 3 + 1);
-        if (((String) this.taskList.get(index * 3)).equals("kill"))
+        String itemString = (String) this.taskList.get(index * 3 + 1);
+        String taskString = (String) this.taskList.get(index * 3);
+        if (taskString.equals("kill") || taskString.equals("explore") || taskString.equals("travel"))
             return ItemStack.EMPTY;
         else
-            return new ItemStack(Registry.ITEM.get(new Identifier(string)));
+            return new ItemStack(Registry.ITEM.get(new Identifier(itemString)));
     }
 
     public ItemStack getRewardStack(int index) {
@@ -159,6 +165,16 @@ public class Quest {
                 return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
             case "mine":
                 return Registry.BLOCK.get(new Identifier(identifier)).getName().getString();
+            case "explore":
+                if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
+                    return WordUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " "));
+                else
+                    return WordUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " "));
+            case "travel":
+                if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
+                    return WordUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " "));
+                else
+                    return WordUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " "));
             default:
                 return "";
         }
@@ -196,31 +212,29 @@ public class Quest {
 
     public boolean canCompleteQuest(PlayerEntity playerEntity) {
         for (int i = 0; i < this.taskList.size() / 3; i++) {
+            int index = ((PlayerAccessor) playerEntity).getPlayerQuestIdList().indexOf(this.id);
             if (this.taskList.get(i * 3).equals("kill")) {
-
-                int index = ((PlayerAccessor) playerEntity).getPlayerQuestIdList().indexOf(this.id);
                 List<List<Integer>> countList = ((PlayerAccessor) playerEntity).getPlayerKilledQuestList();
-
                 if (countList.isEmpty())
                     continue;
-
-                for (int u = 0; u < countList.get(index).size() / 2; u++) {
-                    if (Registry.ENTITY_TYPE.getRawId(Registry.ENTITY_TYPE.get(new Identifier((String) this.taskList.get(i * 3 + 1)))) == (int) countList.get(index).get(u * 2)) {
-                        if (countList.get(index).get(u * 2 + 1) < (int) this.taskList.get(i * 3 + 2)) {
+                for (int u = 0; u < countList.get(index).size() / 2; u++)
+                    if (Registry.ENTITY_TYPE.getRawId(Registry.ENTITY_TYPE.get(new Identifier((String) this.taskList.get(i * 3 + 1)))) == (int) countList.get(index).get(u * 2))
+                        if (countList.get(index).get(u * 2 + 1) < (int) this.taskList.get(i * 3 + 2))
                             return false;
-                        }
-                    }
-                }
+            } else if (this.taskList.get(i * 3).equals("travel") || this.taskList.get(i * 3).equals("explore")) {
+                List<List<Object>> travelList = ((PlayerAccessor) playerEntity).getPlayerTravelList();
+                if (travelList.isEmpty())
+                    continue;
+                for (int u = 0; u < travelList.get(index).size() / 2; u++)
+                    if (!(boolean) travelList.get(index).get(u * 2 + 1))
+                        return false;
             } else {
                 int itemCount = 0;
-                for (int k = 0; k < playerEntity.getInventory().size(); k++) {
+                for (int k = 0; k < playerEntity.getInventory().size(); k++)
                     if (playerEntity.getInventory().getStack(k).isItemEqualIgnoreDamage(new ItemStack(Registry.ITEM.get(new Identifier((String) this.taskList.get(i * 3 + 1))))))
                         itemCount += playerEntity.getInventory().getStack(k).getCount();
-                }
-                if (itemCount == 0 || itemCount < (int) this.taskList.get(i * 3 + 2)) {
+                if (itemCount == 0 || itemCount < (int) this.taskList.get(i * 3 + 2))
                     return false;
-                }
-
             }
         }
         return true;
@@ -232,6 +246,17 @@ public class Quest {
             if (this.taskList.get(i * 3).equals("kill")) {
                 list.add(Registry.ENTITY_TYPE.getRawId(Registry.ENTITY_TYPE.get(new Identifier((String) this.taskList.get(i * 3 + 1)))));
                 list.add(0);
+            }
+        }
+        return list;
+    }
+
+    public List<Object> getTravelTaskIds() {
+        List<Object> list = new ArrayList<Object>();
+        for (int i = 0; i < this.taskList.size() / 3; i++) {
+            if (this.taskList.get(i * 3).equals("travel") || this.taskList.get(i * 3).equals("explore")) {
+                list.add(this.taskList.get(i * 3 + 1));
+                list.add(false);
             }
         }
         return list;

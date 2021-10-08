@@ -36,6 +36,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     private List<Integer> finishedQuestIdList = new ArrayList<>();
     private List<Integer> timerList = new ArrayList<>();
     private List<Integer> refreshQuestList = new ArrayList<>();
+    public List<List<Object>> travelIdList = new ArrayList<>();
 
     // Mixins
     @Inject(method = "readCustomDataFromNbt", at = @At(value = "TAIL"))
@@ -46,6 +47,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
         this.finishedQuestIdList.clear();
         this.timerList.clear();
         this.refreshQuestList.clear();
+        this.travelIdList.clear();
 
         this.acceptedQuestIdList = IntStream.of(nbt.getIntArray("AcceptedQuests")).boxed().collect(Collectors.toList());
 
@@ -58,6 +60,21 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
         }
         for (int i = 0; i < nbt.getInt("TraderUUIDCountNumber"); i++) {
             this.acceptedQuestTraderIdList.add(nbt.getUuid("TraderUUID" + i));
+        }
+        for (int i = 0; i < nbt.getInt("TravelCountNumber"); i++) {
+            List<Object> collectTravelIdList = new ArrayList<>();
+            for (int u = 0; u < 10; u++) {
+                if (nbt.getString("TravelId" + i + "" + u * 2) != "") {
+                    collectTravelIdList.add(nbt.getString("TravelId" + i + "" + u * 2));
+                    if (nbt.getString("TravelId" + i + "" + u * 2 + 1).equals("true"))
+                        collectTravelIdList.add(true);
+                    else
+                        collectTravelIdList.add(false);
+                } else {
+                    this.travelIdList.add(collectTravelIdList);
+                    break;
+                }
+            }
         }
 
     }
@@ -76,6 +93,13 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
             nbt.putUuid("TraderUUID" + u, this.acceptedQuestTraderIdList.get(u));
         }
         nbt.putInt("TraderUUIDCountNumber", this.acceptedQuestTraderIdList.size());
+
+        for (int i = 0; i < this.travelIdList.size(); i++) {
+            if (!this.travelIdList.get(i).isEmpty())
+                for (int u = 0; u < this.travelIdList.get(i).size(); u++)
+                    nbt.putString("TravelId" + i + "" + u, String.valueOf(this.travelIdList.get(i).get(u)));
+        }
+        nbt.putInt("TravelCountNumber", this.travelIdList.size());
     }
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
@@ -163,6 +187,11 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     }
 
     @Override
+    public List<List<Object>> getPlayerTravelList() {
+        return this.travelIdList;
+    }
+
+    @Override
     public boolean isOriginalQuestGiver(UUID uuid, int questId) {
         if (this.acceptedQuestIdList.contains(questId) && this.acceptedQuestTraderIdList.get(this.acceptedQuestIdList.indexOf(questId)).equals(uuid))
             return true;
@@ -178,6 +207,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
 
         this.acceptedQuestTraderIdList.remove(this.acceptedQuestIdList.indexOf(id));
         this.killedMobQuestCount.remove(this.acceptedQuestIdList.indexOf(id));
+        this.travelIdList.remove(this.acceptedQuestIdList.indexOf(id));
         this.timerList.remove(this.acceptedQuestIdList.indexOf(id));
         this.acceptedQuestIdList.remove(this.acceptedQuestIdList.indexOf(id));
         if (!playerEntity.world.isClient) {
@@ -194,6 +224,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
 
         this.acceptedQuestTraderIdList.remove(this.acceptedQuestIdList.indexOf(id));
         this.killedMobQuestCount.remove(this.acceptedQuestIdList.indexOf(id));
+        this.travelIdList.remove(this.acceptedQuestIdList.indexOf(id));
         this.timerList.remove(this.acceptedQuestIdList.indexOf(id));
         this.acceptedQuestIdList.remove(this.acceptedQuestIdList.indexOf(id));
 
@@ -204,6 +235,8 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
                 playerEntity.sendMessage(new TranslatableText("text.villagerquests.questGiverDespawn", quest.getTitle()), true);
             else if (reason == 2)
                 playerEntity.sendMessage(new TranslatableText("text.villagerquests.questGiverDied", quest.getTitle()), true);
+            else if (reason == 3)
+                playerEntity.sendMessage(new TranslatableText("text.villagerquests.questCommandRemoval", quest.getTitle()), false);
         }
 
     }
@@ -215,6 +248,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
             this.acceptedQuestTraderIdList.add(uuid);
             this.killedMobQuestCount.add(Quest.getQuestById(id).getKillTaskEntityIds());
             this.timerList.add(Quest.getQuestById(id).getQuestTimer());
+            this.travelIdList.add(Quest.getQuestById(id).getTravelTaskIds());
         }
 
         if (this.finishedQuestIdList.contains(id)) {
@@ -224,13 +258,15 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     }
 
     @Override
-    public void syncPlayerQuest(List<Integer> questIds, List<List<Integer>> killedCount, List<UUID> traderUuids, List<Integer> finishedIds, List<Integer> timers, List<Integer> refresher) {
+    public void syncPlayerQuest(List<Integer> questIds, List<List<Integer>> killedCount, List<List<Object>> travelIds, List<UUID> traderUuids, List<Integer> finishedIds, List<Integer> timers,
+            List<Integer> refresher) {
         this.acceptedQuestIdList = questIds;
         this.killedMobQuestCount = killedCount;
         this.acceptedQuestTraderIdList = traderUuids;
         this.finishedQuestIdList = finishedIds;
         this.timerList = timers;
         this.refreshQuestList = refresher;
+        this.travelIdList = travelIds;
     }
 
     // Methods used in this class

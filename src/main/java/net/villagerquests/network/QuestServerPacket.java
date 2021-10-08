@@ -37,6 +37,7 @@ public class QuestServerPacket {
     public static final Identifier ACCEPT_MERCHANT_QUEST = new Identifier("levelz", "accept_merchant_quest");
     public static final Identifier COMPLETE_MERCHANT_QUEST = new Identifier("levelz", "complete_merchant_quest");
     public static final Identifier QUEST_KILL_ADDITION = new Identifier("levelz", "quest_kill_addition");
+    public static final Identifier QUEST_TRAVEL_ADDITION = new Identifier("levelz", "quest_travel_addition");
     public static final Identifier SET_MOUSE_POSITION = new Identifier("levelz", "set_mouse_position");
     public static final Identifier SYNC_PLAYER_QUEST_DATA = new Identifier("levelz", "sync_player_quest_data");
     public static final Identifier SET_MERCHANT_QUEST = new Identifier("levelz", "set_merchant_quest");
@@ -119,6 +120,14 @@ public class QuestServerPacket {
         serverPlayerEntity.networkHandler.sendPacket(packet);
     }
 
+    public static void writeS2CQuestTravelAdditionPacket(ServerPlayerEntity serverPlayerEntity, int listRow, int listColumn) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(listRow);
+        buf.writeInt(listColumn);
+        CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(QUEST_TRAVEL_ADDITION, buf);
+        serverPlayerEntity.networkHandler.sendPacket(packet);
+    }
+
     public static void writeS2CPlayerQuestDataPacket(PlayerEntity playerEntity) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 
@@ -138,6 +147,18 @@ public class QuestServerPacket {
         buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerFinishedQuestIdList()));
         buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerQuestTimerList()));
         buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerQuestRefreshTimerList()));
+
+        List<List<Object>> travelIdList = ((PlayerAccessor) playerEntity).getPlayerTravelList();
+        for (int k = 0; k < travelIdList.size(); k++) {
+            if (!travelIdList.get(k).isEmpty())
+                for (int u = 0; u < travelIdList.get(k).size(); u++) {
+                    buf.writeString(String.valueOf(travelIdList.get(k).get(u)));
+                    if (u == travelIdList.get(k).size() - 1)
+                        buf.writeString("Break");
+                }
+            else
+                buf.writeString("Null");
+        }
 
         CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(SYNC_PLAYER_QUEST_DATA, buf);
         ((ServerPlayerEntity) playerEntity).networkHandler.sendPacket(packet);

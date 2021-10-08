@@ -1,5 +1,7 @@
 package net.villagerquests.mixin;
 
+import java.util.List;
+
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -10,6 +12,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.network.QuestServerPacket;
 
 @Mixin(ServerPlayerEntity.class)
@@ -39,6 +44,34 @@ public class ServerPlayerEntityMixin {
     @Inject(method = "moveToWorld", at = @At(value = "FIELD", target = "Lnet/minecraft/server/network/ServerPlayerEntity;syncedFoodLevel:I", ordinal = 0))
     private void moveToWorldMixin(ServerWorld destination, CallbackInfoReturnable<Entity> info) {
         this.syncQuest = true;
+    }
+
+    @Inject(method = "playerTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/advancement/criterion/LocationArrivalCriterion;trigger(Lnet/minecraft/server/network/ServerPlayerEntity;)V"))
+    private void playerTickLocationMixin(CallbackInfo info) {
+        ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) (Object) this;
+        if (serverPlayerEntity.age % 100 == 0) {
+            List<List<Object>> travelIdList = ((PlayerAccessor) serverPlayerEntity).getPlayerTravelList();
+            if (!travelIdList.isEmpty() && serverPlayerEntity.getServerWorld().getDimension() != null)
+                for (int i = 0; i < travelIdList.size(); i++)
+                    for (int u = 0; u < travelIdList.get(i).size() / 2; u++) {
+                        String id = (String) travelIdList.get(i).get(u * 2);
+                        if (!(boolean) travelIdList.get(i).get(u * 2 + 1))
+                            if (Registry.STRUCTURE_FEATURE.get(new Identifier(id)) != null) {
+                                if (serverPlayerEntity.getServerWorld().getStructureAccessor()
+                                        .getStructureAt(serverPlayerEntity.getBlockPos(), true, Registry.STRUCTURE_FEATURE.get(new Identifier(id))).hasChildren()) {
+                                    travelIdList.get(i).set(u * 2 + 1, true);
+                                    QuestServerPacket.writeS2CQuestTravelAdditionPacket(serverPlayerEntity, i, u * 2 + 1);
+                                }
+                            } else {
+                                if (serverPlayerEntity.getServerWorld().getRegistryManager().get(Registry.BIOME_KEY).get(new Identifier(id)) != null && serverPlayerEntity.getServerWorld()
+                                        .getRegistryManager().get(Registry.BIOME_KEY).get(new Identifier(id)).equals(serverPlayerEntity.getServerWorld().getBiome(serverPlayerEntity.getBlockPos()))) {
+                                    travelIdList.get(i).set(u * 2 + 1, true);
+                                    QuestServerPacket.writeS2CQuestTravelAdditionPacket(serverPlayerEntity, i, u * 2 + 1);
+                                }
+                            }
+                    }
+        }
+
     }
 
 }

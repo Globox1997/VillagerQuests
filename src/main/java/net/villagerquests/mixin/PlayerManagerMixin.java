@@ -33,8 +33,8 @@ public class PlayerManagerMixin {
             Optional<Vec3d> optional2, ServerWorld serverWorld2, ServerPlayerEntity serverPlayerEntity) {
         if (alive || !VillagerQuestsMain.CONFIG.hardMode) {
             ((PlayerAccessor) serverPlayerEntity).syncPlayerQuest(((PlayerAccessor) player).getPlayerQuestIdList(), ((PlayerAccessor) player).getPlayerKilledQuestList(),
-                    ((PlayerAccessor) player).getPlayerQuestTraderIdList(), ((PlayerAccessor) player).getPlayerFinishedQuestIdList(), ((PlayerAccessor) player).getPlayerQuestTimerList(),
-                    ((PlayerAccessor) player).getPlayerQuestRefreshTimerList());
+                    ((PlayerAccessor) player).getPlayerTravelList(), ((PlayerAccessor) player).getPlayerQuestTraderIdList(), ((PlayerAccessor) player).getPlayerFinishedQuestIdList(),
+                    ((PlayerAccessor) player).getPlayerQuestTimerList(), ((PlayerAccessor) player).getPlayerQuestRefreshTimerList());
             QuestServerPacket.writeS2CPlayerQuestDataPacket(serverPlayerEntity);
         }
     }

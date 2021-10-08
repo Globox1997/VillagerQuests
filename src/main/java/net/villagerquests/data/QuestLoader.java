@@ -54,7 +54,10 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                     // Description
                     QuestData.descriptionList.add(data.get("description").getAsString());
                     // Experience
-                    QuestData.experienceList.add(data.get("experience").getAsInt());
+                    if (data.has("experience"))
+                        QuestData.experienceList.add(data.get("experience").getAsInt());
+                    else
+                        QuestData.experienceList.add(0);
                     // Reward
                     ArrayList<Object> rewardList = new ArrayList<Object>();
                     for (int i = 0; i < data.getAsJsonArray("reward").size(); i++) {

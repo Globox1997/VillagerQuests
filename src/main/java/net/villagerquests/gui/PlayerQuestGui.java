@@ -37,6 +37,7 @@ public class PlayerQuestGui extends LightweightGuiDescription {
         List<List<Integer>> questKilledList = ((PlayerAccessor) client.player).getPlayerKilledQuestList();
         List<Integer> questRefreshTimerList = ((PlayerAccessor) client.player).getPlayerQuestRefreshTimerList();
         List<Integer> questTimerList = ((PlayerAccessor) client.player).getPlayerQuestTimerList();
+        List<List<Object>> questTraveledList = ((PlayerAccessor) client.player).getPlayerTravelList();
         // List<UUID> questTraderList = ((PlayerAccessor) client.player).getPlayerQuestTraderIdList();
         if (!questIdList.isEmpty()) {
             plainPanel.add(new WLabel(new TranslatableText("text.villagerquests.active")).setColor(VillagerQuestsMain.CONFIG.playerActiveColor), 0, gridYSpace);
@@ -103,7 +104,7 @@ public class PlayerQuestGui extends LightweightGuiDescription {
 
                 // Tasks
                 int easyKilledCounter = 0;
-
+                int easyTravelCounter = 0;
                 for (int u = 0; u < quest.getStringTasks().length; u++) {
 
                     if (quest.getStringTasks()[u].contains("Kill")) {
@@ -119,6 +120,18 @@ public class PlayerQuestGui extends LightweightGuiDescription {
                         } else
                             plainPanel.add(new WLabel(string).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 9, gridYSpace);
                         easyKilledCounter++;
+                    } else if (quest.getStringTasks()[u].contains("Explore") || quest.getStringTasks()[u].contains("Travel")) {
+                        boolean traveled = (boolean) questTraveledList.get(questIdList.indexOf(quest.getQuestId())).get(easyTravelCounter * 2 + 1);
+                        String string = quest.getStringTasks()[u] + " - " + new TranslatableText("text.villagerquests.explored").getString() + (traveled ? "Yes" : "Not Yet");
+                        if (client.textRenderer.getWidth(string) > 240) {
+                            string = quest.getStringTasks()[u];
+                            plainPanel.add(new WLabel(string).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 9, gridYSpace);
+                            gridYSpace += 10;
+                            string = new TranslatableText("text.villagerquests.explored").getString() + (traveled ? "Yes" : "Not Yet");
+                            plainPanel.add(new WLabel(string).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 56, gridYSpace);
+                        } else
+                            plainPanel.add(new WLabel(string).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 9, gridYSpace);
+                        easyTravelCounter++;
                     } else {
                         int itemCount = 0;
                         for (int k = 0; k < client.player.getInventory().size(); k++) {

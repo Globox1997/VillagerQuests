@@ -33,7 +33,6 @@ public class QuestClientPacket {
                 merchantEntity.setCurrentCustomer(client.player);
             });
         });
-
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.QUEST_KILL_ADDITION, (client, handler, buf, sender) -> {
             if (client.player != null) {
                 ((PlayerAccessor) client.player).canAddKilledMobQuestCount(buf.readInt());
@@ -68,6 +67,10 @@ public class QuestClientPacket {
                 newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
                 newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
                 newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
+
+                while (buf.isReadable()) {
+                    newBuffer.writeString(buf.readString());
+                }
                 client.execute(() -> {
                     executePlayerQuestData(client.player, newBuffer);
                 });
@@ -82,7 +85,6 @@ public class QuestClientPacket {
             });
 
         });
-
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MOUSE_POSITION, (client, handler, buf, sender) -> {
             int mouseX = buf.readInt();
             int mouseY = buf.readInt();
@@ -109,6 +111,11 @@ public class QuestClientPacket {
             client.execute(() -> {
                 ((MerchantAccessor) client.world.getEntityById(entityId)).setQuestIdList(list);
             });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.QUEST_TRAVEL_ADDITION, (client, handler, buf, sender) -> {
+            if (client.player != null) {
+                ((PlayerAccessor) client.player).getPlayerTravelList().get(buf.readInt()).set(buf.readInt(), true);
+            }
         });
     }
 
@@ -185,7 +192,28 @@ public class QuestClientPacket {
         List<Integer> finishedIds = buf.readIntList();
         List<Integer> timers = buf.readIntList();
         List<Integer> refreshTimers = buf.readIntList();
-        ((PlayerAccessor) player).syncPlayerQuest(questIds, killedMobQuestCount, traderUuids, finishedIds, timers, refreshTimers);
+
+        List<List<Object>> travelIdList = new ArrayList<>();
+
+        List<Object> travelCollectorList = new ArrayList<>();
+        while (buf.isReadable()) {
+            String string = buf.readString();
+            if (string.equals("Null")) {
+                travelCollectorList.clear();
+                travelIdList.add(travelCollectorList);
+            } else if (string.equals("Break")) {
+                travelIdList.add(travelCollectorList);
+                travelCollectorList.clear();
+            } else {
+                if (string.equals("true"))
+                    travelCollectorList.add(true);
+                else if (string.equals("false"))
+                    travelCollectorList.add(false);
+                else
+                    travelCollectorList.add(string);
+            }
+        }
+        ((PlayerAccessor) player).syncPlayerQuest(questIds, killedMobQuestCount, travelIdList, traderUuids, finishedIds, timers, refreshTimers);
     }
 
     private static void executeListPacket(PacketByteBuf buf, ClientPlayerEntity player) {
