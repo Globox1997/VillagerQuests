@@ -55,7 +55,7 @@ public class MerchantQuests {
                             questAdder++;
                         }
                     }
-                } else if (!currentQuests.isEmpty()) {
+                } else if (!availableQuests.isEmpty()) {
                     currentQuests.addAll(availableQuests);
                 }
             }
