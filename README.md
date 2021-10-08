@@ -19,7 +19,7 @@ VillagerQuests is licensed under MIT.
 This mod doesn't add quests by itself so you or your modpack creator has to create them via datapacks.\
 If you don't know how to create a datapack check out [Data Pack Wiki](https://minecraft.fandom.com/wiki/Data_Pack)
 website and try to create your first one for the vanilla game.\
-If you know how to create one, the folder path has to be ```data\villagerquests\quests\YOURFILE.json```\
+If you know how to create one, the folder path has to be ```data\villagerquests\quests\YOURFILE.json```
 
 ```
 {
@@ -69,7 +69,7 @@ If you know how to create one, the folder path has to be ```data\villagerquests\
 
 "description": is the quest description which will show up in the quest screen.\
 "experience": is the amount of experience the player will receive on finishing the quest.\
-"reward": is the item rewards when finishing the quest. It has to be the item identifier like "modid:itemname" and the item count.\
+"reward": is the item rewards when finishing the quest. It has to be the item identifier like "modid:itemname" and the item count.
 
 ### Additions
 
@@ -82,4 +82,4 @@ Info: 20 ticks in minecraft are 1 second in real life.
 Titles shouldn't be longer than 20 characters.\
 Descriptions shouldn't be longer than 220 characters.\
 Tasks are limited to 4 different tasks.\
-Rewards are limited to 3 different reward items.\
+Rewards are limited to 3 different reward items.
