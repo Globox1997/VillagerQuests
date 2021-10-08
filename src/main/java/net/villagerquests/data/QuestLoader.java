@@ -28,52 +28,53 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                 JsonObject data = new JsonParser().parse(new InputStreamReader(stream)).getAsJsonObject();
                 if (QuestData.idList.contains(data.get("id").getAsInt())) {
                     VillagerQuestsMain.LOGGER.error("Error occurred while loading resource {}. Quest with Id: {} got loaded more than one time", id.toString(), data.get("id").getAsInt());
+                } else {
+                    // Id
+                    QuestData.idList.add(data.get("id").getAsInt());
+                    // Title
+                    QuestData.titleList.add(data.get("title").getAsString());
+                    // Level
+                    if (data.has("level"))
+                        QuestData.levelList.add(data.get("level").getAsInt());
+                    else
+                        QuestData.levelList.add(0);
+                    // Type
+                    QuestData.typeList.add(data.get("type").getAsString());
+                    // Profession
+                    QuestData.professionList.add(data.get("profession").getAsString());
+                    // Task
+                    ArrayList<Object> taskList = new ArrayList<Object>();
+                    for (int i = 0; i < data.getAsJsonArray("task").size(); i++) {
+                        if (data.getAsJsonArray("task").get(i).toString().matches("-?(0|[1-9]\\d*)")) {
+                            taskList.add(data.getAsJsonArray("task").get(i).getAsInt());
+                        } else
+                            taskList.add(data.getAsJsonArray("task").get(i).getAsString());
+                    }
+                    QuestData.taskList.add(taskList);
+                    // Description
+                    QuestData.descriptionList.add(data.get("description").getAsString());
+                    // Experience
+                    QuestData.experienceList.add(data.get("experience").getAsInt());
+                    // Reward
+                    ArrayList<Object> rewardList = new ArrayList<Object>();
+                    for (int i = 0; i < data.getAsJsonArray("reward").size(); i++) {
+                        if (data.getAsJsonArray("reward").get(i).toString().matches("-?(0|[1-9]\\d*)")) {
+                            rewardList.add(data.getAsJsonArray("reward").get(i).getAsInt());
+                        } else
+                            rewardList.add(data.getAsJsonArray("reward").get(i).getAsString());
+                    }
+                    QuestData.rewardList.add(rewardList);
+                    // Refresh
+                    if (data.has("refresh"))
+                        QuestData.refreshTimeList.add(data.get("refresh").getAsInt());
+                    else
+                        QuestData.refreshTimeList.add(-1);
+                    // Timer
+                    if (data.has("timer"))
+                        QuestData.timerList.add(data.get("timer").getAsInt());
+                    else
+                        QuestData.timerList.add(-1);
                 }
-                // Id
-                QuestData.idList.add(data.get("id").getAsInt());
-                // Title
-                QuestData.titleList.add(data.get("title").getAsString());
-                // Level
-                if (data.has("level"))
-                    QuestData.levelList.add(data.get("level").getAsInt());
-                else
-                    QuestData.levelList.add(0);
-                // Type
-                QuestData.typeList.add(data.get("type").getAsString());
-                // Profession
-                QuestData.professionList.add(data.get("profession").getAsString());
-                // Task
-                ArrayList<Object> taskList = new ArrayList<Object>();
-                for (int i = 0; i < data.getAsJsonArray("task").size(); i++) {
-                    if (data.getAsJsonArray("task").get(i).toString().matches("-?(0|[1-9]\\d*)")) {
-                        taskList.add(data.getAsJsonArray("task").get(i).getAsInt());
-                    } else
-                        taskList.add(data.getAsJsonArray("task").get(i).getAsString());
-                }
-                QuestData.taskList.add(taskList);
-                // Description
-                QuestData.descriptionList.add(data.get("description").getAsString());
-                // Experience
-                QuestData.experienceList.add(data.get("experience").getAsInt());
-                // Reward
-                ArrayList<Object> rewardList = new ArrayList<Object>();
-                for (int i = 0; i < data.getAsJsonArray("reward").size(); i++) {
-                    if (data.getAsJsonArray("reward").get(i).toString().matches("-?(0|[1-9]\\d*)")) {
-                        rewardList.add(data.getAsJsonArray("reward").get(i).getAsInt());
-                    } else
-                        rewardList.add(data.getAsJsonArray("reward").get(i).getAsString());
-                }
-                QuestData.rewardList.add(rewardList);
-                // Refresh
-                if (data.has("refresh"))
-                    QuestData.refreshTimeList.add(data.get("refresh").getAsInt());
-                else
-                    QuestData.refreshTimeList.add(-1);
-                // Timer
-                if (data.has("timer"))
-                    QuestData.timerList.add(data.get("timer").getAsInt());
-                else
-                    QuestData.timerList.add(-1);
 
             } catch (Exception e) {
                 VillagerQuestsMain.LOGGER.error("Error occurred while loading resource {}. {}", id.toString(), e.toString());
