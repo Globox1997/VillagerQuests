@@ -167,14 +167,14 @@ public class Quest {
                 return Registry.BLOCK.get(new Identifier(identifier)).getName().getString();
             case "explore":
                 if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
-                    return WordUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " "));
+                    return WordUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " ").replace(":", " "));
                 else
-                    return WordUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " "));
+                    return WordUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
             case "travel":
                 if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
-                    return WordUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " "));
+                    return WordUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " ").replace(":", " "));
                 else
-                    return WordUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " "));
+                    return WordUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
             default:
                 return "";
         }
