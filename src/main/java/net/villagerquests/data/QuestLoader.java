@@ -43,6 +43,8 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                     // Type
                     QuestData.typeList.add(data.get("type").getAsString());
                     // Profession
+                    if (!Registry.VILLAGER_PROFESSION.containsId(new Identifier(data.get("profession").getAsString())))
+                        VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. Profession {} does not exist", data.get("id").getAsInt(), data.get("profession").getAsString());
                     QuestData.professionList.add(data.get("profession").getAsString());
                     // Task
                     ArrayList<Object> taskList = new ArrayList<Object>();
