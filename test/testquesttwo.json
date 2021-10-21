@@ -1,9 +1,9 @@
 {
-    "id": 0,
-    "title": "Test Quest Toolsmith",
+    "id": 2,
+    "title": "Test Quest Farmer",
     "level": 0,
     "type": "fight",
-    "profession": "toolsmith",
+    "profession": "farmer",
     "task": [
         "farm",
         "minecraft:stick",
