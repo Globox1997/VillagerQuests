@@ -83,7 +83,13 @@ public class QuestClientPacket {
             client.execute(() -> {
                 ((PlayerAccessor) client.player).failPlayerQuest(newBuffer.readInt(), newBuffer.readInt());
             });
-
+        });
+        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.REMOVE_MERCHANT_QUEST, (client, handler, buf, sender) -> {
+            PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
+            newBuffer.writeInt(buf.readInt());
+            client.execute(() -> {
+                ((PlayerAccessor) client.player).removeQuest(newBuffer.readInt());
+            });
         });
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MOUSE_POSITION, (client, handler, buf, sender) -> {
             int mouseX = buf.readInt();

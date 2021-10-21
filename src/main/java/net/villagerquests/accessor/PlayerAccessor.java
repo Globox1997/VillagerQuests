@@ -36,6 +36,8 @@ public interface PlayerAccessor {
 
     public void failPlayerQuest(int id, int reason);
 
+    public void removeQuest(int id);
+
     public void syncPlayerQuest(List<Integer> questIds, List<List<Integer>> killedCount, List<List<Object>> travelIds, List<UUID> traderUuids, List<Integer> finishedIds, List<Integer> timers,
             List<Integer> refresher);
 

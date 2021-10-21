@@ -1,6 +1,7 @@
 package net.villagerquests.mixin;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,6 +21,7 @@ import net.minecraft.village.Merchant;
 import net.minecraft.world.World;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.MerchantAccessor;
+import net.villagerquests.data.QuestData;
 import net.villagerquests.network.QuestServerPacket;
 
 @Mixin(MerchantEntity.class)
@@ -54,6 +56,13 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
         this.oldQuestList.clear();
 
         this.questIdList = IntStream.of(nbt.getIntArray("QuestIds")).boxed().collect(Collectors.toList());
+        for (Iterator<Integer> iter = this.questIdList.listIterator(); iter.hasNext();) {
+            Integer integer = iter.next();
+            if (!QuestData.idList.contains(integer)) {
+                iter.remove();
+            }
+        }
+
         if (VillagerQuestsMain.CONFIG.rememberQuests) {
             for (int i = 0; i < nbt.getInt("QuestCount"); ++i) {
                 String jobString = "OldQuest" + i;

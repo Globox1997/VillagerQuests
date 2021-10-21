@@ -38,13 +38,13 @@ public class QuestCommands {
                 continue;
             if (removeAll) {
                 for (int i = 0; i < list.size(); i++) {
-                    QuestServerPacket.writeS2CFailQuestPacket(serverPlayerEntity, list.get(i), 3);
-                    ((PlayerAccessor) serverPlayerEntity).failPlayerQuest(list.get(i), 3);
+                    QuestServerPacket.writeS2CRemoveQuestPacket(serverPlayerEntity, list.get(i));
+                    ((PlayerAccessor) serverPlayerEntity).removeQuest(list.get(i));
                 }
             } else {
                 if (list.contains(questId)) {
-                    QuestServerPacket.writeS2CFailQuestPacket(serverPlayerEntity, questId, 3);
-                    ((PlayerAccessor) serverPlayerEntity).failPlayerQuest(questId, 3);
+                    QuestServerPacket.writeS2CRemoveQuestPacket(serverPlayerEntity, questId);
+                    ((PlayerAccessor) serverPlayerEntity).removeQuest(questId);
                 } else
                     source.sendFeedback(new TranslatableText("commands.villagerquests.changeFail", serverPlayerEntity.getName()), true);
             }

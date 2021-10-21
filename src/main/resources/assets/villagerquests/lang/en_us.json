@@ -63,7 +63,7 @@
   "text.villagerquests.questTimeout": "Quest %1$s failed due to timeout",
   "text.villagerquests.questGiverDied": "Quest %1$s failed because the quest giver died",
   "text.villagerquests.questGiverDespawn": "Quest %1$s failed because the quest giver run away",
-  "text.villagerquests.questCommandRemoval": "Quest %1$s got removed",
+  "text.villagerquests.questCommandRemoval": "Quest %d got removed",
 
   "merchant.quests": "Quests",
 

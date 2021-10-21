@@ -106,7 +106,6 @@ public class PlayerQuestGui extends LightweightGuiDescription {
                 int easyKilledCounter = 0;
                 int easyTravelCounter = 0;
                 for (int u = 0; u < quest.getStringTasks().length; u++) {
-
                     if (quest.getStringTasks()[u].contains("Kill")) {
                         String string = quest.getStringTasks()[u] + " - " + new TranslatableText("text.villagerquests.killed").getString()
                                 + questKilledList.get(questIdList.indexOf(quest.getQuestId())).get(easyKilledCounter * 2 + 1) + " / " + quest.getTaskCount(u);

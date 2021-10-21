@@ -1,5 +1,6 @@
 package net.villagerquests.mixin;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.PlayerAccessor;
+import net.villagerquests.data.QuestData;
 import net.villagerquests.network.QuestServerPacket;
 
 @Mixin(PlayerManager.class)
@@ -26,6 +28,18 @@ public class PlayerManagerMixin {
     private void onPlayerConnectMixin(ClientConnection connection, ServerPlayerEntity player, CallbackInfo info) {
         QuestServerPacket.writeS2CPlayerQuestDataPacket(player);
         QuestServerPacket.writeS2CQuestListPacket(player);
+        List<Integer> playerQuestIdList = ((PlayerAccessor) player).getPlayerQuestIdList();
+        List<Integer> playerFinishedQuestIdList = ((PlayerAccessor) player).getPlayerFinishedQuestIdList();
+        for (int i = 0; i < playerQuestIdList.size(); i++)
+            if (!QuestData.idList.contains(playerQuestIdList.get(i))) {
+                QuestServerPacket.writeS2CRemoveQuestPacket(player, playerQuestIdList.get(i));
+                ((PlayerAccessor) player).removeQuest(playerQuestIdList.get(i));
+            }
+        for (int i = 0; i < playerFinishedQuestIdList.size(); i++)
+            if (!QuestData.idList.contains(playerFinishedQuestIdList.get(i))) {
+                QuestServerPacket.writeS2CRemoveQuestPacket(player, playerFinishedQuestIdList.get(i));
+                ((PlayerAccessor) player).removeQuest(playerFinishedQuestIdList.get(i));
+            }
     }
 
     @Inject(method = "respawnPlayer", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)

@@ -42,6 +42,7 @@ public class QuestServerPacket {
     public static final Identifier SYNC_PLAYER_QUEST_DATA = new Identifier("levelz", "sync_player_quest_data");
     public static final Identifier SET_MERCHANT_QUEST = new Identifier("levelz", "set_merchant_quest");
     public static final Identifier FAIL_MERCHANT_QUEST = new Identifier("levelz", "fail_merchant_quest");
+    public static final Identifier REMOVE_MERCHANT_QUEST = new Identifier("levelz", "remove_merchant_quest");
     public static final Identifier DECLINE_MERCHANT_QUEST = new Identifier("levelz", "decline_merchant_quest");
     public static final Identifier QUEST_LIST_DATA = new Identifier("levelz", "quest_list_data");
 
@@ -185,6 +186,13 @@ public class QuestServerPacket {
         buf.writeInt(questId);
         buf.writeInt(reason);
         CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(FAIL_MERCHANT_QUEST, buf);
+        serverPlayerEntity.networkHandler.sendPacket(packet);
+    }
+
+    public static void writeS2CRemoveQuestPacket(ServerPlayerEntity serverPlayerEntity, int questId) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(questId);
+        CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(REMOVE_MERCHANT_QUEST, buf);
         serverPlayerEntity.networkHandler.sendPacket(packet);
     }
 
