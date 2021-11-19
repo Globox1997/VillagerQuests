@@ -67,14 +67,14 @@ public abstract class WanderingTraderEntityRendererMixin extends MobEntityRender
                 if (this.hasLabel(mobEntity))
                     matrixStack.translate(0.0D, 0.3D, 0.0D);
                 // method 35828 is the last Vec3f method in the Quaternion class
-                matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(this.dispatcher.getRotation().method_35828().getY()));
+                matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(this.dispatcher.getRotation().toEulerXyzDegrees().getY()));
 
                 if (VillagerQuestsMain.CONFIG.flatQuestIcon)
                     matrixStack.scale(-0.1F, -0.1F, 0.1F);
                 else
                     matrixStack.scale(-1.0F, -1.0F, 1.0F);
 
-                Matrix4f matrix4f = matrixStack.peek().getModel();
+                Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
                 TextRenderer textRenderer = this.getTextRenderer();
                 VertexConsumer vertexConsumers = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutoutNoCull(QUEST_TEXTURE));
 

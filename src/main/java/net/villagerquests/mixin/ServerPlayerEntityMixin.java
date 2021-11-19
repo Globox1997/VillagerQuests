@@ -51,20 +51,20 @@ public class ServerPlayerEntityMixin {
         ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) (Object) this;
         if (serverPlayerEntity.age % 100 == 0) {
             List<List<Object>> travelIdList = ((PlayerAccessor) serverPlayerEntity).getPlayerTravelList();
-            if (!travelIdList.isEmpty() && serverPlayerEntity.getServerWorld().getDimension() != null)
+            if (!travelIdList.isEmpty() && serverPlayerEntity.getWorld().getDimension() != null)
                 for (int i = 0; i < travelIdList.size(); i++)
                     for (int u = 0; u < travelIdList.get(i).size() / 2; u++) {
                         String id = (String) travelIdList.get(i).get(u * 2);
                         if (!(boolean) travelIdList.get(i).get(u * 2 + 1))
                             if (Registry.STRUCTURE_FEATURE.get(new Identifier(id)) != null) {
-                                if (serverPlayerEntity.getServerWorld().getStructureAccessor()
-                                        .getStructureAt(serverPlayerEntity.getBlockPos(), true, Registry.STRUCTURE_FEATURE.get(new Identifier(id))).hasChildren()) {
+                                if (serverPlayerEntity.getWorld().getStructureAccessor().getStructureAt(serverPlayerEntity.getBlockPos(), Registry.STRUCTURE_FEATURE.get(new Identifier(id)))
+                                        .hasChildren()) {
                                     travelIdList.get(i).set(u * 2 + 1, true);
                                     QuestServerPacket.writeS2CQuestTravelAdditionPacket(serverPlayerEntity, i, u * 2 + 1);
                                 }
                             } else {
-                                if (serverPlayerEntity.getServerWorld().getRegistryManager().get(Registry.BIOME_KEY).get(new Identifier(id)) != null && serverPlayerEntity.getServerWorld()
-                                        .getRegistryManager().get(Registry.BIOME_KEY).get(new Identifier(id)).equals(serverPlayerEntity.getServerWorld().getBiome(serverPlayerEntity.getBlockPos()))) {
+                                if (serverPlayerEntity.getWorld().getRegistryManager().get(Registry.BIOME_KEY).get(new Identifier(id)) != null && serverPlayerEntity.getWorld().getRegistryManager()
+                                        .get(Registry.BIOME_KEY).get(new Identifier(id)).equals(serverPlayerEntity.getWorld().getBiome(serverPlayerEntity.getBlockPos()))) {
                                     travelIdList.get(i).set(u * 2 + 1, true);
                                     QuestServerPacket.writeS2CQuestTravelAdditionPacket(serverPlayerEntity, i, u * 2 + 1);
                                 }
