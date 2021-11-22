@@ -27,7 +27,7 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
         for (Identifier id : manager.findResources("quests", path -> path.endsWith(".json"))) {
             try {
                 InputStream stream = manager.getResource(id).getInputStream();
-                JsonObject data = new JsonParser().parse(new InputStreamReader(stream)).getAsJsonObject();
+                JsonObject data = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject();
                 if (QuestData.idList.contains(data.get("id").getAsInt())) {
                     VillagerQuestsMain.LOGGER.error("Error occurred while loading resource {}. Quest with Id: {} got loaded more than one time", id.toString(), data.get("id").getAsInt());
                 } else {

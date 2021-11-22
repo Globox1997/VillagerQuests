@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import io.github.cottonmc.cotton.gui.client.CottonInventoryScreen;
 import net.fabricmc.api.EnvType;
@@ -168,7 +168,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
             villagerData = ((VillagerEntity) this.handler.offerer).getVillagerData();
             i = villagerData.getLevel();
         }
-        Text title = villagerData != null ? Text.of(WordUtils.capitalize(villagerData.getProfession().getId())) : this.handler.offerer.getName();
+        Text title = villagerData != null ? Text.of(StringUtils.capitalize(villagerData.getProfession().getId())) : this.handler.offerer.getName();
         if (i > 0 && i <= 5) {
             Text text = title.shallowCopy().append(" - ").append((Text) (new TranslatableText("merchant.level." + i)));
             int j = this.textRenderer.getWidth(text);

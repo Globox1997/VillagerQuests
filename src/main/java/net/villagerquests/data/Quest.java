@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -48,18 +48,18 @@ public class Quest {
 
     public ItemStack getQuestTypeStack() {
         switch (type) {
-            case "fight":
-                return new ItemStack(Items.IRON_SWORD);
-            case "farm":
-                return new ItemStack(Items.IRON_HOE);
-            case "mine":
-                return new ItemStack(Items.IRON_PICKAXE);
-            case "explore":
-                return new ItemStack(Items.IRON_BOOTS);
-            case "travel":
-                return new ItemStack(Items.IRON_BOOTS);
-            default:
-                return ItemStack.EMPTY;
+        case "fight":
+            return new ItemStack(Items.IRON_SWORD);
+        case "farm":
+            return new ItemStack(Items.IRON_HOE);
+        case "mine":
+            return new ItemStack(Items.IRON_PICKAXE);
+        case "explore":
+            return new ItemStack(Items.IRON_BOOTS);
+        case "travel":
+            return new ItemStack(Items.IRON_BOOTS);
+        default:
+            return ItemStack.EMPTY;
         }
     }
 
@@ -97,7 +97,7 @@ public class Quest {
             for (int i = 0; i < this.taskList.size() / 3; i++) {
                 String task = (String) this.taskList.get(i * 3);
                 int count = (int) this.taskList.get(i * 3 + 2);
-                taskListString[i] = new TranslatableText("text.villagerquests.task").getString() + (i + 1) + " - " + WordUtils.capitalize(task) + " "
+                taskListString[i] = new TranslatableText("text.villagerquests.task").getString() + (i + 1) + " - " + StringUtils.capitalize(task) + " "
                         + (task.equals("explore") || task.equals("travel") ? "the " : count + " ") + getTranslatedRegistryName(task, (String) this.taskList.get(i * 3 + 1))
                         + (count > 1 ? new TranslatableText("text.villagerquests.stringAddition").getString() : "");
             }
@@ -157,26 +157,26 @@ public class Quest {
 
     private String getTranslatedRegistryName(String task, String identifier) {
         switch (task) {
-            case "kill":
-                return Registry.ENTITY_TYPE.get(new Identifier(identifier)).getName().getString();
-            case "farm":
-                return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
-            case "submit":
-                return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
-            case "mine":
-                return Registry.BLOCK.get(new Identifier(identifier)).getName().getString();
-            case "explore":
-                if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
-                    return WordUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " ").replace(":", " "));
-                else
-                    return WordUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
-            case "travel":
-                if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
-                    return WordUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " ").replace(":", " "));
-                else
-                    return WordUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
-            default:
-                return "";
+        case "kill":
+            return Registry.ENTITY_TYPE.get(new Identifier(identifier)).getName().getString();
+        case "farm":
+            return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
+        case "submit":
+            return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
+        case "mine":
+            return Registry.BLOCK.get(new Identifier(identifier)).getName().getString();
+        case "explore":
+            if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
+                return StringUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " ").replace(":", " "));
+            else
+                return StringUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
+        case "travel":
+            if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
+                return StringUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " ").replace(":", " "));
+            else
+                return StringUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
+        default:
+            return "";
         }
     }
 
