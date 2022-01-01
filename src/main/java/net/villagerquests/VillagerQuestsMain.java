@@ -38,6 +38,7 @@ public class VillagerQuestsMain implements ModInitializer {
             if (success) {
                 for (int i = 0; i < server.getPlayerManager().getPlayerList().size(); i++) {
                     QuestServerPacket.writeS2CQuestListPacket(server.getPlayerManager().getPlayerList().get(i));
+                    QuestServerPacket.writeS2CPlayerQuestDataPacket(server.getPlayerManager().getPlayerList().get(i));
                 }
                 LOGGER.info("Finished reload on {}", Thread.currentThread());
             } else {

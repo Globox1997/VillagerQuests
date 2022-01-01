@@ -132,24 +132,49 @@ public class QuestServerPacket {
     public static void writeS2CPlayerQuestDataPacket(PlayerEntity playerEntity) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 
-        buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerQuestIdList()));
+        List<Integer> questList = ((PlayerAccessor) playerEntity).getPlayerQuestIdList();
         List<UUID> traderUuids = ((PlayerAccessor) playerEntity).getPlayerQuestTraderIdList();
+        List<List<Integer>> killedMobQuestCount = ((PlayerAccessor) playerEntity).getPlayerKilledQuestList();
+        List<List<Object>> travelIdList = ((PlayerAccessor) playerEntity).getPlayerTravelList();
+
+        for (int i = 0; i < questList.size(); i++) {
+            if (!QuestData.idList.contains(questList.get(i))) {
+                questList.remove(i);
+                traderUuids.remove(i);
+                killedMobQuestCount.remove(i);
+                travelIdList.remove(i);
+                i--;
+            }
+        }
+        buf.writeIntList(new IntArrayList(questList));
+
         buf.writeInt(traderUuids.size());
         for (int i = 0; i < traderUuids.size(); i++) {
             buf.writeUuid(traderUuids.get(i));
         }
 
-        List<List<Integer>> killedMobQuestCount = ((PlayerAccessor) playerEntity).getPlayerKilledQuestList();
         buf.writeInt(killedMobQuestCount.size());
         for (int u = 0; u < killedMobQuestCount.size(); u++) {
             buf.writeIntList(new IntArrayList(killedMobQuestCount.get(u)));
         }
 
-        buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerFinishedQuestIdList()));
-        buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerQuestTimerList()));
-        buf.writeIntList(new IntArrayList(((PlayerAccessor) playerEntity).getPlayerQuestRefreshTimerList()));
+        List<Integer> finishedQuestList = ((PlayerAccessor) playerEntity).getPlayerFinishedQuestIdList();
+        List<Integer> timerList = ((PlayerAccessor) playerEntity).getPlayerQuestTimerList();
+        List<Integer> refreshList = ((PlayerAccessor) playerEntity).getPlayerQuestRefreshTimerList();
 
-        List<List<Object>> travelIdList = ((PlayerAccessor) playerEntity).getPlayerTravelList();
+        for (int i = 0; i < finishedQuestList.size(); i++) {
+            if (!QuestData.idList.contains(finishedQuestList.get(i))) {
+                finishedQuestList.remove(i);
+                timerList.remove(i);
+                refreshList.remove(i);
+                i--;
+            }
+        }
+
+        buf.writeIntList(new IntArrayList(finishedQuestList));
+        buf.writeIntList(new IntArrayList(timerList));
+        buf.writeIntList(new IntArrayList(refreshList));
+
         for (int k = 0; k < travelIdList.size(); k++) {
             if (!travelIdList.get(k).isEmpty())
                 for (int u = 0; u < travelIdList.get(k).size(); u++) {

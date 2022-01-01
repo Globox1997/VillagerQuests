@@ -206,9 +206,9 @@ public class QuestClientPacket {
             String string = buf.readString();
             if (string.equals("Null")) {
                 travelCollectorList.clear();
-                travelIdList.add(travelCollectorList);
+                travelIdList.add(List.copyOf(travelCollectorList));
             } else if (string.equals("Break")) {
-                travelIdList.add(travelCollectorList);
+                travelIdList.add(List.copyOf(travelCollectorList));
                 travelCollectorList.clear();
             } else {
                 if (string.equals("true"))

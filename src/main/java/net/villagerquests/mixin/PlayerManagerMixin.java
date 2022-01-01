@@ -26,8 +26,8 @@ public class PlayerManagerMixin {
 
     @Inject(method = "onPlayerConnect", at = @At(value = "TAIL"))
     private void onPlayerConnectMixin(ClientConnection connection, ServerPlayerEntity player, CallbackInfo info) {
-        QuestServerPacket.writeS2CPlayerQuestDataPacket(player);
         QuestServerPacket.writeS2CQuestListPacket(player);
+        QuestServerPacket.writeS2CPlayerQuestDataPacket(player);
         List<Integer> playerQuestIdList = ((PlayerAccessor) player).getPlayerQuestIdList();
         List<Integer> playerFinishedQuestIdList = ((PlayerAccessor) player).getPlayerFinishedQuestIdList();
         for (int i = 0; i < playerQuestIdList.size(); i++)
