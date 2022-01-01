@@ -51,7 +51,7 @@ public abstract class VillagerEntityMixin implements MerchantAccessor {
         nbt.putInt("NewQuestTicker", this.newQuestTicker);
     }
 
-    @Inject(method = "readCustomDataFromNbt", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/DataResult;resultOrPartial(Ljava/util/function/Consumer;)Ljava/util/Optional;", shift = Shift.AFTER))
+    @Inject(method = "readCustomDataFromNbt", at = @At(value = "FIELD", target = "Lnet/minecraft/village/VillagerData;CODEC:Lcom/mojang/serialization/Codec;", shift = Shift.AFTER))
     private void readCustomDataFromNbtMixinTwo(NbtCompound nbt, CallbackInfo info) {
         this.settingDataOnRead = true;
     }
