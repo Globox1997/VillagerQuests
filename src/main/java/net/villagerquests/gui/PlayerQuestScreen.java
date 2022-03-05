@@ -32,8 +32,8 @@ public class PlayerQuestScreen extends CottonClientScreen {
 
     @Override
     public boolean keyPressed(int ch, int keyCode, int modifiers) {
-        if (VillagerQuestsClient.questKey.matchesKey(ch, keyCode) || client.options.keyInventory.matchesKey(ch, keyCode)) {
-            this.onClose();
+        if (VillagerQuestsClient.questKey.matchesKey(ch, keyCode) || client.options.inventoryKey.matchesKey(ch, keyCode)) {
+            this.close();
             return true;
         } else
             return super.keyPressed(ch, keyCode, modifiers);

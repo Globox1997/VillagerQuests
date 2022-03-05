@@ -54,7 +54,7 @@ public class QuestScreenHandler extends SyncedGuiDescription {
 
     @Override
     public boolean canUse(PlayerEntity player) {
-        return this.offerer.getCurrentCustomer() == player;
+        return this.offerer.getCustomer() == player;
     }
 
 }

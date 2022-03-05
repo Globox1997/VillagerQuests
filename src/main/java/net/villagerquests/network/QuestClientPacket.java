@@ -30,7 +30,7 @@ public class QuestClientPacket {
                 MerchantEntity merchantEntity = (MerchantEntity) client.world.getEntityById(newBuffer.readVarInt());
                 ((MerchantAccessor) merchantEntity).setQuestIdList(newBuffer.readIntList());
                 ((MerchantAccessor) client.player).setCurrentOfferer(merchantEntity);
-                merchantEntity.setCurrentCustomer(client.player);
+                merchantEntity.setCustomer(client.player);
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.QUEST_KILL_ADDITION, (client, handler, buf, sender) -> {

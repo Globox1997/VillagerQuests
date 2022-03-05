@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,7 +15,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.PlayerAccessor;
@@ -155,26 +155,27 @@ public class Quest {
         return new ItemStack(Registry.ITEM.get(new Identifier(string)));
     }
 
-    private String getTranslatedRegistryName(String task, String identifier) {
+    private String getTranslatedRegistryName(String task, String identifierString) {
+        Identifier identifier = new Identifier(identifierString);
         switch (task) {
         case "kill":
-            return Registry.ENTITY_TYPE.get(new Identifier(identifier)).getName().getString();
+            return Registry.ENTITY_TYPE.get(identifier).getName().getString();
         case "farm":
-            return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
+            return Registry.ITEM.get(identifier).getName().getString();
         case "submit":
-            return Registry.ITEM.get(new Identifier(identifier)).getName().getString();
+            return Registry.ITEM.get(identifier).getName().getString();
         case "mine":
-            return Registry.BLOCK.get(new Identifier(identifier)).getName().getString();
+            return Registry.BLOCK.get(identifier).getName().getString();
         case "explore":
-            if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
-                return StringUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " ").replace(":", " "));
-            else
-                return StringUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
+            // if (BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.BIOME_KEY).get(identifier) != null) {
+            return WordUtils.capitalize(identifier.toString().replace("_", " ").replace(":", " "));
+        // return StringUtils.capitalize(identifier.toString().replace("_", " ").replace(":", " "));
+        // } else
+        // return StringUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
+        // return "";
+        // return StringUtils.capitalize(identifier.getNamespace().replace("_", " ").replace(":", " "));
         case "travel":
-            if (BuiltinRegistries.BIOME.get(new Identifier(identifier)) != null)
-                return StringUtils.capitalize(BuiltinRegistries.BIOME.get(new Identifier(identifier)).toString().replace("_", " ").replace(":", " "));
-            else
-                return StringUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
+            return WordUtils.capitalize(identifier.toString().replace("_", " ").replace(":", " "));
         default:
             return "";
         }

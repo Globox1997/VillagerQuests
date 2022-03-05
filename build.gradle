@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '0.11-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -23,7 +23,7 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // Env Bug Fix
-    runtimeOnly 'io.github.juuxel:libninepatch:1.1.0'
+    modRuntimeOnly 'io.github.juuxel:libninepatch:1.1.0'
     // LibGui
     modImplementation include("io.github.cottonmc:LibGui:${project.cottonmc_version}")
     // Cloth
@@ -31,13 +31,14 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
     // ModMenu
-    modCompileOnly modRuntime("com.terraformersmc:modmenu:${project.mod_menu_version}") {
+    modCompileOnly modRuntimeOnly("com.terraformersmc:modmenu:${project.mod_menu_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 }
 
 processResources {
 	inputs.property "version", project.version
+	filteringCharset "UTF-8"
 
 	filesMatching("fabric.mod.json") {
 		expand "version": project.version
@@ -45,6 +46,8 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+
 	it.options.release = 17
 }
 

@@ -239,7 +239,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
         }
         // Set villager trade screen
         if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY)) {
-            // this.onClose(); = brigher background for a mili second
+            // this.onClose(); = bright background for a mili second
             QuestClientPacket.writeC2STradePacket(this.handler.offerer, (int) this.client.mouse.getX(), (int) this.client.mouse.getY());
             closedToTradeScreen = true;
         }
@@ -249,7 +249,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
     @Override
     public void removed() {
         if (!closedToTradeScreen) {
-            this.handler.offerer.setCurrentCustomer((PlayerEntity) null);
+            this.handler.offerer.setCustomer(null);
             QuestClientPacket.writeC2SClosePacket(this.handler.offerer);
         }
         super.removed();

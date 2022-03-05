@@ -55,7 +55,7 @@ public class QuestServerPacket {
                 }, Text.of("")));
 
                 MerchantEntity merchantEntity = (MerchantEntity) player.world.getEntityById(buffer.readVarInt());
-                merchantEntity.setCurrentCustomer(player);
+                merchantEntity.setCustomer(player);
                 // Send back to make sure customer is set on client
                 // Maybe unnecessary
                 // writeS2COffererPacket(player, merchantEntity, ((MerchantAccessor) merchantEntity).getQuestIdList());
@@ -85,7 +85,7 @@ public class QuestServerPacket {
         });
         ServerPlayNetworking.registerGlobalReceiver(CLOSE_SCREEN, (server, player, handler, buffer, sender) -> {
             if (player != null) {
-                ((MerchantEntity) player.world.getEntityById(buffer.readVarInt())).setCurrentCustomer(null);
+                ((MerchantEntity) player.world.getEntityById(buffer.readVarInt())).setCustomer(null);
             }
         });
         ServerPlayNetworking.registerGlobalReceiver(COMPLETE_MERCHANT_QUEST, (server, player, handler, buffer, sender) -> {

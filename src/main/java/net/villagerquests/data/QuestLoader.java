@@ -61,8 +61,8 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                                     VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. EntityType {} is null", data.get("id").getAsInt(),
                                             data.getAsJsonArray("task").get(i).getAsString());
                             } else if (lastTaskString.equals("travel") || lastTaskString.equals("explore")) {
-                                if (!Registry.STRUCTURE_FEATURE.containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
-                                        && !BuiltinRegistries.BIOME.containsId(new Identifier((String) taskList.get(taskList.size() - 1))))
+                                if (!BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
+                                        && !BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.BIOME_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1))))
                                     VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. Structure or Biome {} is null", data.get("id").getAsInt(),
                                             data.getAsJsonArray("task").get(i).getAsString());
                             } else if (lastTaskString.equals("submit") || lastTaskString.equals("farm") || lastTaskString.equals("mine")) {
