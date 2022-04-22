@@ -21,6 +21,7 @@ import net.villagerquests.gui.QuestScreenHandler;
 import net.villagerquests.network.QuestServerPacket;
 
 public class VillagerQuestsMain implements ModInitializer {
+
     public static VillagerQuestsConfig CONFIG = new VillagerQuestsConfig();
     public static ScreenHandlerType<QuestScreenHandler> QUEST_SCREEN_HANDLER_TYPE;
     public static final Logger LOGGER = LogManager.getLogger("VillagerQuests");

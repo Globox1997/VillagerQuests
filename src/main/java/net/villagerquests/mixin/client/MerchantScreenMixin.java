@@ -20,6 +20,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.text.Text;
+import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.gui.QuestScreenHandler;
@@ -62,17 +63,17 @@ public abstract class MerchantScreenMixin extends HandledScreen<MerchantScreenHa
         RenderSystem.setShaderTexture(0, QuestScreenHandler.GUI_ICONS);
         if (!questIdList.isEmpty())
             if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY))
-                MerchantScreenMixin.drawTexture(matrices, i + 276, j, 20, 0, 20, 20, 512, 512);
+                MerchantScreenMixin.drawTexture(matrices, i + 276 + VillagerQuestsMain.CONFIG.xIconPosition, j + VillagerQuestsMain.CONFIG.yIconPosition, 20, 0, 20, 20, 512, 512);
             else
-                MerchantScreenMixin.drawTexture(matrices, i + 276, j, 0, 0, 20, 20, 512, 512);
+                MerchantScreenMixin.drawTexture(matrices, i + 276 + VillagerQuestsMain.CONFIG.xIconPosition, j + VillagerQuestsMain.CONFIG.yIconPosition, 0, 0, 20, 20, 512, 512);
         else
-            MerchantScreenMixin.drawTexture(matrices, i + 276, j, 80, 0, 20, 20, 512, 512);
+            MerchantScreenMixin.drawTexture(matrices, i + 276 + VillagerQuestsMain.CONFIG.xIconPosition, j + VillagerQuestsMain.CONFIG.yIconPosition, 80, 0, 20, 20, 512, 512);
     }
 
     // In window: 251 and 5
     @Inject(method = "mouseClicked", at = @At(value = "HEAD"), cancellable = true)
     private void mouseClickedMixin(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> info) {
-        if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY) && !questIdList.isEmpty()) {
+        if (this.isPointWithinBounds(276 + VillagerQuestsMain.CONFIG.xIconPosition, 0 + VillagerQuestsMain.CONFIG.yIconPosition, 20, 20, (double) mouseX, (double) mouseY) && !questIdList.isEmpty()) {
             QuestClientPacket.writeC2SScreenPacket(((MerchantAccessor) this.client.player).getCurrentOfferer(), (int) this.client.mouse.getX(), (int) this.client.mouse.getY());
             info.cancel();
         }

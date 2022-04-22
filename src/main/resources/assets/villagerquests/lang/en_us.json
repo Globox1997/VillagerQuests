@@ -18,6 +18,10 @@
   "text.autoconfig.villagerquests.option.canOnlyAddLevelSpecificQuests": "Add Only Level Specific Quests",
   "text.autoconfig.villagerquests.option.newQuestTimer": "New Quest Timer",
 
+  "text.autoconfig.villagerquests.option.xIconPosition": "X Icon Position",
+  "text.autoconfig.villagerquests.option.yIconPosition": "Y Icon Position",
+  "text.autoconfig.villagerquests.option.reiExclusionzone": "REI Exclusion Zone",
+
   "text.autoconfig.villagerquests.option.questTabTitleColor": "Tab Title Color",
   "text.autoconfig.villagerquests.option.titleColor": "Title Color",
   "text.autoconfig.villagerquests.option.descriptionColor": "Description Color",

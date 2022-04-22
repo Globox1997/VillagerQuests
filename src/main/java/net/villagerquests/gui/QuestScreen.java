@@ -151,10 +151,10 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
         i = (this.width - this.backgroundWidth) / 2;
         j = (this.height - this.backgroundHeight) / 2;
 
-        if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY)) {
-            QuestScreen.drawTexture(matrices, i + 276, j, 60, 0, 20, 20, 512, 512);
+        if (this.isPointWithinBounds(276 + VillagerQuestsMain.CONFIG.xIconPosition, 0 + VillagerQuestsMain.CONFIG.yIconPosition, 20, 20, (double) mouseX, (double) mouseY)) {
+            QuestScreen.drawTexture(matrices, i + 276 + VillagerQuestsMain.CONFIG.xIconPosition, j + VillagerQuestsMain.CONFIG.yIconPosition, 60, 0, 20, 20, 512, 512);
         } else
-            QuestScreen.drawTexture(matrices, i + 276, j, 40, 0, 20, 20, 512, 512);
+            QuestScreen.drawTexture(matrices, i + 276 + VillagerQuestsMain.CONFIG.xIconPosition, j + VillagerQuestsMain.CONFIG.yIconPosition, 40, 0, 20, 20, 512, 512);
     }
 
     @Override
@@ -238,7 +238,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
             this.scrolling = true;
         }
         // Set villager trade screen
-        if (this.isPointWithinBounds(276, 0, 20, 20, (double) mouseX, (double) mouseY)) {
+        if (this.isPointWithinBounds(276 + VillagerQuestsMain.CONFIG.xIconPosition, 0 + VillagerQuestsMain.CONFIG.yIconPosition, 20, 20, (double) mouseX, (double) mouseY)) {
             // this.onClose(); = bright background for a mili second
             QuestClientPacket.writeC2STradePacket(this.handler.offerer, (int) this.client.mouse.getX(), (int) this.client.mouse.getY());
             closedToTradeScreen = true;
