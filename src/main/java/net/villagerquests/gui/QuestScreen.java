@@ -26,6 +26,7 @@ import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.data.Quest;
 import net.villagerquests.network.QuestClientPacket;
+import net.villagerquests.util.DrawableExtension;
 
 @Environment(EnvType.CLIENT)
 public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
@@ -70,29 +71,40 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
         }));
 
         for (int l = 0; l < 7; ++l) {
-            this.quests[l] = (QuestScreen.WidgetButtonPage) this.addDrawableChild(new QuestScreen.WidgetButtonPage(i + 5, k, l, (button) -> {
-                if (button instanceof QuestScreen.WidgetButtonPage) {
-                    this.selectedIndex = ((QuestScreen.WidgetButtonPage) button).getIndex() + this.indexStartOffset;
-                    this.selectedQuest = new Quest(this.handler.questIdList.get(this.selectedIndex));
-                    this.acceptButton.visible = true;
-                    if (this.acceptedQuestIdList.contains(this.selectedQuest.getQuestId())) {
-                        if (((PlayerAccessor) this.playerEntity).isOriginalQuestGiver(this.handler.offerer.getUuid(), this.selectedQuest.getQuestId())) {
-                            this.acceptButton.setMessage(new TranslatableText("text.villagerquests.completeButton"));
-                            this.declineButton.visible = true;
-                            if (this.selectedQuest.canCompleteQuest(this.playerEntity))
-                                this.acceptButton.active = true;
-                            else
-                                this.acceptButton.active = false;
-                        } else {
-                            this.acceptButton.active = false;
+            this.quests[l] = (QuestScreen.WidgetButtonPage) this
+                    .addDrawableChild(new QuestScreen.WidgetButtonPage(i + 5, k, l, this.handler.questIdList.size() > l ? this.handler.questIdList.get(l) : -1, (button) -> {
+                        if (button instanceof QuestScreen.WidgetButtonPage) {
+                            this.selectedIndex = ((QuestScreen.WidgetButtonPage) button).getIndex() + this.indexStartOffset;
+                            this.selectedQuest = new Quest(this.handler.questIdList.get(this.selectedIndex));
+                            this.acceptButton.visible = true;
+                            if (this.acceptedQuestIdList.contains(this.selectedQuest.getQuestId())) {
+                                if (((PlayerAccessor) this.playerEntity).isOriginalQuestGiver(this.handler.offerer.getUuid(), this.selectedQuest.getQuestId())) {
+                                    this.acceptButton.setMessage(new TranslatableText("text.villagerquests.completeButton"));
+                                    this.declineButton.visible = true;
+                                    if (this.selectedQuest.canCompleteQuest(this.playerEntity))
+                                        this.acceptButton.active = true;
+                                    else
+                                        this.acceptButton.active = false;
+                                } else
+                                    this.acceptButton.active = false;
+
+                            } else {
+                                if (((PlayerAccessor) this.playerEntity).getPlayerFinishedQuestIdList().contains(this.selectedQuest.getQuestId())
+                                        && !((PlayerAccessor) this.playerEntity).getPlayerQuestRefreshTimerList()
+                                                .get(((PlayerAccessor) this.playerEntity).getPlayerFinishedQuestIdList().indexOf(this.selectedQuest.getQuestId())).equals(-1)) {
+                                    this.acceptButton.active = false;
+                                } else
+                                    this.acceptButton.active = true;
+                                this.acceptButton.setMessage(new TranslatableText("text.villagerquests.acceptButton"));
+                                this.declineButton.visible = false;
+
+                            }
                         }
-                    } else {
-                        this.acceptButton.active = true;
-                        this.acceptButton.setMessage(new TranslatableText("text.villagerquests.acceptButton"));
-                        this.declineButton.visible = false;
-                    }
-                }
-            }));
+                    }));
+            if (this.handler.questIdList.size() > l)
+                if (((PlayerAccessor) this.playerEntity).getPlayerFinishedQuestIdList().contains(this.handler.questIdList.get(l)) && !((PlayerAccessor) this.playerEntity)
+                        .getPlayerQuestRefreshTimerList().get(((PlayerAccessor) this.playerEntity).getPlayerFinishedQuestIdList().indexOf(this.handler.questIdList.get(l))).equals(-1))
+                    this.quests[l].active = false;
             k += 20;
         }
     }
@@ -286,7 +298,6 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
                         // 10 width
                         float scaling = quest.getTitle().length() > 10 ? 10F / quest.getTitle().length() : 1.0F;
                         DrawableExtension.draw(matrices, textRenderer, quest.getTitle(), i + 30, n + 5, VillagerQuestsMain.CONFIG.questTabTitleColor, scaling);
-
                         this.itemRenderer.zOffset = 0.0F;
                         k += 20;
                         ++m;
@@ -367,15 +378,34 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
 
     private class WidgetButtonPage extends ButtonWidget {
         final int index;
+        final int questId;
 
-        public WidgetButtonPage(int x, int y, int index, ButtonWidget.PressAction onPress) {
+        public WidgetButtonPage(int x, int y, int index, int questId, ButtonWidget.PressAction onPress) {
             super(x, y, 89, 20, LiteralText.EMPTY, onPress);
             this.index = index;
+            this.questId = questId;
             this.visible = false;
         }
 
         public int getIndex() {
             return this.index;
+        }
+
+        @Override
+        public void renderTooltip(MatrixStack matrices, int mouseX, int mouseY) {
+            super.renderTooltip(matrices, mouseX, mouseY);
+            if (((PlayerAccessor) playerEntity).getPlayerFinishedQuestIdList().contains(questId)) {
+                int refreshTicks = ((PlayerAccessor) playerEntity).getPlayerQuestRefreshTimerList().get(((PlayerAccessor) playerEntity).getPlayerFinishedQuestIdList().indexOf(questId));
+                if (refreshTicks != -1) {
+                    refreshTicks = refreshTicks / 20;
+                    String string;
+                    if (refreshTicks >= 3600)
+                        string = String.format("%02d:%02d:%02d", refreshTicks / 3600, (refreshTicks % 3600) / 60, (refreshTicks % 60));
+                    else
+                        string = String.format("%02d:%02d", (refreshTicks % 3600) / 60, (refreshTicks % 60));
+                    client.currentScreen.renderTooltip(matrices, new TranslatableText("text.villagerquests.refreshing", string), mouseX, mouseY);
+                }
+            }
         }
 
     }

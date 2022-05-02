@@ -60,7 +60,7 @@
   "text.villagerquests.description": "Description",
   "text.villagerquests.tasks": "Tasks",
   "text.villagerquests.rewards": "Rewards",
-  "text.villagerquests.refreshing": "Quest refreshes in: ",
+  "text.villagerquests.refreshing": "Quest refreshes in: %d",
   "text.villagerquests.collected": "Collected: ",
   "text.villagerquests.killed": "Killed: ",
   "text.villagerquests.explored": "Explored: ",
