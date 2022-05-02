@@ -87,8 +87,8 @@ Rewards are limited to 3 different reward items.
 
 ### Info
 
-Find itemnames here: https://minecraft.fandom.com/wiki/Java_Edition_data_values#Items\
-Find entitynames here: https://minecraft.fandom.com/wiki/Java_Edition_data_values#Entities\
-Find biomenames here: https://minecraft.fandom.com/wiki/Biome#Biome_IDs\
+Find itemnames here: https://minecraft.fandom.com/wiki/Java_Edition_data_values#Items \
+Find entitynames here: https://minecraft.fandom.com/wiki/Java_Edition_data_values#Entities \
+Find biomenames here: https://minecraft.fandom.com/wiki/Biome#Biome_IDs \
 Find structurenames here:\
 [minecraft:desert_pyramid, minecraft:village_taiga, minecraft:ruined_portal_swamp, minecraft:nether_fossil, minecraft:bastion_remnant, minecraft:pillager_outpost, minecraft:shipwreck, minecraft:jungle_pyramid, minecraft:ruined_portal_jungle, minecraft:mineshaft_mesa, minecraft:swamp_hut, minecraft:ocean_ruin_warm, minecraft:village_plains, minecraft:ruined_portal, minecraft:buried_treasure, minecraft:mansion, minecraft:ruined_portal_desert, minecraft:end_city, minecraft:mineshaft, minecraft:monument, minecraft:igloo, minecraft:ruined_portal_ocean, minecraft:ruined_portal_mountain, minecraft:fortress, minecraft:village_savanna, minecraft:ruined_portal_nether, minecraft:stronghold, minecraft:shipwreck_beached, minecraft:village_desert, minecraft:ocean_ruin_cold, minecraft:village_snowy]
