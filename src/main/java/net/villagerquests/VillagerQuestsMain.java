@@ -8,12 +8,11 @@ import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import net.villagerquests.command.QuestCommands;
 import net.villagerquests.config.VillagerQuestsConfig;
 import net.villagerquests.data.QuestLoader;
@@ -28,8 +27,8 @@ public class VillagerQuestsMain implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        QUEST_SCREEN_HANDLER_TYPE = ScreenHandlerRegistry.registerSimple(new Identifier("villagerquests", "quest_screen_type"),
-                (syncId, inventory) -> new QuestScreenHandler(syncId, inventory, ScreenHandlerContext.EMPTY, new MerchantScreenHandler(syncId, inventory)));
+        QUEST_SCREEN_HANDLER_TYPE = Registry.register(Registry.SCREEN_HANDLER, "villagerquests",
+                new ScreenHandlerType<>((syncId, inventory) -> new QuestScreenHandler(syncId, inventory, ScreenHandlerContext.EMPTY, new MerchantScreenHandler(syncId, inventory))));
         AutoConfig.register(VillagerQuestsConfig.class, JanksonConfigSerializer::new);
         CONFIG = AutoConfig.getConfigHolder(VillagerQuestsConfig.class).getConfig();
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new QuestLoader());

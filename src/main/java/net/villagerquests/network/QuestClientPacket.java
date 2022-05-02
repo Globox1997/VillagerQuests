@@ -85,10 +85,9 @@ public class QuestClientPacket {
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.REMOVE_MERCHANT_QUEST, (client, handler, buf, sender) -> {
-            PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
-            newBuffer.writeInt(buf.readInt());
+            int questId = buf.readInt();
             client.execute(() -> {
-                ((PlayerAccessor) client.player).removeQuest(newBuffer.readInt());
+                ((PlayerAccessor) client.player).removeQuest(questId);
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MOUSE_POSITION, (client, handler, buf, sender) -> {
