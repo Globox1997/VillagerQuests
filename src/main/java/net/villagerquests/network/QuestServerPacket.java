@@ -136,6 +136,7 @@ public class QuestServerPacket {
         List<UUID> traderUuids = ((PlayerAccessor) playerEntity).getPlayerQuestTraderIdList();
         List<List<Integer>> killedMobQuestCount = ((PlayerAccessor) playerEntity).getPlayerKilledQuestList();
         List<List<Object>> travelIdList = ((PlayerAccessor) playerEntity).getPlayerTravelList();
+        List<Integer> timerList = ((PlayerAccessor) playerEntity).getPlayerQuestTimerList();
 
         for (int i = 0; i < questList.size(); i++) {
             if (!QuestData.idList.contains(questList.get(i))) {
@@ -143,6 +144,7 @@ public class QuestServerPacket {
                 traderUuids.remove(i);
                 killedMobQuestCount.remove(i);
                 travelIdList.remove(i);
+                timerList.remove(i);
                 i--;
             }
         }
@@ -159,14 +161,13 @@ public class QuestServerPacket {
         }
 
         List<Integer> finishedQuestList = ((PlayerAccessor) playerEntity).getPlayerFinishedQuestIdList();
-        List<Integer> timerList = ((PlayerAccessor) playerEntity).getPlayerQuestTimerList();
         List<Integer> refreshList = ((PlayerAccessor) playerEntity).getPlayerQuestRefreshTimerList();
 
         for (int i = 0; i < finishedQuestList.size(); i++) {
             if (!QuestData.idList.contains(finishedQuestList.get(i))) {
                 finishedQuestList.remove(i);
-                timerList.remove(i);
                 refreshList.remove(i);
+                System.out.println("Packet: " + i+ " "+finishedQuestList+" "+refreshList);
                 i--;
             }
         }
