@@ -23,9 +23,14 @@ public class PlayerQuestScreen extends CottonClientScreen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float partialTicks) {
         super.render(matrices, mouseX, mouseY, partialTicks);
-        RenderSystem.setShaderTexture(0, QuestScreenHandler.GUI_ICONS);
+
         int scaledWidth = this.client.getWindow().getScaledWidth();
         int scaledHeight = this.client.getWindow().getScaledHeight();
+
+        // RenderSystem.setShaderTexture(0, new Identifier("textures/gui/book.png"));
+        // PlayerQuestScreen.drawTexture(matrices, scaledWidth / 2 - 153, scaledHeight / 2 - 109, 20, 1, 146, 180, 256, 256);
+
+        RenderSystem.setShaderTexture(0, QuestScreenHandler.GUI_ICONS);
         PlayerQuestScreen.drawTexture(matrices, scaledWidth / 2 - 153, scaledHeight / 2 - 109, 0, 256, 306, 6, 512, 512);
         PlayerQuestScreen.drawTexture(matrices, scaledWidth / 2 - 153, scaledHeight / 2 + 104, 0, 262, 306, 6, 512, 512);
     }
