@@ -26,7 +26,7 @@ public abstract class VillagerEntityMixin implements MerchantAccessor {
     private final MerchantEntity merchantEntity = (MerchantEntity) (Object) this;
     private boolean settingDataOnRead = false;
     private boolean finishedAQuest = false;
-    private int newQuestTicker;
+    private int newQuestTicker = VillagerQuestsMain.CONFIG.newQuestTimer;
 
     @Inject(method = "beginTradeWith", at = @At(value = "HEAD"))
     private void beginTradeWithMixin(PlayerEntity customer, CallbackInfo info) {
