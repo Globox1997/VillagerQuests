@@ -11,7 +11,6 @@ import io.github.cottonmc.cotton.gui.widget.WSprite;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.data.Quest;
@@ -25,7 +24,7 @@ public class PlayerQuestGui extends LightweightGuiDescription {
         setRootPanel(root);
         root.setSize(300, 215);
 
-        root.add(new WLabel(new TranslatableText("text.villagerquests.info")).setColor(VillagerQuestsMain.CONFIG.playerInfoColor), 6, 7);
+        root.add(new WLabel(Text.translatable("text.villagerquests.info")).setColor(VillagerQuestsMain.CONFIG.playerInfoColor), 6, 7);
 
         PlayerQuestInnerPanel plainPanel = new PlayerQuestInnerPanel();
 
@@ -41,7 +40,7 @@ public class PlayerQuestGui extends LightweightGuiDescription {
         List<List<Object>> questTraveledList = ((PlayerAccessor) client.player).getPlayerTravelList();
         // List<UUID> questTraderList = ((PlayerAccessor) client.player).getPlayerQuestTraderIdList();
         if (!questIdList.isEmpty()) {
-            plainPanel.add(new WLabel(new TranslatableText("text.villagerquests.active")).setColor(VillagerQuestsMain.CONFIG.playerActiveColor), 0, gridYSpace);
+            plainPanel.add(new WLabel(Text.translatable("text.villagerquests.active")).setColor(VillagerQuestsMain.CONFIG.playerActiveColor), 0, gridYSpace);
             gridYSpace += 22;
 
             for (int i = 0; i < questIdList.size(); i++) {
@@ -63,15 +62,15 @@ public class PlayerQuestGui extends LightweightGuiDescription {
                                 string = String.format("%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
                             else
                                 string = String.format("%02d:%02d", (seconds % 3600) / 60, (seconds % 60));
-                            return new TranslatableText("text.villagerquests.timer").getString() + string;
+                            return Text.translatable("text.villagerquests.timer").getString() + string;
                         } else
-                            return new TranslatableText("text.villagerquests.timer").getString() + "00:00";
+                            return Text.translatable("text.villagerquests.timer").getString() + "00:00";
                     });
                     plainPanel.add(timeLabel.setColor(VillagerQuestsMain.CONFIG.playerTaskHeaderColor, VillagerQuestsMain.CONFIG.playerTaskHeaderColor), 225 - timeLabel.getWidth(), gridYSpace);
                 }
 
                 gridYSpace += 20;
-                plainPanel.add(new WLabel(new TranslatableText("text.villagerquests.description")).setColor(VillagerQuestsMain.CONFIG.playerDescriptionHeaderColor), 3, gridYSpace);
+                plainPanel.add(new WLabel(Text.translatable("text.villagerquests.description")).setColor(VillagerQuestsMain.CONFIG.playerDescriptionHeaderColor), 3, gridYSpace);
                 gridYSpace += 14;
 
                 // Description
@@ -100,7 +99,7 @@ public class PlayerQuestGui extends LightweightGuiDescription {
 
                 gridYSpace += 17;
 
-                plainPanel.add(new WLabel(new TranslatableText("text.villagerquests.tasks")).setColor(VillagerQuestsMain.CONFIG.playerTaskHeaderColor), 3, gridYSpace);
+                plainPanel.add(new WLabel(Text.translatable("text.villagerquests.tasks")).setColor(VillagerQuestsMain.CONFIG.playerTaskHeaderColor), 3, gridYSpace);
                 gridYSpace += 14;
 
                 // Tasks
@@ -108,26 +107,26 @@ public class PlayerQuestGui extends LightweightGuiDescription {
                 int easyTravelCounter = 0;
                 for (int u = 0; u < quest.getStringTasks().length; u++) {
                     if (quest.getStringTasks()[u].contains("Kill")) {
-                        String string = quest.getStringTasks()[u] + " - " + new TranslatableText("text.villagerquests.killed").getString()
+                        String string = quest.getStringTasks()[u] + " - " + Text.translatable("text.villagerquests.killed").getString()
                                 + questKilledList.get(questIdList.indexOf(quest.getQuestId())).get(easyKilledCounter * 2 + 1) + " / " + quest.getTaskCount(u);
                         if (client.textRenderer.getWidth(string) > 250) {
                             string = quest.getStringTasks()[u];
                             plainPanel.add(new WLabel(Text.of(string)).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 9, gridYSpace);
                             gridYSpace += 10;
-                            string = new TranslatableText("text.villagerquests.killed").getString() + questKilledList.get(questIdList.indexOf(quest.getQuestId())).get(easyKilledCounter * 2 + 1)
-                                    + " / " + quest.getTaskCount(u);
+                            string = Text.translatable("text.villagerquests.killed").getString() + questKilledList.get(questIdList.indexOf(quest.getQuestId())).get(easyKilledCounter * 2 + 1) + " / "
+                                    + quest.getTaskCount(u);
                             plainPanel.add(new WLabel(Text.of(string)).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 56, gridYSpace);
                         } else
                             plainPanel.add(new WLabel(Text.of(string)).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 9, gridYSpace);
                         easyKilledCounter++;
                     } else if (quest.getStringTasks()[u].contains("Explore") || quest.getStringTasks()[u].contains("Travel")) {
                         boolean traveled = (boolean) questTraveledList.get(questIdList.indexOf(quest.getQuestId())).get(easyTravelCounter * 2 + 1);
-                        String string = quest.getStringTasks()[u] + " - " + new TranslatableText("text.villagerquests.explored").getString() + (traveled ? "Yes" : "Not Yet");
+                        String string = quest.getStringTasks()[u] + " - " + Text.translatable("text.villagerquests.explored").getString() + (traveled ? "Yes" : "Not Yet");
                         if (client.textRenderer.getWidth(string) > 250) {
                             string = quest.getStringTasks()[u];
                             plainPanel.add(new WLabel(Text.of(string)).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 9, gridYSpace);
                             gridYSpace += 10;
-                            string = new TranslatableText("text.villagerquests.explored").getString() + (traveled ? "Yes" : "Not Yet");
+                            string = Text.translatable("text.villagerquests.explored").getString() + (traveled ? "Yes" : "Not Yet");
                             plainPanel.add(new WLabel(Text.of(string)).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 56, gridYSpace);
                         } else
                             plainPanel.add(new WLabel(Text.of(string)).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 9, gridYSpace);
@@ -138,12 +137,12 @@ public class PlayerQuestGui extends LightweightGuiDescription {
                             if (client.player.getInventory().getStack(k).isItemEqualIgnoreDamage(quest.getTaskStack(u)))
                                 itemCount += client.player.getInventory().getStack(k).getCount();
                         }
-                        String string = quest.getStringTasks()[u] + " - " + new TranslatableText("text.villagerquests.collected").getString() + itemCount + " / " + quest.getTaskCount(u);
+                        String string = quest.getStringTasks()[u] + " - " + Text.translatable("text.villagerquests.collected").getString() + itemCount + " / " + quest.getTaskCount(u);
                         if (client.textRenderer.getWidth(string) > 250) {
                             string = quest.getStringTasks()[u];
                             plainPanel.add(new WLabel(Text.of(string)).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 9, gridYSpace);
                             gridYSpace += 10;
-                            string = new TranslatableText("text.villagerquests.collected").getString() + itemCount + " / " + quest.getTaskCount(u);
+                            string = Text.translatable("text.villagerquests.collected").getString() + itemCount + " / " + quest.getTaskCount(u);
                             plainPanel.add(new WLabel(Text.of(string)).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 56, gridYSpace);
                         } else
                             plainPanel.add(new WLabel(Text.of(string)).setColor(VillagerQuestsMain.CONFIG.playerTaskColor), 9, gridYSpace);
@@ -152,7 +151,7 @@ public class PlayerQuestGui extends LightweightGuiDescription {
                     gridYSpace += 10;
                 }
                 gridYSpace += 7;
-                plainPanel.add(new WLabel(new TranslatableText("text.villagerquests.rewards")).setColor(VillagerQuestsMain.CONFIG.playerRewardHeaderColor), 3, gridYSpace);
+                plainPanel.add(new WLabel(Text.translatable("text.villagerquests.rewards")).setColor(VillagerQuestsMain.CONFIG.playerRewardHeaderColor), 3, gridYSpace);
                 gridYSpace += 14;
 
                 // Rewards
@@ -178,7 +177,7 @@ public class PlayerQuestGui extends LightweightGuiDescription {
             }
         }
         if (!isRefreshListEmpty) {
-            plainPanel.add(new WLabel(new TranslatableText("text.villagerquests.refresh")).setColor(VillagerQuestsMain.CONFIG.playerRefreshHeaderColor), 0, gridYSpace);
+            plainPanel.add(new WLabel(Text.translatable("text.villagerquests.refresh")).setColor(VillagerQuestsMain.CONFIG.playerRefreshHeaderColor), 0, gridYSpace);
             gridYSpace += 22;
 
             int topBackGround = gridYSpace + 7;
@@ -202,9 +201,9 @@ public class PlayerQuestGui extends LightweightGuiDescription {
                                 string = String.format("%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
                             else
                                 string = String.format("%02d:%02d", (seconds % 3600) / 60, (seconds % 60));
-                            return new TranslatableText("text.villagerquests.refreshing").getString() + string;
+                            return Text.translatable("text.villagerquests.refreshing").getString() + string;
                         } else
-                            return new TranslatableText("text.villagerquests.refreshing").getString() + "00:00";
+                            return Text.translatable("text.villagerquests.refreshing").getString() + "00:00";
                     });
 
                     plainPanel.add(timeLabel.setColor(VillagerQuestsMain.CONFIG.playerRefreshColor, VillagerQuestsMain.CONFIG.playerRefreshColor), 9, gridYSpace);
@@ -217,7 +216,7 @@ public class PlayerQuestGui extends LightweightGuiDescription {
         }
 
         if (!questFinishedList.isEmpty() && questFinishedList.size() != refreshListCount) {
-            plainPanel.add(new WLabel(new TranslatableText("text.villagerquests.finished")).setColor(VillagerQuestsMain.CONFIG.playerFinishedHeaderColor), 0, gridYSpace);
+            plainPanel.add(new WLabel(Text.translatable("text.villagerquests.finished")).setColor(VillagerQuestsMain.CONFIG.playerFinishedHeaderColor), 0, gridYSpace);
             gridYSpace += 22;
             int topBackGround = gridYSpace + 7;
             AddTopBackground(gridYSpace, plainPanel);

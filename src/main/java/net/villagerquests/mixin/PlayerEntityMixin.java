@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.entity.LivingEntity;
@@ -17,7 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.registry.Registry;
 import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
@@ -123,7 +124,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
 
     // Only called on Server
     @Inject(method = "onKilledOther", at = @At(value = "TAIL"))
-    private void onKilledOtherMixin(ServerWorld world, LivingEntity other, CallbackInfo info) {
+    private void onKilledOtherMixin(ServerWorld world, LivingEntity other, CallbackInfoReturnable<Boolean> info) {
         // Instead of sending multiple packets, send one with all information
         int entityRawId = Registry.ENTITY_TYPE.getRawId(other.getType());
         if (this.canAddKilledMobQuestCount(entityRawId))
@@ -231,11 +232,11 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
 
         if (!playerEntity.world.isClient) {
             if (reason == 0)
-                playerEntity.sendMessage(new TranslatableText("text.villagerquests.questTimeout", quest.getTitle()), true);
+                playerEntity.sendMessage(Text.translatable("text.villagerquests.questTimeout", quest.getTitle()), true);
             else if (reason == 1)
-                playerEntity.sendMessage(new TranslatableText("text.villagerquests.questGiverDespawn", quest.getTitle()), true);
+                playerEntity.sendMessage(Text.translatable("text.villagerquests.questGiverDespawn", quest.getTitle()), true);
             else if (reason == 2)
-                playerEntity.sendMessage(new TranslatableText("text.villagerquests.questGiverDied", quest.getTitle()), true);
+                playerEntity.sendMessage(Text.translatable("text.villagerquests.questGiverDied", quest.getTitle()), true);
         }
 
     }
@@ -255,7 +256,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
             this.acceptedQuestIdList.remove(index);
         }
         if (!playerEntity.world.isClient) {
-            playerEntity.sendMessage(new TranslatableText("text.villagerquests.questCommandRemoval", id), false);
+            playerEntity.sendMessage(Text.translatable("text.villagerquests.questCommandRemoval", id), false);
         }
     }
 

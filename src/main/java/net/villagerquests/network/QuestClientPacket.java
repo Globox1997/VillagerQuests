@@ -256,6 +256,7 @@ public class QuestClientPacket {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static void addToList(String listName, String object, List<Object> list) {
         if (list != null) {
             QuestData.getList(listName).add(new ArrayList<Object>(list));

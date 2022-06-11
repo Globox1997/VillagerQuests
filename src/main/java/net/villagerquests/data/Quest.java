@@ -13,13 +13,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.network.QuestServerPacket;
 
+@SuppressWarnings("deprecation")
 public class Quest {
     private final int id;
     private final String title;
@@ -97,9 +98,10 @@ public class Quest {
             for (int i = 0; i < this.taskList.size() / 3; i++) {
                 String task = (String) this.taskList.get(i * 3);
                 int count = (int) this.taskList.get(i * 3 + 2);
-                taskListString[i] = new TranslatableText("text.villagerquests.task").getString() + (i + 1) + " - " + StringUtils.capitalize(task) + " "
+                taskListString[i] = Text.translatable("text.villagerquests.task", i + 1).getString() + StringUtils.capitalize(task) + " "
                         + (task.equals("explore") || task.equals("travel") ? "the " : count + " ") + getTranslatedRegistryName(task, (String) this.taskList.get(i * 3 + 1))
-                        + (count > 1 ? new TranslatableText("text.villagerquests.stringAddition").getString() : "");
+                        + (count > 1 ? Text.translatable("text.villagerquests.stringAddition").getString() : "");
+
             }
         } catch (Exception e) {
             VillagerQuestsMain.LOGGER.error("Error occurred while loading quest tasks from quest: {}. {}", this.title, e.toString());
@@ -111,13 +113,13 @@ public class Quest {
         boolean rewardsExperience = getExperienceAmount() > 0;
         String[] taskListString = new String[this.rewardList.size() / 2 + (rewardsExperience ? 1 : 0)];
         if (rewardsExperience) {
-            taskListString[0] = getExperienceAmount() + new TranslatableText("text.villagerquests.experience").getString();
+            taskListString[0] = getExperienceAmount() + Text.translatable("text.villagerquests.experience").getString();
         }
         try {
             for (int i = 0; i < this.rewardList.size() / 2; i++) {
                 int count = (int) this.rewardList.get(i * 2 + 1);
                 taskListString[i + (rewardsExperience ? 1 : 0)] = count + " " + getTranslatedRegistryName("submit", (String) this.rewardList.get(i * 2))
-                        + (count > 1 ? new TranslatableText("text.villagerquests.stringAddition").getString() : "");
+                        + (count > 1 ? Text.translatable("text.villagerquests.stringAddition").getString() : "");
             }
         } catch (Exception e) {
             VillagerQuestsMain.LOGGER.error("Error occurred while loading quest rewards {}. {}", this.title, e.toString());
@@ -155,6 +157,10 @@ public class Quest {
         return new ItemStack(Registry.ITEM.get(new Identifier(string)));
     }
 
+    // Structure and biome check:
+    // DynamicRegistryManager.BUILTIN only contains hardcoded registries but would work for vanilla stuff
+    // Example: DynamicRegistryManager.BUILTIN.get().get(Registry.STRUCTURE_KEY).containsId(identifier)
+    // You have to get DynamicRegistryManager from MinecraftServer to get all existing structures
     private String getTranslatedRegistryName(String task, String identifierString) {
         Identifier identifier = new Identifier(identifierString);
         switch (task) {
@@ -167,13 +173,7 @@ public class Quest {
         case "mine":
             return Registry.BLOCK.get(identifier).getName().getString();
         case "explore":
-            // if (BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.BIOME_KEY).get(identifier) != null) {
             return WordUtils.capitalize(identifier.toString().replace("_", " ").replace(":", " "));
-        // return StringUtils.capitalize(identifier.toString().replace("_", " ").replace(":", " "));
-        // } else
-        // return StringUtils.capitalize(Registry.STRUCTURE_FEATURE.get(new Identifier(identifier)).getName().replace("_", " ").replace(":", " "));
-        // return "";
-        // return StringUtils.capitalize(identifier.getNamespace().replace("_", " ").replace(":", " "));
         case "travel":
             return WordUtils.capitalize(identifier.toString().replace("_", " ").replace(":", " "));
         default:

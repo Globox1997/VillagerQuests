@@ -45,7 +45,7 @@ public class ServerPlayerEntityMixin {
         this.syncQuest = true;
     }
 
-    @Inject(method = "playerTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/advancement/criterion/LocationArrivalCriterion;trigger(Lnet/minecraft/server/network/ServerPlayerEntity;)V"))
+    @Inject(method = "playerTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/advancement/criterion/TickCriterion;trigger(Lnet/minecraft/server/network/ServerPlayerEntity;)V"))
     private void playerTickLocationMixin(CallbackInfo info) {
         ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) (Object) this;
         if (serverPlayerEntity.age % 100 == 0) {
@@ -55,14 +55,9 @@ public class ServerPlayerEntityMixin {
                     for (int u = 0; u < travelIdList.get(i).size() / 2; u++) {
                         String id = (String) travelIdList.get(i).get(u * 2);
                         if (!(boolean) travelIdList.get(i).get(u * 2 + 1))
-                            if (serverPlayerEntity.getWorld().getStructureAccessor().method_41036().get(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY).containsId(new Identifier(id))) {
-                                // public DynamicRegistryManager method_41036() {
-                                // return this.world.getRegistryManager();
-                                // }
-                                if (serverPlayerEntity.getWorld().getStructureAccessor()
-                                        .getStructureAt(serverPlayerEntity.getBlockPos(),
-                                                serverPlayerEntity.getWorld().getStructureAccessor().method_41036().get(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY).get(new Identifier(id)))
-                                        .hasChildren()) {
+                            if (serverPlayerEntity.getWorld().getStructureAccessor().getRegistryManager().get(Registry.STRUCTURE_KEY).containsId(new Identifier(id))) {
+                                if (serverPlayerEntity.getWorld().getStructureAccessor().getStructureAt(serverPlayerEntity.getBlockPos(),
+                                        serverPlayerEntity.getWorld().getStructureAccessor().getRegistryManager().get(Registry.STRUCTURE_KEY).get(new Identifier(id))).hasChildren()) {
                                     travelIdList.get(i).set(u * 2 + 1, true);
                                     QuestServerPacket.writeS2CQuestTravelAdditionPacket(serverPlayerEntity, i, u * 2 + 1);
                                 }

@@ -29,33 +29,34 @@ public class QuestData {
     // Timer
     public static final List<Integer> timerList = new ArrayList<>();
 
+    @SuppressWarnings("rawtypes")
     @Nullable
     public static List getList(String string) {
         switch (string) {
-            case "questIdList":
-                return idList;
-            case "questTitleList":
-                return titleList;
-            case "questLevelList":
-                return levelList;
-            case "questTypeList":
-                return typeList;
-            case "questProfessionList":
-                return professionList;
-            case "questTaskList":
-                return taskList;
-            case "questDecriptionList":
-                return descriptionList;
-            case "questExperienceList":
-                return experienceList;
-            case "questRewardList":
-                return rewardList;
-            case "questRefreshTimeList":
-                return refreshTimeList;
-            case "questTimerList":
-                return timerList;
-            default:
-                return null;
+        case "questIdList":
+            return idList;
+        case "questTitleList":
+            return titleList;
+        case "questLevelList":
+            return levelList;
+        case "questTypeList":
+            return typeList;
+        case "questProfessionList":
+            return professionList;
+        case "questTaskList":
+            return taskList;
+        case "questDecriptionList":
+            return descriptionList;
+        case "questExperienceList":
+            return experienceList;
+        case "questRewardList":
+            return rewardList;
+        case "questRefreshTimeList":
+            return refreshTimeList;
+        case "questTimerList":
+            return timerList;
+        default:
+            return null;
         }
     }
 

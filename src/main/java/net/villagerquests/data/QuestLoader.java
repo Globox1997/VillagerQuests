@@ -3,11 +3,13 @@ package net.villagerquests.data;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Map;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.BuiltinRegistries;
@@ -24,9 +26,10 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
     @Override
     public void reload(ResourceManager manager) {
         QuestLoader.clearEveryList();
-        for (Identifier id : manager.findResources("quests", path -> path.endsWith(".json"))) {
+        for (Map.Entry<Identifier, Resource> entry : manager.findResources("quests", id -> id.getPath().endsWith(".json")).entrySet()) {
+            Identifier id = entry.getKey();
             try {
-                InputStream stream = manager.getResource(id).getInputStream();
+                InputStream stream = entry.getValue().getInputStream();
                 JsonObject data = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject();
                 if (QuestData.idList.contains(data.get("id").getAsInt())) {
                     VillagerQuestsMain.LOGGER.error("Error occurred while loading resource {}. Quest with Id: {} got loaded more than one time", id.toString(), data.get("id").getAsInt());
@@ -61,8 +64,9 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                                     VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. EntityType {} is null", data.get("id").getAsInt(),
                                             data.getAsJsonArray("task").get(i).getAsString());
                             } else if (lastTaskString.equals("travel") || lastTaskString.equals("explore")) {
-                                if (!BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
-                                        && !BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.BIOME_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1))))
+                                if (!BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.STRUCTURE_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
+                                        && !BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.BIOME_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
+                                        && VillagerQuestsMain.CONFIG.structureRegistryCheck)
                                     VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. Structure or Biome {} is null", data.get("id").getAsInt(),
                                             data.getAsJsonArray("task").get(i).getAsString());
                             } else if (lastTaskString.equals("submit") || lastTaskString.equals("farm") || lastTaskString.equals("mine")) {

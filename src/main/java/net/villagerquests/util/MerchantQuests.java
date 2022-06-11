@@ -30,7 +30,7 @@ public class MerchantQuests {
                 if (isVillager) {
                     VillagerData villagerData = ((VillagerEntity) merchantEntity).getVillagerData();
                     for (int i = 0; i < QuestData.idList.size(); i++) {
-                        if (villagerData.getProfession().getId().equals(QuestData.professionList.get(i)) && villagerData.getLevel() >= QuestData.levelList.get(i)
+                        if (villagerData.getProfession().toString().equals(QuestData.professionList.get(i)) && villagerData.getLevel() >= QuestData.levelList.get(i)
                                 && !currentQuests.contains(QuestData.idList.get(i)))
                             if (VillagerQuestsMain.CONFIG.canOnlyAddLevelSpecificQuests) {
                                 if (villagerData.getLevel() == QuestData.levelList.get(i))
