@@ -83,4 +83,7 @@ public class VillagerQuestsConfig implements ConfigData {
     public int playerRefreshHeaderColor = 8345919;
     @ConfigEntry.Category("gui_setting")
     public int playerRefreshColor = 14211288;
+    @ConfigEntry.Category("gui_setting")
+    @Comment("Prints in console - only builtin")
+    public boolean structureRegistryCheck = false;
 }

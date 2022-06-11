@@ -44,6 +44,8 @@
   "text.autoconfig.villagerquests.option.playerRefreshHeaderColor": "Player UI Refresh Header Color",
   "text.autoconfig.villagerquests.option.playerRefreshColor": "Player UI Refresh Color",
 
+  "text.autoconfig.villagerquests.option.structureRegistryCheck": "Structure Registry Check",
+
   "text.villagerquests.acceptButton": "Accept",
   "text.villagerquests.completeButton": "Complete",
   "text.villagerquests.decline": "Decline",
@@ -54,7 +56,7 @@
   "text.villagerquests.timer": "Time: ",
   "text.villagerquests.questTask": "Quest Tasks",
   "text.villagerquests.questReward": "Quest Rewards",
-  "text.villagerquests.task": "Task ",
+  "text.villagerquests.task": "%d. ",
   "text.villagerquests.stringAddition": "s",
   "text.villagerquests.experience": " Experience",
   "text.villagerquests.description": "Description",
