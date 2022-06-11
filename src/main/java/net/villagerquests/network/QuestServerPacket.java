@@ -167,7 +167,6 @@ public class QuestServerPacket {
             if (!QuestData.idList.contains(finishedQuestList.get(i))) {
                 finishedQuestList.remove(i);
                 refreshList.remove(i);
-                System.out.println("Packet: " + i+ " "+finishedQuestList+" "+refreshList);
                 i--;
             }
         }
@@ -222,6 +221,7 @@ public class QuestServerPacket {
         serverPlayerEntity.networkHandler.sendPacket(packet);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static void writeS2CQuestListPacket(ServerPlayerEntity serverPlayerEntity) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         for (int i = 0; i < QuestData.getListNames().size(); i++) {
