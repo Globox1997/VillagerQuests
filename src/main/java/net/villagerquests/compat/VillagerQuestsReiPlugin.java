@@ -3,11 +3,14 @@ package net.villagerquests.compat;
 import me.shedaniel.math.Rectangle;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.screen.ExclusionZones;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
 import net.villagerquests.VillagerQuestsMain;
 
 import java.util.Collections;
 
+@Environment(EnvType.CLIENT)
 public class VillagerQuestsReiPlugin implements REIClientPlugin {
 
     @Override
