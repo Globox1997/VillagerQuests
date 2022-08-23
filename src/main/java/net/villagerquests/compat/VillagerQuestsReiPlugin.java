@@ -15,7 +15,7 @@ public class VillagerQuestsReiPlugin implements REIClientPlugin {
 
     @Override
     public void registerExclusionZones(ExclusionZones zones) {
-        if (VillagerQuestsMain.CONFIG.reiExclusionzone)
+        if (VillagerQuestsMain.CONFIG.exclusionZone)
             zones.register(MerchantScreen.class, screen -> {
                 int i = (screen.width - 276) / 2;
                 int j = (screen.height - 166) / 2;

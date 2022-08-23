@@ -33,6 +33,7 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 	modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:9.0.472"
+	modCompileOnly "dev.emi:emi:0.3.4+1.19"
     //modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:8.1.449"
 }
 

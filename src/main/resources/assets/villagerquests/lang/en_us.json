@@ -20,7 +20,7 @@
 
   "text.autoconfig.villagerquests.option.xIconPosition": "X Icon Position",
   "text.autoconfig.villagerquests.option.yIconPosition": "Y Icon Position",
-  "text.autoconfig.villagerquests.option.reiExclusionzone": "REI Exclusion Zone",
+  "text.autoconfig.villagerquests.option.exclusionZone": "Exclusion Zone",
 
   "text.autoconfig.villagerquests.option.questTabTitleColor": "Tab Title Color",
   "text.autoconfig.villagerquests.option.titleColor": "Title Color",
