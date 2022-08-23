@@ -13,6 +13,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -296,7 +297,7 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
                         this.renderQuestItems(matrices, quest.getQuestTypeStack(), l, n);
                         // 10 width
                         float scaling = quest.getTitle().length() > 10 ? 10F / quest.getTitle().length() : 1.0F;
-                        DrawableExtension.draw(matrices, textRenderer, quest.getTitle(), i + 30, n + 5, VillagerQuestsMain.CONFIG.questTabTitleColor, scaling);
+                        DrawableExtension.drawText(matrices, textRenderer, quest.getTitle(), i + 30, n + 5, VillagerQuestsMain.CONFIG.questTabTitleColor, scaling);
                         this.itemRenderer.zOffset = 0.0F;
                         k += 20;
                         ++m;
@@ -324,9 +325,10 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
     }
 
     private void renderSelectedQuest(MatrixStack matrices, int width, int hight) {
+        VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
         boolean isBigDescription = textRenderer.getWidth(selectedQuest.getDescription()) > 570;
         // Draw title
-        DrawableExtension.drawCenteredText(matrices, textRenderer, selectedQuest.getTitle(), width + 187, hight + 22 + (isBigDescription ? -1 : 0), VillagerQuestsMain.CONFIG.titleColor,
+        DrawableExtension.drawCenteredTextWithShadow(matrices, textRenderer, selectedQuest.getTitle(), width + 187, hight + 22 + (isBigDescription ? -1 : 0), VillagerQuestsMain.CONFIG.titleColor,
                 1.1F + (isBigDescription ? -0.1F : 0.0F));
 
         // Draw quest text
@@ -352,10 +354,10 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
         }
 
         // Draw task
-        DrawableExtension.draw(matrices, textRenderer, Text.translatable("text.villagerquests.questTask").getString(), width + 112, hight + 59, VillagerQuestsMain.CONFIG.taskHeaderColor, 0.9F);
+        DrawableExtension.drawText(matrices, textRenderer, Text.translatable("text.villagerquests.questTask").getString(), width + 112, hight + 59, VillagerQuestsMain.CONFIG.taskHeaderColor, 0.9F);
         // Draw time of task
         if (selectedQuest.getQuestTimer() != -1)
-            DrawableExtension.draw(matrices, textRenderer, Text.translatable("text.villagerquests.timer").getString() + selectedQuest.getTimerString(),
+            DrawableExtension.drawText(matrices, textRenderer, Text.translatable("text.villagerquests.timer").getString() + selectedQuest.getTimerString(),
                     width + 215 + (selectedQuest.getQuestTimer() / 20 >= 3600 ? -20 : 0), hight + 59, VillagerQuestsMain.CONFIG.taskHeaderColor, 0.9F);
 
         for (int u = 0; u < selectedQuest.getStringTasks().length; u++) {
@@ -369,38 +371,40 @@ public class QuestScreen extends CottonInventoryScreen<QuestScreenHandler> {
                     if (textRenderer.getWidth(newTask + longStrings[i] + " ") < 191) {
                         if (i + 1 == longStrings.length) {
                             newTask = newTask + longStrings[i];
-                            DrawableExtension.draw(matrices, textRenderer, newTask, width + 115 + textRenderer.getWidth(u + " "), hight + 67 + u * 7 + addition, VillagerQuestsMain.CONFIG.taskColor,
-                                    0.78F);
-                            DrawableExtension.renderQuestItems(matrices, client.getBufferBuilders().getEntityVertexConsumers(), itemRenderer, selectedQuest.getTaskStack(u),
-                                    (double) (100 + (textRenderer.getWidth(newTask) + textRenderer.getWidth(u + " ")) * 0.795D), (double) (-44 - u * 7 + addition), 0.4F);
+                            DrawableExtension.drawText(matrices, textRenderer, newTask, width + 115 + textRenderer.getWidth(u + " "), hight + 67 + u * 7 + addition,
+                                    VillagerQuestsMain.CONFIG.taskColor, 0.78F);
+                            DrawableExtension.renderQuestItems(matrices, immediate, itemRenderer, selectedQuest.getTaskStack(u),
+                                    (double) (250 + (textRenderer.getWidth(newTask) + textRenderer.getWidth(u + " ")) * 2D), (double) (-59 - u * 18 + addition) + this.indexStartOffset * -50, 0.4F);
                         } else
                             newTask = newTask + longStrings[i] + " ";
                     } else {
-                        DrawableExtension.draw(matrices, textRenderer, newTask, width + 115, hight + 67 + u * 7, VillagerQuestsMain.CONFIG.taskColor, 0.78F);
+
+                        DrawableExtension.drawText(matrices, textRenderer, newTask, width + 115, hight + 67 + u * 7, VillagerQuestsMain.CONFIG.taskColor, 0.78F);
                         if (i + 1 == longStrings.length) {
                             newTask = longStrings[i];
-                            DrawableExtension.draw(matrices, textRenderer, newTask, width + 115 + textRenderer.getWidth(u + " "), hight + 67 + u * 7 + addition, VillagerQuestsMain.CONFIG.taskColor,
-                                    0.78F);
-                            DrawableExtension.renderQuestItems(matrices, client.getBufferBuilders().getEntityVertexConsumers(), itemRenderer, selectedQuest.getTaskStack(u),
-                                    (double) (100 + (textRenderer.getWidth(newTask) + textRenderer.getWidth(u + " ")) * 0.795D), (double) (-44 - u * 7 + addition), 0.4F);
+                            DrawableExtension.drawText(matrices, textRenderer, newTask, width + 115 + textRenderer.getWidth(u + " "), hight + 67 + u * 7 + addition,
+                                    VillagerQuestsMain.CONFIG.taskColor, 0.78F);
+                            DrawableExtension.renderQuestItems(matrices, immediate, itemRenderer, selectedQuest.getTaskStack(u),
+                                    (double) (250 + (textRenderer.getWidth(newTask) + textRenderer.getWidth(u + " ")) * 2D), (double) (-59 - u * 18 + addition) + this.indexStartOffset * -50, 0.4F);
                         } else
                             newTask = longStrings[i] + " ";
                     }
                 }
             } else {
-                DrawableExtension.draw(matrices, textRenderer, task, width + 115, hight + 67 + u * 7 + addition, VillagerQuestsMain.CONFIG.taskColor, 0.78F);
-                DrawableExtension.renderQuestItems(matrices, client.getBufferBuilders().getEntityVertexConsumers(), itemRenderer, selectedQuest.getTaskStack(u),
-                        (double) (100 + textRenderer.getWidth(task) * 0.795D), (double) (-44 - u * 7), 0.4F);
+                DrawableExtension.drawText(matrices, textRenderer, task, width + 115, hight + 67 + u * 7 + addition, VillagerQuestsMain.CONFIG.taskColor, 0.78F);
+                DrawableExtension.renderQuestItems(matrices, immediate, itemRenderer, selectedQuest.getTaskStack(u), (double) (250 + textRenderer.getWidth(task) * 2D),
+                        (double) (-59 - u * 18) + this.indexStartOffset * -50, 0.4F);
             }
 
         }
 
         // Draw reward
-        DrawableExtension.draw(matrices, textRenderer, Text.translatable("text.villagerquests.questReward").getString(), width + 112, hight + 99, VillagerQuestsMain.CONFIG.rewardHeaderColor, 0.9F);
+        DrawableExtension.drawText(matrices, textRenderer, Text.translatable("text.villagerquests.questReward").getString(), width + 112, hight + 99, VillagerQuestsMain.CONFIG.rewardHeaderColor,
+                0.9F);
         for (int u = 0; u < selectedQuest.getStringRewards().length; u++) {
-            DrawableExtension.draw(matrices, textRenderer, selectedQuest.getStringRewards()[u], width + 115, hight + 107 + u * 7, VillagerQuestsMain.CONFIG.rewardColor, 0.78F);
-            DrawableExtension.renderQuestItems(matrices, client.getBufferBuilders().getEntityVertexConsumers(), itemRenderer, selectedQuest.getRewardStack(u),
-                    (double) (100 + textRenderer.getWidth(selectedQuest.getStringRewards()[u]) * 0.795D), (double) (-84 - u * 7), 0.4F);
+            DrawableExtension.drawText(matrices, textRenderer, selectedQuest.getStringRewards()[u], width + 115, hight + 107 + u * 7, VillagerQuestsMain.CONFIG.rewardColor, 0.78F);
+            DrawableExtension.renderQuestItems(matrices, immediate, itemRenderer, selectedQuest.getRewardStack(u), (double) (250 + textRenderer.getWidth(selectedQuest.getStringRewards()[u]) * 2D),
+                    (double) (-159 - u * 18) + this.indexStartOffset * -50, 0.4F);
         }
     }
 
