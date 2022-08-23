@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack;
 
 public interface DrawableExtension {
 
-    static void draw(MatrixStack matrices, TextRenderer textRenderer, String text, int centerX, int y, int color, float scale) {
+    static void drawText(MatrixStack matrices, TextRenderer textRenderer, String text, int centerX, int y, int color, float scale) {
         matrices.push();
         matrices.scale(scale, scale, 1F);
         matrices.translate(centerX / scale, (y + textRenderer.fontHeight / 2F) / scale, 0);
@@ -29,12 +29,20 @@ public interface DrawableExtension {
         matrices.pop();
     }
 
+    static void drawCenteredTextWithShadow(MatrixStack matrices, TextRenderer textRenderer, String text, int centerX, int y, int color, float scale) {
+        matrices.push();
+        matrices.scale(scale, scale, 1F);
+        matrices.translate(centerX / scale, (y + textRenderer.fontHeight / 2F) / scale, 0);
+        textRenderer.drawWithShadow(matrices, text, (float) (-textRenderer.getWidth(text) / 2), (float) -textRenderer.fontHeight / 2, color);
+        matrices.pop();
+    }
+
     static void renderQuestItems(MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, ItemRenderer itemRenderer, ItemStack itemStack, double x, double y, float scale) {
         matrices.push();
         x = x / 16.0D;
         y = y / 16.0D;
-        matrices.translate(x, y, 0.0D);
         matrices.scale(scale, scale, 1.0F);
+        matrices.translate(x, y, 0.0D);
         itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GUI, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, matrices, vertexConsumerProvider, 0);
         matrices.pop();
     }
