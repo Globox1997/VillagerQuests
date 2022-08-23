@@ -40,14 +40,14 @@ public class VillagerQuestsConfig implements ConfigData {
     public int yIconPosition = 0;
     @ConfigEntry.Category("gui_setting")
     @ConfigEntry.Gui.RequiresRestart
-    @Comment("Roughly Enough Items exclusion zone")
-    public boolean reiExclusionzone = true;
+    @Comment("REI/EMI exclusion zone")
+    public boolean exclusionZone = true;
     @ConfigEntry.Category("gui_setting")
     public int questTabTitleColor = 16777215;
     @ConfigEntry.Category("gui_setting")
     public int titleColor = 16777215;
     @ConfigEntry.Category("gui_setting")
-    public int descriptionColor = 12632256;
+    public int descriptionColor = 14540253;
     @ConfigEntry.Category("gui_setting")
     public int taskHeaderColor = 4210752;
     @ConfigEntry.Category("gui_setting")
