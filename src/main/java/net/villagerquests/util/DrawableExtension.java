@@ -8,6 +8,7 @@ import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
+import net.villagerquests.VillagerQuestsMain;
 
 // Made by Haven King: https://gist.github.com/Haven-King/ac5a38e0f902af298feff45031f57bf2
 
@@ -38,12 +39,14 @@ public interface DrawableExtension {
     }
 
     static void renderQuestItems(MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, ItemRenderer itemRenderer, ItemStack itemStack, double x, double y, float scale) {
-        matrices.push();
-        x = x / 16.0D;
-        y = y / 16.0D;
-        matrices.scale(scale, scale, 1.0F);
-        matrices.translate(x, y, 0.0D);
-        itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GUI, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, matrices, vertexConsumerProvider, 0);
-        matrices.pop();
+        if (VillagerQuestsMain.CONFIG.showQuestItems) {
+            matrices.push();
+            x = x / 16.0D;
+            y = y / 16.0D;
+            matrices.scale(scale, scale, 1.0F);
+            matrices.translate(x, y, 0.0D);
+            itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GUI, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, matrices, vertexConsumerProvider, 0);
+            matrices.pop();
+        }
     }
 }

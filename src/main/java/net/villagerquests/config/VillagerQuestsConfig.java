@@ -43,6 +43,8 @@ public class VillagerQuestsConfig implements ConfigData {
     @Comment("REI/EMI exclusion zone")
     public boolean exclusionZone = true;
     @ConfigEntry.Category("gui_setting")
+    public boolean showQuestItems = true;
+    @ConfigEntry.Category("gui_setting")
     public int questTabTitleColor = 16777215;
     @ConfigEntry.Category("gui_setting")
     public int titleColor = 16777215;
