@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -35,12 +36,12 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                     VillagerQuestsMain.LOGGER.error("Error occurred while loading resource {}. Quest with Id: {} got loaded more than one time", id.toString(), data.get("id").getAsInt());
                 } else {
                     // Id
-                    QuestData.idList.add(data.get("id").getAsInt());
+                    QuestData.idList.add((validateNumber(data.get("id"))));
                     // Title
                     QuestData.titleList.add(data.get("title").getAsString());
                     // Level
                     if (data.has("level"))
-                        QuestData.levelList.add(data.get("level").getAsInt());
+                        QuestData.levelList.add(validateNumber(data.get("level")));
                     else
                         QuestData.levelList.add(0);
                     // Type
@@ -53,7 +54,7 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                     ArrayList<Object> taskList = new ArrayList<Object>();
                     for (int i = 0; i < data.getAsJsonArray("task").size(); i++) {
                         if (data.getAsJsonArray("task").get(i).toString().matches("-?(0|[1-9]\\d*)")) {
-                            taskList.add(data.getAsJsonArray("task").get(i).getAsInt());
+                            taskList.add(validateNumber(data.getAsJsonArray("task").get(i)));
                         } else {
                             taskList.add(data.getAsJsonArray("task").get(i).getAsString());
                             if (i == 0)
@@ -81,14 +82,14 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                     QuestData.descriptionList.add(data.get("description").getAsString());
                     // Experience
                     if (data.has("experience"))
-                        QuestData.experienceList.add(data.get("experience").getAsInt());
+                        QuestData.experienceList.add(validateNumber(data.get("experience")));
                     else
                         QuestData.experienceList.add(0);
                     // Reward
                     ArrayList<Object> rewardList = new ArrayList<Object>();
                     for (int i = 0; i < data.getAsJsonArray("reward").size(); i++) {
                         if (data.getAsJsonArray("reward").get(i).toString().matches("-?(0|[1-9]\\d*)")) {
-                            rewardList.add(data.getAsJsonArray("reward").get(i).getAsInt());
+                            rewardList.add(validateNumber(data.getAsJsonArray("reward").get(i)));
                         } else {
                             rewardList.add(data.getAsJsonArray("reward").get(i).getAsString());
                             if (!Registry.ITEM.containsId(new Identifier((String) rewardList.get(rewardList.size() - 1))))
@@ -114,6 +115,14 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
             }
         }
 
+    }
+
+    private static int validateNumber(Number num){
+        return Math.max(num.intValue(), 0);
+    }
+
+    private static int validateNumber(JsonElement element){
+        return validateNumber(element.getAsNumber());
     }
 
     public static void clearEveryList() {

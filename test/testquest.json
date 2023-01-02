@@ -1,7 +1,7 @@
 {
-    "id": 4,
+    "id": 4.0,
     "title": "Test Quest 4",
-    "level": 0,
+    "level": 0.0,
     "type": "fight",
     "profession": "farmer",
     "task": [
@@ -16,7 +16,7 @@
         1
     ],
     "description": "This is a test description for the test quest",
-    "experience": 50,
+    "experience": 50.0,
     "reward": [
         "minecraft:stick",
         10,
