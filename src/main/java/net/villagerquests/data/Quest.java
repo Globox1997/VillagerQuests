@@ -97,13 +97,14 @@ public class Quest {
         try {
             for (int i = 0; i < this.taskList.size() / 3; i++) {
                 String task = (String) this.taskList.get(i * 3);
-                int count = (int) this.taskList.get(i * 3 + 2);
+                int count = getCount(i);
                 taskListString[i] = Text.translatable("text.villagerquests.task", i + 1).getString() + StringUtils.capitalize(task) + " "
                         + (task.equals("explore") || task.equals("travel") ? "the " : count + " ") + getTranslatedRegistryName(task, (String) this.taskList.get(i * 3 + 1))
                         + (count > 1 ? Text.translatable("text.villagerquests.stringAddition").getString() : "");
 
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             VillagerQuestsMain.LOGGER.error("Error occurred while loading quest tasks from quest: {}. {}", this.title, e.toString());
         }
         return taskListString;
@@ -193,7 +194,7 @@ public class Quest {
         for (int i = 0; i < this.taskList.size() / 3; i++) {
             if (!this.taskList.get(i * 3).equals("kill")) {
 
-                int deleteAmount = (int) this.taskList.get(i * 3 + 2);
+                int deleteAmount = getCount(i);
                 for (int u = 0; u < playerEntity.getInventory().size(); u++) {
                     if (playerEntity.getInventory().getStack(u).isItemEqualIgnoreDamage(new ItemStack(Registry.ITEM.get(new Identifier((String) this.taskList.get(i * 3 + 1)))))) {
                         if (deleteAmount < playerEntity.getInventory().getStack(u).getCount()) {
@@ -220,7 +221,7 @@ public class Quest {
                     continue;
                 for (int u = 0; u < countList.get(index).size() / 2; u++)
                     if (Registry.ENTITY_TYPE.getRawId(Registry.ENTITY_TYPE.get(new Identifier((String) this.taskList.get(i * 3 + 1)))) == (int) countList.get(index).get(u * 2))
-                        if (countList.get(index).get(u * 2 + 1) < (int) this.taskList.get(i * 3 + 2))
+                        if (countList.get(index).get(u * 2 + 1) < getCount(i))
                             return false;
             } else if (this.taskList.get(i * 3).equals("travel") || this.taskList.get(i * 3).equals("explore")) {
                 List<List<Object>> travelList = ((PlayerAccessor) playerEntity).getPlayerTravelList();
@@ -234,11 +235,25 @@ public class Quest {
                 for (int k = 0; k < playerEntity.getInventory().size(); k++)
                     if (playerEntity.getInventory().getStack(k).isItemEqualIgnoreDamage(new ItemStack(Registry.ITEM.get(new Identifier((String) this.taskList.get(i * 3 + 1))))))
                         itemCount += playerEntity.getInventory().getStack(k).getCount();
-                if (itemCount == 0 || itemCount < (int) this.taskList.get(i * 3 + 2))
+                if (itemCount == 0 || itemCount < getCount(i))
                     return false;
             }
         }
         return true;
+    }
+    
+    private int getCount(int i){
+        // test if this.taskList.get(i * 3 + 2) is an int
+        if (this.taskList.get(i * 3 + 2) instanceof Integer)
+            return (int) this.taskList.get(i * 3 + 2);
+        else{
+            String countString = (String) this.taskList.get(i * 3 + 2);
+            // check if countString is a float or an int
+            if (countString.contains("."))
+                return (int) Float.parseFloat(countString);
+            else
+                return 0;
+        }
     }
 
     public List<Integer> getKillTaskEntityIds() {
