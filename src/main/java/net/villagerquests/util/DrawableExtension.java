@@ -42,7 +42,7 @@ public interface DrawableExtension {
         x = x / 16.0D;
         y = y / 16.0D;
         matrices.scale(scale, scale, 1.0F);
-        matrices.translate(x, y, 0.0D);
+        matrices.translate(x, y-3, 0.0D);
         itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GUI, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, matrices, vertexConsumerProvider, 0);
         matrices.pop();
     }

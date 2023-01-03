@@ -16,6 +16,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 import net.villagerquests.VillagerQuestsMain;
+import org.spongepowered.include.com.google.common.primitives.Floats;
 
 public class QuestLoader implements SimpleSynchronousResourceReloadListener {
 
@@ -88,13 +89,14 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                     // Reward
                     ArrayList<Object> rewardList = new ArrayList<Object>();
                     for (int i = 0; i < data.getAsJsonArray("reward").size(); i++) {
-                        if (data.getAsJsonArray("reward").get(i).toString().matches("-?(0|[1-9]\\d*)")) {
-                            rewardList.add(validateNumber(data.getAsJsonArray("reward").get(i)));
-                        } else {
+                        final Float yes = Floats.tryParse(data.getAsJsonArray("reward").get(i).toString());
+                        if(yes == null) {
                             rewardList.add(data.getAsJsonArray("reward").get(i).getAsString());
                             if (!Registry.ITEM.containsId(new Identifier((String) rewardList.get(rewardList.size() - 1))))
                                 VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. Reward Item {} is null", data.get("id").getAsInt(),
                                         data.getAsJsonArray("reward").get(i).getAsString());
+                        } else {
+                            rewardList.add(validateNumber(data.getAsJsonArray("reward").get(i)));
                         }
                     }
                     QuestData.rewardList.add(rewardList);
@@ -109,6 +111,7 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                     else
                         QuestData.timerList.add(-1);
                 }
+                VillagerQuestsMain.LOGGER.info("Loaded quest: {}", id.toString());
 
             } catch (Exception e) {
                 VillagerQuestsMain.LOGGER.error("Error occurred while loading resource {}. {}", id.toString(), e.toString());
