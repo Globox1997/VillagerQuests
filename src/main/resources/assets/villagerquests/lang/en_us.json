@@ -73,6 +73,7 @@
   "text.villagerquests.questCommandRemoval": "Quest %d got removed",
 
   "merchant.quests": "Quests",
+  "screen.villagerquests": "Quests",
 
   "commands.villagerquests.changed":"Quests got edited",
   "commands.villagerquests.changeFail":"%1$s doesn't have this quest"

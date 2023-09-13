@@ -14,7 +14,6 @@
   ],
   "client": [
     "client.MerchantScreenMixin",
-    "client.MouseMixin",
     "client.VillagerEntityRendererMixin",
     "client.WanderingTraderEntityRendererMixin"
   ],

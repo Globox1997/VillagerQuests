@@ -16,10 +16,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.registry.Registry;
 import net.villagerquests.accessor.MerchantAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.data.Quest;
@@ -126,7 +126,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
     @Inject(method = "onKilledOther", at = @At(value = "TAIL"))
     private void onKilledOtherMixin(ServerWorld world, LivingEntity other, CallbackInfoReturnable<Boolean> info) {
         // Instead of sending multiple packets, send one with all information
-        int entityRawId = Registry.ENTITY_TYPE.getRawId(other.getType());
+        int entityRawId = Registries.ENTITY_TYPE.getRawId(other.getType());
         if (this.canAddKilledMobQuestCount(entityRawId))
             QuestServerPacket.writeS2CQuestKillAdditionPacket((ServerPlayerEntity) (Object) this, entityRawId);
     }
@@ -211,7 +211,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
         this.travelIdList.remove(this.acceptedQuestIdList.indexOf(id));
         this.timerList.remove(this.acceptedQuestIdList.indexOf(id));
         this.acceptedQuestIdList.remove(this.acceptedQuestIdList.indexOf(id));
-        if (!playerEntity.world.isClient) {
+        if (!playerEntity.getWorld().isClient()) {
             quest.consumeCompletedQuestItems(playerEntity);
             quest.getRewards(playerEntity);
         }
@@ -230,7 +230,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
         this.timerList.remove(index);
         this.acceptedQuestIdList.remove(index);
 
-        if (!playerEntity.world.isClient) {
+        if (!playerEntity.getWorld().isClient()) {
             if (reason == 0)
                 playerEntity.sendMessage(Text.translatable("text.villagerquests.questTimeout", quest.getTitle()), true);
             else if (reason == 1)
@@ -255,7 +255,7 @@ public abstract class PlayerEntityMixin implements MerchantAccessor, PlayerAcces
             this.timerList.remove(index);
             this.acceptedQuestIdList.remove(index);
         }
-        if (!playerEntity.world.isClient) {
+        if (!playerEntity.getWorld().isClient()) {
             playerEntity.sendMessage(Text.translatable("text.villagerquests.questCommandRemoval", id), false);
         }
     }

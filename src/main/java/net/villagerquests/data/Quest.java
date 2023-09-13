@@ -11,11 +11,11 @@ import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.villagerquests.VillagerQuestsMain;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.network.QuestServerPacket;
@@ -130,10 +130,11 @@ public class Quest {
 
     public String getTimerString() {
         int seconds = timer / 20;
-        if (seconds >= 3600)
+        if (seconds >= 3600) {
             return String.format("%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
-        else
+        } else {
             return String.format("%02d:%02d", (seconds % 3600) / 60, (seconds % 60));
+        }
     }
 
     public int getTaskCount(int index) {
@@ -143,18 +144,20 @@ public class Quest {
     public ItemStack getTaskStack(int index) {
         String itemString = (String) this.taskList.get(index * 3 + 1);
         String taskString = (String) this.taskList.get(index * 3);
-        if (taskString.equals("kill") || taskString.equals("explore") || taskString.equals("travel"))
+        if (taskString.equals("kill") || taskString.equals("explore") || taskString.equals("travel")) {
             return ItemStack.EMPTY;
-        else
-            return new ItemStack(Registry.ITEM.get(new Identifier(itemString)));
+        } else {
+            return new ItemStack(Registries.ITEM.get(new Identifier(itemString)));
+        }
     }
 
     public ItemStack getRewardStack(int index) {
         boolean rewardsExperience = getExperienceAmount() > 0;
-        if (index == 0 && rewardsExperience)
+        if (index == 0 && rewardsExperience) {
             return new ItemStack(Items.EXPERIENCE_BOTTLE);
+        }
         String string = (String) this.rewardList.get(rewardsExperience ? (index - 1) * 2 : index * 2);
-        return new ItemStack(Registry.ITEM.get(new Identifier(string)));
+        return new ItemStack(Registries.ITEM.get(new Identifier(string)));
     }
 
     // Structure and biome check:
@@ -165,13 +168,13 @@ public class Quest {
         Identifier identifier = new Identifier(identifierString);
         switch (task) {
         case "kill":
-            return Registry.ENTITY_TYPE.get(identifier).getName().getString();
+            return Registries.ENTITY_TYPE.get(identifier).getName().getString();
         case "farm":
-            return Registry.ITEM.get(identifier).getName().getString();
+            return Registries.ITEM.get(identifier).getName().getString();
         case "submit":
-            return Registry.ITEM.get(identifier).getName().getString();
+            return Registries.ITEM.get(identifier).getName().getString();
         case "mine":
-            return Registry.BLOCK.get(identifier).getName().getString();
+            return Registries.BLOCK.get(identifier).getName().getString();
         case "explore":
             return WordUtils.capitalize(identifier.toString().replace("_", " ").replace(":", " "));
         case "travel":
@@ -184,7 +187,7 @@ public class Quest {
     public void getRewards(PlayerEntity playerEntity) {
         playerEntity.addExperience(getExperienceAmount());
         for (int i = 0; i < this.rewardList.size() / 2; i++) {
-            ItemStack stack = new ItemStack(Registry.ITEM.get(new Identifier((String) this.rewardList.get(i * 2))), (int) this.rewardList.get(i * 2 + 1));
+            ItemStack stack = new ItemStack(Registries.ITEM.get(new Identifier((String) this.rewardList.get(i * 2))), (int) this.rewardList.get(i * 2 + 1));
             playerEntity.getInventory().offerOrDrop(stack);
         }
     }
@@ -195,7 +198,7 @@ public class Quest {
 
                 int deleteAmount = (int) this.taskList.get(i * 3 + 2);
                 for (int u = 0; u < playerEntity.getInventory().size(); u++) {
-                    if (playerEntity.getInventory().getStack(u).isItemEqualIgnoreDamage(new ItemStack(Registry.ITEM.get(new Identifier((String) this.taskList.get(i * 3 + 1)))))) {
+                    if (playerEntity.getInventory().getStack(u).isOf(Registries.ITEM.get(new Identifier((String) this.taskList.get(i * 3 + 1))))) {
                         if (deleteAmount < playerEntity.getInventory().getStack(u).getCount()) {
                             playerEntity.getInventory().getStack(u).decrement(deleteAmount);
                         } else {
@@ -203,9 +206,9 @@ public class Quest {
                             playerEntity.getInventory().getStack(u).decrement(playerEntity.getInventory().getStack(u).getCount());
                         }
                     }
-                    if (deleteAmount <= 0)
+                    if (deleteAmount <= 0) {
                         break;
-
+                    }
                 }
             }
         }
@@ -216,26 +219,35 @@ public class Quest {
             int index = ((PlayerAccessor) playerEntity).getPlayerQuestIdList().indexOf(this.id);
             if (this.taskList.get(i * 3).equals("kill")) {
                 List<List<Integer>> countList = ((PlayerAccessor) playerEntity).getPlayerKilledQuestList();
-                if (countList.isEmpty())
+                if (countList.isEmpty()) {
                     continue;
-                for (int u = 0; u < countList.get(index).size() / 2; u++)
-                    if (Registry.ENTITY_TYPE.getRawId(Registry.ENTITY_TYPE.get(new Identifier((String) this.taskList.get(i * 3 + 1)))) == (int) countList.get(index).get(u * 2))
-                        if (countList.get(index).get(u * 2 + 1) < (int) this.taskList.get(i * 3 + 2))
+                }
+                for (int u = 0; u < countList.get(index).size() / 2; u++) {
+                    if (Registries.ENTITY_TYPE.getRawId(Registries.ENTITY_TYPE.get(new Identifier((String) this.taskList.get(i * 3 + 1)))) == (int) countList.get(index).get(u * 2)) {
+                        if (countList.get(index).get(u * 2 + 1) < (int) this.taskList.get(i * 3 + 2)) {
                             return false;
+                        }
+                    }
+                }
             } else if (this.taskList.get(i * 3).equals("travel") || this.taskList.get(i * 3).equals("explore")) {
                 List<List<Object>> travelList = ((PlayerAccessor) playerEntity).getPlayerTravelList();
-                if (travelList.isEmpty())
+                if (travelList.isEmpty()) {
                     continue;
-                for (int u = 0; u < travelList.get(index).size() / 2; u++)
-                    if (!(boolean) travelList.get(index).get(u * 2 + 1))
+                }
+                for (int u = 0; u < travelList.get(index).size() / 2; u++) {
+                    if (!(boolean) travelList.get(index).get(u * 2 + 1)) {
                         return false;
+                    }
+                }
             } else {
                 int itemCount = 0;
                 for (int k = 0; k < playerEntity.getInventory().size(); k++)
-                    if (playerEntity.getInventory().getStack(k).isItemEqualIgnoreDamage(new ItemStack(Registry.ITEM.get(new Identifier((String) this.taskList.get(i * 3 + 1))))))
+                    if (playerEntity.getInventory().getStack(k).isOf(Registries.ITEM.get(new Identifier((String) this.taskList.get(i * 3 + 1))))) {
                         itemCount += playerEntity.getInventory().getStack(k).getCount();
-                if (itemCount == 0 || itemCount < (int) this.taskList.get(i * 3 + 2))
+                    }
+                if (itemCount == 0 || itemCount < (int) this.taskList.get(i * 3 + 2)) {
                     return false;
+                }
             }
         }
         return true;
@@ -245,7 +257,7 @@ public class Quest {
         List<Integer> list = new ArrayList<Integer>();
         for (int i = 0; i < this.taskList.size() / 3; i++) {
             if (this.taskList.get(i * 3).equals("kill")) {
-                list.add(Registry.ENTITY_TYPE.getRawId(Registry.ENTITY_TYPE.get(new Identifier((String) this.taskList.get(i * 3 + 1)))));
+                list.add(Registries.ENTITY_TYPE.getRawId(Registries.ENTITY_TYPE.get(new Identifier((String) this.taskList.get(i * 3 + 1)))));
                 list.add(0);
             }
         }
@@ -268,8 +280,8 @@ public class Quest {
     }
 
     public static void failMerchantQuest(MerchantEntity merchantEntity, int reason) {
-        if (merchantEntity.world instanceof ServerWorld) {
-            Iterator<ServerPlayerEntity> var2 = ((ServerWorld) merchantEntity.world).getServer().getPlayerManager().getPlayerList().iterator();
+        if (merchantEntity.getWorld() instanceof ServerWorld) {
+            Iterator<ServerPlayerEntity> var2 = ((ServerWorld) merchantEntity.getWorld()).getServer().getPlayerManager().getPlayerList().iterator();
             while (var2.hasNext()) {
                 ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) var2.next();
                 if (((PlayerAccessor) serverPlayerEntity).getPlayerQuestTraderIdList().contains(merchantEntity.getUuid())) {

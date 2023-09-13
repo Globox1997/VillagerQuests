@@ -1,52 +1,45 @@
 package net.villagerquests.util;
 
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.model.json.ModelTransformation;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 import net.villagerquests.VillagerQuestsMain;
 
-// Made by Haven King: https://gist.github.com/Haven-King/ac5a38e0f902af298feff45031f57bf2
-
 public interface DrawableExtension {
 
-    static void drawText(MatrixStack matrices, TextRenderer textRenderer, String text, int centerX, int y, int color, float scale) {
-        matrices.push();
-        matrices.scale(scale, scale, 1F);
-        matrices.translate(centerX / scale, (y + textRenderer.fontHeight / 2F) / scale, 0);
-        textRenderer.draw(matrices, text, 0, -textRenderer.fontHeight / 2F, color);
-        matrices.pop();
+    static void drawText(DrawContext context, TextRenderer textRenderer, String text, int centerX, int y, int color, float scale) {
+        context.getMatrices().push();
+        context.getMatrices().scale(scale, scale, 1F);
+        context.getMatrices().translate(centerX / scale, (y + textRenderer.fontHeight / 2F) / scale, 0);
+        context.drawText(textRenderer, text, 0, -textRenderer.fontHeight / 2, color, false);
+        context.getMatrices().pop();
     }
 
-    static void drawCenteredText(MatrixStack matrices, TextRenderer textRenderer, String text, int centerX, int y, int color, float scale) {
-        matrices.push();
-        matrices.scale(scale, scale, 1F);
-        matrices.translate(centerX / scale, (y + textRenderer.fontHeight / 2F) / scale, 0);
-        textRenderer.draw(matrices, text, (float) (-textRenderer.getWidth(text) / 2), (float) -textRenderer.fontHeight / 2, color);
-        matrices.pop();
+    static void drawCenteredText(DrawContext context, TextRenderer textRenderer, String text, int centerX, int y, int color, float scale) {
+        context.getMatrices().push();
+        context.getMatrices().scale(scale, scale, 1F);
+        context.getMatrices().translate(centerX / scale, (y + textRenderer.fontHeight / 2F) / scale, 0);
+        context.drawText(textRenderer, text, (-textRenderer.getWidth(text) / 2), -textRenderer.fontHeight / 2, color, false);
+        context.getMatrices().pop();
     }
 
-    static void drawCenteredTextWithShadow(MatrixStack matrices, TextRenderer textRenderer, String text, int centerX, int y, int color, float scale) {
-        matrices.push();
-        matrices.scale(scale, scale, 1F);
-        matrices.translate(centerX / scale, (y + textRenderer.fontHeight / 2F) / scale, 0);
-        textRenderer.drawWithShadow(matrices, text, (float) (-textRenderer.getWidth(text) / 2), (float) -textRenderer.fontHeight / 2, color);
-        matrices.pop();
+    static void drawCenteredTextWithShadow(DrawContext context, TextRenderer textRenderer, String text, int centerX, int y, int color, float scale) {
+        context.getMatrices().push();
+        context.getMatrices().scale(scale, scale, 1F);
+        context.getMatrices().translate(centerX / scale, (y + textRenderer.fontHeight / 2F) / scale, 0);
+        context.drawText(textRenderer, text, (-textRenderer.getWidth(text) / 2), -textRenderer.fontHeight / 2, color, true);
+        context.getMatrices().pop();
     }
 
-    static void renderQuestItems(MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, ItemRenderer itemRenderer, ItemStack itemStack, double x, double y, float scale) {
+    static void renderQuestItems(DrawContext context, ItemStack itemStack, double x, double y, float scale) {
         if (VillagerQuestsMain.CONFIG.showQuestItems) {
-            matrices.push();
+            context.getMatrices().push();
             x = x / 16.0D;
             y = y / 16.0D;
-            matrices.scale(scale, scale, 1.0F);
-            matrices.translate(x, y, 0.0D);
-            itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GUI, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, matrices, vertexConsumerProvider, 0);
-            matrices.pop();
+            context.getMatrices().scale(scale, scale, 1.0F);
+            context.getMatrices().translate(x, y, 0.0D);
+            context.drawItem(itemStack, 0, 0);
+            context.getMatrices().pop();
         }
     }
 }

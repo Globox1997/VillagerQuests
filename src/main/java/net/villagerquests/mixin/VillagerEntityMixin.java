@@ -58,10 +58,10 @@ public abstract class VillagerEntityMixin implements MerchantAccessor {
 
     @Inject(method = "setVillagerData", at = @At(value = "TAIL"))
     private void setVillagerDataMixin(VillagerData villagerData, CallbackInfo info) {
-        if (!merchantEntity.world.isClient && !villagerData.getProfession().equals(VillagerProfession.NONE)) {
-            if (this.settingDataOnRead)
+        if (!merchantEntity.getWorld().isClient() && !villagerData.getProfession().equals(VillagerProfession.NONE)) {
+            if (this.settingDataOnRead) {
                 this.settingDataOnRead = false;
-            else {
+            } else {
                 MerchantQuests.addRandomMerchantQuests(merchantEntity, 1);
             }
         }
@@ -69,7 +69,7 @@ public abstract class VillagerEntityMixin implements MerchantAccessor {
 
     @Inject(method = "levelUp", at = @At(value = "TAIL"))
     private void levelUpMixin(CallbackInfo info) {
-        if (!merchantEntity.world.isClient) {
+        if (!merchantEntity.getWorld().isClient()) {
             MerchantQuests.addRandomMerchantQuests(merchantEntity, 1);
             this.finishedAQuest = false;
         }
@@ -77,36 +77,41 @@ public abstract class VillagerEntityMixin implements MerchantAccessor {
 
     @Inject(method = "canLevelUp", at = @At(value = "HEAD"), cancellable = true)
     private void canLevelUpMixin(CallbackInfoReturnable<Boolean> info) {
-        if (!merchantEntity.world.isClient && VillagerQuestsMain.CONFIG.canOnlyLevelUpWhenCompleted && !this.finishedAQuest)
+        if (!merchantEntity.getWorld().isClient() && VillagerQuestsMain.CONFIG.canOnlyLevelUpWhenCompleted && !this.finishedAQuest) {
             info.setReturnValue(false);
+        }
     }
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     private void tickMixin(CallbackInfo info) {
-        if (!this.merchantEntity.world.isClient) {
-            if (this.newQuestTicker >= 0)
+        if (!this.merchantEntity.getWorld().isClient()) {
+            if (this.newQuestTicker >= 0) {
                 this.newQuestTicker--;
-            if (this.newQuestTicker == 1)
+            }
+            if (this.newQuestTicker == 1) {
                 MerchantQuests.addRandomMerchantQuests(merchantEntity, 1);
+            }
         }
     }
 
     @Override
     public void finishedQuest(int questLevel) {
         if (VillagerQuestsMain.CONFIG.canOnlyAddLevelSpecificQuests) {
-            if (((VillagerEntity) merchantEntity).getVillagerData().getLevel() == questLevel)
+            if (((VillagerEntity) merchantEntity).getVillagerData().getLevel() == questLevel) {
                 addAndFinishQuestTicker();
-        } else
+            }
+        } else {
             addAndFinishQuestTicker();
-
+        }
     }
 
     private void addAndFinishQuestTicker() {
         this.finishedAQuest = true;
-        if (this.newQuestTicker > 1)
+        if (this.newQuestTicker > 1) {
             this.newQuestTicker -= this.newQuestTicker / 10;
-        else
-            this.newQuestTicker = VillagerQuestsMain.CONFIG.newQuestTimer + this.merchantEntity.world.random.nextInt(VillagerQuestsMain.CONFIG.newQuestTimer);
+        } else {
+            this.newQuestTicker = VillagerQuestsMain.CONFIG.newQuestTimer + this.merchantEntity.getWorld().getRandom().nextInt(VillagerQuestsMain.CONFIG.newQuestTimer);
+        }
     }
 
 }

@@ -8,11 +8,11 @@ import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.resource.ResourceType;
-import net.minecraft.screen.MerchantScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.util.registry.Registry;
 import net.villagerquests.command.QuestCommands;
 import net.villagerquests.config.VillagerQuestsConfig;
 import net.villagerquests.data.QuestLoader;
@@ -22,13 +22,13 @@ import net.villagerquests.network.QuestServerPacket;
 public class VillagerQuestsMain implements ModInitializer {
 
     public static VillagerQuestsConfig CONFIG = new VillagerQuestsConfig();
-    public static ScreenHandlerType<QuestScreenHandler> QUEST_SCREEN_HANDLER_TYPE;
     public static final Logger LOGGER = LogManager.getLogger("VillagerQuests");
+    public static final ScreenHandlerType<QuestScreenHandler> QUEST_SCREEN_HANDLER_TYPE = new ScreenHandlerType<>(QuestScreenHandler::new, FeatureFlags.VANILLA_FEATURES);
 
     @Override
     public void onInitialize() {
-        QUEST_SCREEN_HANDLER_TYPE = Registry.register(Registry.SCREEN_HANDLER, "villagerquests",
-                new ScreenHandlerType<>((syncId, inventory) -> new QuestScreenHandler(syncId, inventory, ScreenHandlerContext.EMPTY, new MerchantScreenHandler(syncId, inventory))));
+        Registry.register(Registries.SCREEN_HANDLER, "villagerquests:quest_screen_handler", QUEST_SCREEN_HANDLER_TYPE);
+
         AutoConfig.register(VillagerQuestsConfig.class, JanksonConfigSerializer::new);
         CONFIG = AutoConfig.getConfigHolder(VillagerQuestsConfig.class).getConfig();
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new QuestLoader());

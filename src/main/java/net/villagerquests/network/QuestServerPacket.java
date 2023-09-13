@@ -6,6 +6,7 @@ import java.util.UUID;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.libz.network.LibzServerPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityInteraction;
 import net.minecraft.entity.InteractionObserver;
@@ -15,8 +16,6 @@ import net.minecraft.entity.passive.WanderingTraderEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.screen.MerchantScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -38,7 +37,6 @@ public class QuestServerPacket {
     public static final Identifier COMPLETE_MERCHANT_QUEST = new Identifier("levelz", "complete_merchant_quest");
     public static final Identifier QUEST_KILL_ADDITION = new Identifier("levelz", "quest_kill_addition");
     public static final Identifier QUEST_TRAVEL_ADDITION = new Identifier("levelz", "quest_travel_addition");
-    public static final Identifier SET_MOUSE_POSITION = new Identifier("levelz", "set_mouse_position");
     public static final Identifier SYNC_PLAYER_QUEST_DATA = new Identifier("levelz", "sync_player_quest_data");
     public static final Identifier SET_MERCHANT_QUEST = new Identifier("levelz", "set_merchant_quest");
     public static final Identifier FAIL_MERCHANT_QUEST = new Identifier("levelz", "fail_merchant_quest");
@@ -49,23 +47,19 @@ public class QuestServerPacket {
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(SET_QUEST_SCREEN, (server, player, handler, buffer, sender) -> {
             if (player != null) {
-                MerchantScreenHandler merchantScreenHandler = (MerchantScreenHandler) player.currentScreenHandler;
                 player.openHandledScreen(new SimpleNamedScreenHandlerFactory((syncId, playerInventory, playerx) -> {
-                    return new QuestScreenHandler(syncId, playerInventory, ScreenHandlerContext.EMPTY, merchantScreenHandler);
+                    return new QuestScreenHandler(syncId, playerInventory);
                 }, Text.of("")));
 
-                MerchantEntity merchantEntity = (MerchantEntity) player.world.getEntityById(buffer.readVarInt());
+                MerchantEntity merchantEntity = (MerchantEntity) player.getWorld().getEntityById(buffer.readVarInt());
                 merchantEntity.setCustomer(player);
-                // Send back to make sure customer is set on client
-                // Maybe unnecessary
-                // writeS2COffererPacket(player, merchantEntity, ((MerchantAccessor) merchantEntity).getQuestIdList());
-                writeS2CMousePositionPacket(player, buffer.readInt(), buffer.readInt());
+                LibzServerPacket.writeS2CMousePositionPacket(player, buffer.readInt(), buffer.readInt());
             }
         });
         ServerPlayNetworking.registerGlobalReceiver(ACCEPT_MERCHANT_QUEST, (server, player, handler, buffer, sender) -> {
             if (player != null) {
                 ((PlayerAccessor) player).addPlayerQuestId(buffer.readInt(), buffer.readUuid());
-                Entity entity = player.world.getEntityById(buffer.readInt());
+                Entity entity = player.getWorld().getEntityById(buffer.readInt());
                 if (entity instanceof WanderingTraderEntity) {
                     ((WanderingTraderEntity) entity).setDespawnDelay(((WanderingTraderEntity) entity).getDespawnDelay() + VillagerQuestsMain.CONFIG.wanderingTraderDespawnAddition);
                 }
@@ -73,25 +67,25 @@ public class QuestServerPacket {
         });
         ServerPlayNetworking.registerGlobalReceiver(SET_TRADE_SCREEN, (server, player, handler, buffer, sender) -> {
             if (player != null) {
-                MerchantEntity merchantEntity = (MerchantEntity) player.world.getEntityById(buffer.readVarInt());
+                MerchantEntity merchantEntity = (MerchantEntity) player.getWorld().getEntityById(buffer.readVarInt());
                 if (merchantEntity instanceof VillagerEntity) {
                     VillagerEntity villagerEntity = (VillagerEntity) merchantEntity;
                     villagerEntity.sendOffers(player, villagerEntity.getDisplayName(), villagerEntity.getVillagerData().getLevel());
                 } else {
                     merchantEntity.sendOffers(player, merchantEntity.getDisplayName(), 1);
                 }
-                writeS2CMousePositionPacket(player, buffer.readInt(), buffer.readInt());
+                LibzServerPacket.writeS2CMousePositionPacket(player, buffer.readInt(), buffer.readInt());
             }
         });
         ServerPlayNetworking.registerGlobalReceiver(CLOSE_SCREEN, (server, player, handler, buffer, sender) -> {
             if (player != null) {
-                ((MerchantEntity) player.world.getEntityById(buffer.readVarInt())).setCustomer(null);
+                ((MerchantEntity) player.getWorld().getEntityById(buffer.readVarInt())).setCustomer(null);
             }
         });
         ServerPlayNetworking.registerGlobalReceiver(COMPLETE_MERCHANT_QUEST, (server, player, handler, buffer, sender) -> {
             if (player != null) {
                 ((PlayerAccessor) player).finishPlayerQuest(buffer.readInt());
-                MerchantEntity merchantEntity = (MerchantEntity) player.world.getEntityById(buffer.readInt());
+                MerchantEntity merchantEntity = (MerchantEntity) player.getWorld().getEntityById(buffer.readInt());
                 if (merchantEntity instanceof VillagerEntity)
                     ((MerchantAccessor) merchantEntity).finishedQuest(buffer.readInt());
             }
@@ -99,9 +93,9 @@ public class QuestServerPacket {
         ServerPlayNetworking.registerGlobalReceiver(DECLINE_MERCHANT_QUEST, (server, player, handler, buffer, sender) -> {
             if (player != null) {
                 ((PlayerAccessor) player).failPlayerQuest(buffer.readInt(), buffer.readInt());
-                MerchantEntity merchantEntity = (MerchantEntity) player.world.getEntityById(buffer.readInt());
-                if (player.world instanceof ServerWorld && merchantEntity instanceof VillagerEntity)
-                    ((ServerWorld) player.world).handleInteraction(EntityInteraction.VILLAGER_HURT, player, (InteractionObserver) merchantEntity);
+                MerchantEntity merchantEntity = (MerchantEntity) player.getWorld().getEntityById(buffer.readInt());
+                if (player.getWorld() instanceof ServerWorld && merchantEntity instanceof VillagerEntity)
+                    ((ServerWorld) player.getWorld()).handleInteraction(EntityInteraction.VILLAGER_HURT, player, (InteractionObserver) merchantEntity);
             }
         });
     }
@@ -188,14 +182,6 @@ public class QuestServerPacket {
 
         CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(SYNC_PLAYER_QUEST_DATA, buf);
         ((ServerPlayerEntity) playerEntity).networkHandler.sendPacket(packet);
-    }
-
-    private static void writeS2CMousePositionPacket(ServerPlayerEntity serverPlayerEntity, int mouseX, int mouseY) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(mouseX);
-        buf.writeInt(mouseY);
-        CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(SET_MOUSE_POSITION, buf);
-        serverPlayerEntity.networkHandler.sendPacket(packet);
     }
 
     public static void writeS2CMerchantQuestsPacket(ServerPlayerEntity serverPlayerEntity, MerchantEntity merchantEntity, List<Integer> list) {

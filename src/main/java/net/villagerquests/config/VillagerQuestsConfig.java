@@ -33,12 +33,6 @@ public class VillagerQuestsConfig implements ConfigData {
     public boolean hardMode = false;
 
     @ConfigEntry.Category("gui_setting")
-    @Comment("Set to -20 if ontop of screen")
-    public int xIconPosition = 0;
-    @ConfigEntry.Category("gui_setting")
-    @Comment("Set to -20 if ontop of screen")
-    public int yIconPosition = 0;
-    @ConfigEntry.Category("gui_setting")
     @ConfigEntry.Gui.RequiresRestart
     @Comment("REI/EMI exclusion zone")
     public boolean exclusionZone = true;

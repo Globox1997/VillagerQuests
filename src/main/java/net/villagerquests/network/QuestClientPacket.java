@@ -14,7 +14,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.villagerquests.accessor.MerchantAccessor;
-import net.villagerquests.accessor.MouseAccessor;
 import net.villagerquests.accessor.PlayerAccessor;
 import net.villagerquests.data.QuestData;
 import net.villagerquests.data.QuestLoader;
@@ -38,43 +37,32 @@ public class QuestClientPacket {
                 ((PlayerAccessor) client.player).canAddKilledMobQuestCount(buf.readInt());
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MOUSE_POSITION, (client, handler, buf, sender) -> {
-            int mouseX = buf.readInt();
-            int mouseY = buf.readInt();
-            client.execute(() -> {
-                ((MouseAccessor) client.mouse).setMousePosition(mouseX, mouseY);
-            });
-        });
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SYNC_PLAYER_QUEST_DATA, (client, handler, buf, sender) -> {
-            if (client.player != null)
-                executePlayerQuestData(client.player, buf);
-            else {
-                PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
-                newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
+            PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
+            newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
 
-                int UuidSize = buf.readInt();
-                newBuffer.writeInt(UuidSize);
-                for (int i = 0; i < UuidSize; i++) {
-                    newBuffer.writeUuid(buf.readUuid());
-                }
-
-                int killedMobCountSize = buf.readInt();
-                newBuffer.writeInt(killedMobCountSize);
-                for (int u = 0; u < killedMobCountSize; u++) {
-                    newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
-                }
-
-                newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
-                newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
-                newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
-
-                while (buf.isReadable()) {
-                    newBuffer.writeString(buf.readString());
-                }
-                client.execute(() -> {
-                    executePlayerQuestData(client.player, newBuffer);
-                });
+            int uuidSize = buf.readInt();
+            newBuffer.writeInt(uuidSize);
+            for (int i = 0; i < uuidSize; i++) {
+                newBuffer.writeUuid(buf.readUuid());
             }
+
+            int killedMobCountSize = buf.readInt();
+            newBuffer.writeInt(killedMobCountSize);
+            for (int u = 0; u < killedMobCountSize; u++) {
+                newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
+            }
+
+            newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
+            newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
+            newBuffer.writeIntList(new IntArrayList(buf.readIntList()));
+
+            while (buf.isReadable()) {
+                newBuffer.writeString(buf.readString());
+            }
+            client.execute(() -> {
+                executePlayerQuestData(client.player, newBuffer);
+            });
         });
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.FAIL_MERCHANT_QUEST, (client, handler, buf, sender) -> {
             PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
@@ -90,25 +78,14 @@ public class QuestClientPacket {
                 ((PlayerAccessor) client.player).removeQuest(questId);
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MOUSE_POSITION, (client, handler, buf, sender) -> {
-            int mouseX = buf.readInt();
-            int mouseY = buf.readInt();
-            client.execute(() -> {
-                ((MouseAccessor) client.mouse).setMousePosition(mouseX, mouseY);
-            });
-        });
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.QUEST_LIST_DATA, (client, handler, buf, sender) -> {
-            if (client.player != null) {
-                executeListPacket(buf, client.player);
-            } else {
-                PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
-                while (buf.isReadable()) {
-                    newBuffer.writeString(buf.readString());
-                }
-                client.execute(() -> {
-                    executeListPacket(newBuffer, client.player);
-                });
+            PacketByteBuf newBuffer = new PacketByteBuf(Unpooled.buffer());
+            while (buf.isReadable()) {
+                newBuffer.writeString(buf.readString());
             }
+            client.execute(() -> {
+                executeListPacket(newBuffer, client.player);
+            });
         });
         ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MERCHANT_QUEST, (client, handler, buf, sender) -> {
             int entityId = buf.readVarInt();

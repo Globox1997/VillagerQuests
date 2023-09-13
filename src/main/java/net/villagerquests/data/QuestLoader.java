@@ -8,12 +8,15 @@ import java.util.Map;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
+import net.fabricmc.fabric.api.event.registry.RegistryAttributeHolder;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.registry.BuiltinRegistries;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.Registry;
 import net.villagerquests.VillagerQuestsMain;
 
 public class QuestLoader implements SimpleSynchronousResourceReloadListener {
@@ -39,15 +42,17 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                     // Title
                     QuestData.titleList.add(data.get("title").getAsString());
                     // Level
-                    if (data.has("level"))
+                    if (data.has("level")) {
                         QuestData.levelList.add(data.get("level").getAsInt());
-                    else
+                    } else {
                         QuestData.levelList.add(0);
+                    }
                     // Type
                     QuestData.typeList.add(data.get("type").getAsString());
                     // Profession
-                    if (!Registry.VILLAGER_PROFESSION.containsId(new Identifier(data.get("profession").getAsString())))
+                    if (!Registries.VILLAGER_PROFESSION.containsId(new Identifier(data.get("profession").getAsString()))) {
                         VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. Profession {} does not exist", data.get("id").getAsInt(), data.get("profession").getAsString());
+                    }
                     QuestData.professionList.add(data.get("profession").getAsString());
                     // Task
                     ArrayList<Object> taskList = new ArrayList<Object>();
@@ -56,23 +61,35 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                             taskList.add(data.getAsJsonArray("task").get(i).getAsInt());
                         } else {
                             taskList.add(data.getAsJsonArray("task").get(i).getAsString());
-                            if (i == 0)
+                            if (i == 0) {
                                 continue;
+                            }
                             String lastTaskString = data.getAsJsonArray("task").get(i - 1).getAsString();
                             if (lastTaskString.equals("kill")) {
-                                if (!Registry.ENTITY_TYPE.containsId(new Identifier((String) taskList.get(taskList.size() - 1))))
+                                if (!Registries.ENTITY_TYPE.containsId(new Identifier((String) taskList.get(taskList.size() - 1)))) {
                                     VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. EntityType {} is null", data.get("id").getAsInt(),
                                             data.getAsJsonArray("task").get(i).getAsString());
+                                }
                             } else if (lastTaskString.equals("travel") || lastTaskString.equals("explore")) {
-                                if (!BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.STRUCTURE_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
-                                        && !BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registry.BIOME_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
-                                        && VillagerQuestsMain.CONFIG.structureRegistryCheck)
+                                // BuiltinRegistries.createWrapperLookup()
+                                // Registries.STRUCTURE_TYPE.containsId(var1)
+
+                                if (!Registries.STRUCTURE_TYPE.containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
+                                        && !Registries.BIOME_SOURCE.containsId(new Identifier((String) taskList.get(taskList.size() - 1))) && VillagerQuestsMain.CONFIG.structureRegistryCheck) {
                                     VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. Structure or Biome {} is null", data.get("id").getAsInt(),
                                             data.getAsJsonArray("task").get(i).getAsString());
+
+                                    // if (!BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registries.STRUCTURE_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
+                                    // && !BuiltinRegistries.DYNAMIC_REGISTRY_MANAGER.get(Registries.BIOME_KEY).containsId(new Identifier((String) taskList.get(taskList.size() - 1)))
+                                    // && VillagerQuestsMain.CONFIG.structureRegistryCheck) {
+                                    // VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. Structure or Biome {} is null", data.get("id").getAsInt(),
+                                    // data.getAsJsonArray("task").get(i).getAsString());
+                                }
                             } else if (lastTaskString.equals("submit") || lastTaskString.equals("farm") || lastTaskString.equals("mine")) {
-                                if (!Registry.ITEM.containsId(new Identifier((String) taskList.get(taskList.size() - 1))))
+                                if (!Registries.ITEM.containsId(new Identifier((String) taskList.get(taskList.size() - 1)))) {
                                     VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. Item {} is null", data.get("id").getAsInt(),
                                             data.getAsJsonArray("task").get(i).getAsString());
+                                }
                             }
                         }
                     }
@@ -91,22 +108,24 @@ public class QuestLoader implements SimpleSynchronousResourceReloadListener {
                             rewardList.add(data.getAsJsonArray("reward").get(i).getAsInt());
                         } else {
                             rewardList.add(data.getAsJsonArray("reward").get(i).getAsString());
-                            if (!Registry.ITEM.containsId(new Identifier((String) rewardList.get(rewardList.size() - 1))))
+                            if (!Registries.ITEM.containsId(new Identifier((String) rewardList.get(rewardList.size() - 1))))
                                 VillagerQuestsMain.LOGGER.error("Error occurred while loading quest {}. Reward Item {} is null", data.get("id").getAsInt(),
                                         data.getAsJsonArray("reward").get(i).getAsString());
                         }
                     }
                     QuestData.rewardList.add(rewardList);
                     // Refresh
-                    if (data.has("refresh"))
+                    if (data.has("refresh")) {
                         QuestData.refreshTimeList.add(data.get("refresh").getAsInt());
-                    else
+                    } else {
                         QuestData.refreshTimeList.add(-1);
+                    }
                     // Timer
-                    if (data.has("timer"))
+                    if (data.has("timer")) {
                         QuestData.timerList.add(data.get("timer").getAsInt());
-                    else
+                    } else {
                         QuestData.timerList.add(-1);
+                    }
                 }
 
             } catch (Exception e) {

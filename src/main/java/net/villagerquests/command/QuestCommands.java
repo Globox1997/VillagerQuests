@@ -47,11 +47,12 @@ public class QuestCommands {
                 if (list.contains(questId)) {
                     QuestServerPacket.writeS2CRemoveQuestPacket(serverPlayerEntity, questId);
                     ((PlayerAccessor) serverPlayerEntity).removeQuest(questId);
-                } else
-                    source.sendFeedback(Text.translatable("commands.villagerquests.changeFail", serverPlayerEntity.getName()), true);
+                } else {
+                    source.sendFeedback(() -> Text.translatable("commands.villagerquests.changeFail", serverPlayerEntity.getName()), true);
+                }
             }
         }
-        source.sendFeedback(Text.translatable("commands.villagerquests.changed"), true);
+        source.sendFeedback(() -> Text.translatable("commands.villagerquests.changed"), true);
 
         return targets.size();
     }

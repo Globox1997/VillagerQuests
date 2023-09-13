@@ -32,4 +32,7 @@ bin/
 
 run/
 
+# other
+
+src/main/resources/data/villagerquests/quests/
 test/
