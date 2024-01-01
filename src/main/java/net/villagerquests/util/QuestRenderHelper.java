@@ -28,7 +28,7 @@ public class QuestRenderHelper {
 
     public static void renderQuestMark(MerchantEntity merchantEntity, MatrixStack matrixStack, EntityRenderDispatcher dispatcher, TextRenderer textRenderer,
             VertexConsumerProvider vertexConsumerProvider, QuestEntityModel<MerchantEntity> questEntityModel, boolean hasLabel, int i) {
-        if (ConfigInit.CONFIG.showQuestIcon && Math.sqrt(dispatcher.getSquaredDistanceToCamera(merchantEntity)) < ConfigInit.CONFIG.iconDistace
+        if (ConfigInit.CONFIG.showQuestIcon && Math.sqrt(dispatcher.getSquaredDistanceToCamera(merchantEntity)) < ConfigInit.CONFIG.iconDistance
                 && merchantEntity.getWorld().getBlockState(merchantEntity.getBlockPos().up(2)).isAir()) {
             MinecraftClient client = MinecraftClient.getInstance();
             PlayerEntity player = client.player;
