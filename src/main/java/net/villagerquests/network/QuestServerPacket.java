@@ -2,6 +2,7 @@ package net.villagerquests.network;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.QuestObjectBase;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import dev.ftb.mods.ftbquests.quest.TeamData;
+import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.libz.network.LibzServerPacket;
@@ -78,13 +80,20 @@ public class QuestServerPacket {
             boolean acceptQuest = buffer.readBoolean();
             server.execute(() -> {
                 Quest quest = ServerQuestFile.INSTANCE.getQuest(questId);
-                if ((Object) quest instanceof QuestAccessor questAccessor && questAccessor.isQuestVisible(TeamData.get(player))) {
+                TeamData teamData = TeamData.get(player);
+                if ((Object) quest instanceof QuestAccessor questAccessor && questAccessor.isQuestVisible(teamData)) {
                     questAccessor.setAccepted(acceptQuest);
 
                     int questMarkType = QuestHelper.getVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid());
-                    VillagerQuestState.updatePlayerVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid(), questMarkType);
-                    if (player.getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
-                        writeS2CMerchantQuestMarkPacket(player, merchantEntity.getId(), questMarkType);
+                    Iterator<UUID> iterator = FTBTeamsAPI.api().getManager().getTeamByID(teamData.getTeamId()).get().getMembers().iterator();
+                    while (iterator.hasNext()) {
+                        UUID uuid = iterator.next();
+                        if (server.getPlayerManager().getPlayer(uuid) != null) {
+                            if (server.getPlayerManager().getPlayer(uuid).getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
+                                writeS2CMerchantQuestMarkPacket(player, merchantEntity.getId(), questMarkType);
+                            }
+                        }
+                        VillagerQuestState.updatePlayerVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid(), questMarkType);
                     }
                 }
             });
@@ -95,18 +104,41 @@ public class QuestServerPacket {
             server.execute(() -> {
                 Quest quest = ServerQuestFile.INSTANCE.getQuest(questId);
                 TeamData data = TeamData.get(player);
-                if ((Object) quest instanceof QuestAccessor questAccessor && questAccessor.isQuestVisible(data) && questAccessor.isVillagerQuest() && quest.isCompletedRaw(data)) {
-                    Collection<ServerPlayerEntity> onlineMembers = data.getOnlineMembers();
-                    Collection<ServerPlayerEntity> notifiedPlayers;
+                if ((Object) quest instanceof QuestAccessor questAccessor && questAccessor.isQuestVisible(data) && questAccessor.isVillagerQuest()) {
+                    if (quest.isCompletedRaw(data) && !data.isCompleted(quest)) {
+                        Collection<ServerPlayerEntity> onlineMembers = data.getOnlineMembers();
+                        Collection<ServerPlayerEntity> notifiedPlayers;
 
-                    if (QuestObjectBase.shouldSendNotifications()) {
-                        notifiedPlayers = onlineMembers;
+                        if (QuestObjectBase.shouldSendNotifications()) {
+                            notifiedPlayers = onlineMembers;
+                        } else {
+                            notifiedPlayers = List.of();
+                        }
+                        @SuppressWarnings("rawtypes")
+                        QuestProgressEventData questProgressEventData = new QuestProgressEventData<>(new Date(), data, quest, onlineMembers, notifiedPlayers);
+                        quest.onCompleted(questProgressEventData);
+
+                        Iterator<UUID> iterator = FTBTeamsAPI.api().getManager().getTeamByID(data.getTeamId()).get().getMembers().iterator();
+                        while (iterator.hasNext()) {
+                            UUID uuid = iterator.next();
+                            int questMarkType = 2;
+                            if (uuid.equals(player.getUuid())) {
+                                questMarkType = QuestHelper.getVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid());
+                            }
+                            if (server.getPlayerManager().getPlayer(uuid) != null) {
+                                if (server.getPlayerManager().getPlayer(uuid).getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
+                                    writeS2CMerchantQuestMarkPacket(player, merchantEntity.getId(), questMarkType);
+                                }
+                            }
+                            VillagerQuestState.updatePlayerVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid(), questMarkType);
+                        }
                     } else {
-                        notifiedPlayers = List.of();
+                        int questMarkType = QuestHelper.getVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid());
+                        if (player.getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
+                            writeS2CMerchantQuestMarkPacket(player, merchantEntity.getId(), questMarkType);
+                        }
+                        VillagerQuestState.updatePlayerVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid(), questMarkType);
                     }
-                    @SuppressWarnings("rawtypes")
-                    QuestProgressEventData questProgressEventData = new QuestProgressEventData<>(new Date(), data, quest, onlineMembers, notifiedPlayers);
-                    quest.onCompleted(questProgressEventData);
                 }
             });
         });
