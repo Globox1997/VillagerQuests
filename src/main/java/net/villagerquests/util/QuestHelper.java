@@ -13,6 +13,11 @@ import net.villagerquests.access.QuestAccessor;
 
 public class QuestHelper {
 
+    /*
+     * 0 = None
+     * 1 = Question Mark
+     * 2 = Exclamation Mark
+     */
     public static int getVillagerQuestMarkType(ServerPlayerEntity serverPlayerEntity, UUID uuid) {
         int questMarkType = 0;
         if (!serverPlayerEntity.getWorld().isClient()) {
