@@ -10,7 +10,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.villagerquests.access.MerchantAccessor;
 import net.villagerquests.network.QuestClientPacket;
-import net.villagerquests.screen.VillagerQuestScreen;
 
 @Environment(EnvType.CLIENT)
 public class QuestTab extends InventoryTab {
@@ -24,9 +23,6 @@ public class QuestTab extends InventoryTab {
         if (!((MerchantAccessor) ((MerchantAccessor) client.player).getCurrentOfferer()).getOffersTrades()) {
             return false;
         }
-        // if (client.currentScreen instanceof VillagerQuestScreen villagerQuestScreen && !villagerQuestScreen.showTabs()) {
-        // return false;
-        // }
         return super.shouldShow(client);
     }
 
