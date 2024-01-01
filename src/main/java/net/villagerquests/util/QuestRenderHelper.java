@@ -1,7 +1,5 @@
 package net.villagerquests.util;
 
-import java.util.List;
-
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -20,40 +18,32 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import net.villagerquests.VillagerQuestsMain;
-import net.villagerquests.accessor.MerchantAccessor;
-import net.villagerquests.accessor.PlayerAccessor;
-import net.villagerquests.data.Quest;
+import net.villagerquests.access.MerchantAccessor;
 import net.villagerquests.feature.QuestEntityModel;
+import net.villagerquests.init.ConfigInit;
 
 public class QuestRenderHelper {
 
-    private static final Identifier QUEST_TEXTURE = new Identifier("villagerquests:textures/entity/quest.png");
+    private static final Identifier QUEST_TEXTURE = new Identifier("villagerquests:textures/entity/quest_mark.png");
 
-    public static void renderQuestMark(MerchantEntity mobEntity, MatrixStack matrixStack, EntityRenderDispatcher dispatcher, TextRenderer textRenderer, VertexConsumerProvider vertexConsumerProvider,
-            QuestEntityModel<MerchantEntity> questEntityModel, boolean hasLabel, int i) {
-        if (VillagerQuestsMain.CONFIG.showQuestIcon && dispatcher.getSquaredDistanceToCamera(mobEntity) < VillagerQuestsMain.CONFIG.iconDistace
-                && mobEntity.getWorld().getBlockState(mobEntity.getBlockPos().up(2)).isAir()) {
-            MinecraftClient minecraftClient = MinecraftClient.getInstance();
-            PlayerEntity player = minecraftClient.player;
-            List<Integer> merchantQuestList = ((MerchantAccessor) mobEntity).getQuestIdList();
-            if (player != null && !merchantQuestList.isEmpty()) {
-                List<Integer> playerFinishedQuestIdList = ((PlayerAccessor) player).getPlayerFinishedQuestIdList();
-                List<Integer> playerQuestIdList = ((PlayerAccessor) player).getPlayerQuestIdList();
+    public static void renderQuestMark(MerchantEntity merchantEntity, MatrixStack matrixStack, EntityRenderDispatcher dispatcher, TextRenderer textRenderer,
+            VertexConsumerProvider vertexConsumerProvider, QuestEntityModel<MerchantEntity> questEntityModel, boolean hasLabel, int i) {
+        if (ConfigInit.CONFIG.showQuestIcon && Math.sqrt(dispatcher.getSquaredDistanceToCamera(merchantEntity)) < ConfigInit.CONFIG.iconDistace
+                && merchantEntity.getWorld().getBlockState(merchantEntity.getBlockPos().up(2)).isAir()) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            PlayerEntity player = client.player;
+            int questMarkType = ((MerchantAccessor) merchantEntity).getQuestMarkType();
+            if (player != null && questMarkType != 0) {
                 matrixStack.push();
-                float height = VillagerQuestsMain.CONFIG.flatQuestIcon ? mobEntity.getHeight() + 1.1F : mobEntity.getHeight() + 2.0F;
+                float height = ConfigInit.CONFIG.flatQuestIcon ? merchantEntity.getHeight() + 1.1F : merchantEntity.getHeight() + 2.0F;
                 matrixStack.translate(0.0D, height, 0.0D);
 
                 if (hasLabel) {
                     matrixStack.translate(0.0D, 0.3D, 0.0D);
                 }
-                // method 35828 is the last Vec3f method in the Quaternion class
-                // matrixStack.multiply(RotationAxis.POSITIVE_Y.getDegreesQuaternion(dispatcher.getRotation().toEulerXyzDegrees().getY()));
-                // matrixStack.multiply(RotationAxis.POSITIVE_Y.getDegreesQuaternion(dispatcher.getRotation().toEulerXyzDegrees().getY()));
                 matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(toEulerXyzDegrees(dispatcher.getRotation()).y()));
-                // matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(toEulerXyzDegrees(entityRenderDispatcher.getRotation()).y()));
 
-                if (VillagerQuestsMain.CONFIG.flatQuestIcon) {
+                if (ConfigInit.CONFIG.flatQuestIcon) {
                     matrixStack.scale(-0.1F, -0.1F, 0.1F);
                 } else {
                     matrixStack.scale(-1.0F, -1.0F, 1.0F);
@@ -61,31 +51,20 @@ public class QuestRenderHelper {
                 Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
                 VertexConsumer vertexConsumers = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutoutNoCull(QUEST_TEXTURE));
 
-                for (int u = 0; u < merchantQuestList.size(); u++) {
-                    int questId = merchantQuestList.get(u);
-                    boolean containsQuest = playerQuestIdList.contains(questId);
-                    if (containsQuest && ((PlayerAccessor) player).isOriginalQuestGiver(mobEntity.getUuid(), questId) && Quest.getQuestById(questId).canCompleteQuest(player)) {
-                        if (VillagerQuestsMain.CONFIG.flatQuestIcon) {
-                            float h = (float) (-textRenderer.getWidth(Text.of("!")) / 2);
-                            // textRenderer.draw(Text.of("!", x, y, color, shadow, matrix, vertexConsumers, layerType, backgroundColor, light)
-                            textRenderer.draw(Text.of("!"), h, 0.0F, 0xFFFBD500, false, matrix4f, vertexConsumerProvider, TextLayerType.NORMAL, 0, i);
-                        } else {
-                            questEntityModel.questionMark = false;
-                            questEntityModel.render(matrixStack, vertexConsumers, 15728880, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
-                            questEntityModel.setAngles(mobEntity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-                        }
-                    } else if (!containsQuest && !playerFinishedQuestIdList.contains(questId)) {
-                        if (VillagerQuestsMain.CONFIG.flatQuestIcon) {
-                            float h = (float) (-textRenderer.getWidth(Text.of("?")) / 2);
-                            // textRenderer.draw(Text.of("?"), h, 0.0F, 0xFFFBD500, false, matrix4f, vertexConsumerProvider, false, 0, i);
-                            textRenderer.draw(Text.of("?"), h, 0.0F, 0xFFFBD500, false, matrix4f, vertexConsumerProvider, TextLayerType.NORMAL, 0, i);
-                        } else {
-                            questEntityModel.questionMark = true;
-                            questEntityModel.render(matrixStack, vertexConsumers, 15728880, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
-                            questEntityModel.setAngles(mobEntity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-                        }
-                        break;
+                if (ConfigInit.CONFIG.flatQuestIcon) {
+                    Text text = Text.of("?");
+                    if (questMarkType == 2) {
+                        text = Text.of("!");
                     }
+                    float h = (float) (-textRenderer.getWidth(text) / 2);
+                    textRenderer.draw(text, h, 0.0F, 0xFFFBD500, false, matrix4f, vertexConsumerProvider, TextLayerType.NORMAL, 0, i);
+                } else {
+                    questEntityModel.questionMark = true;
+                    if (questMarkType == 2) {
+                        questEntityModel.questionMark = false;
+                    }
+                    questEntityModel.render(matrixStack, vertexConsumers, 15728880, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
+                    questEntityModel.setAngles(merchantEntity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
                 }
                 matrixStack.pop();
             }

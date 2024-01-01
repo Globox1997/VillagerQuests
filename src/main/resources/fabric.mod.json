@@ -1,55 +1,56 @@
 {
-  "schemaVersion": 1,
-  "id": "villagerquests",
-  "version": "${version}",
-  "name": "Villager Quests",
-  "description": "Adds quests to villagers",
-  "authors": [
-    "Globox_Z"
-  ],
-  "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/villagerquests",
-    "sources": "https://github.com/Globox1997/VillagerQuests",
-    "issues": "https://github.com/Globox1997/VillagerQuests/issues"
-  },
-  "license": "MIT",
-  "icon": "assets/villagerquests/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "net.villagerquests.VillagerQuestsMain"
-    ],
-    "client": [
-      "net.villagerquests.VillagerQuestsClient"
-    ],
-    "modmenu": [
-      "net.villagerquests.config.ModMenuIntegration"
-    ],
-    "emi": [
-      "net.villagerquests.compat.VillagerQuestsEmiPlugin"
-    ],
-    "rei_client": [
-      "net.villagerquests.compat.VillagerQuestsReiPlugin"
-    ]
-  },
-  "mixins": [
-    "villagerquests.mixins.json"
-  ],
-  "depends": {
-    "java": ">=17",
-    "minecraft": ">=${minecraft_version}",
-    "fabric-api": ">=${fabric_version}",
-    "fabricloader": ">=${loader_version}",
-    "cloth-config2": ">=${cloth_config_version}",
-    "libz": "*"
-  },
-  "suggests": {
-    "another-mod": "*"
-  },
-  "custom": {
-    "mc-publish": {
-      "modrinth": "83TKyAar",
-      "curseforge": 534368
-    }
-  }
+	"schemaVersion": 1,
+	"id": "villagerquests",
+	"version": "${version}",
+	"name": "Villager Quests",
+	"description": "Adds quests to villagers",
+	"authors": [
+		"Globox_Z"
+	],
+	"contact": {
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/villagerquests",
+		"sources": "https://github.com/Globox1997/VillagerQuests",
+		"issues": "https://github.com/Globox1997/VillagerQuests/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/villagerquests/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.villagerquests.VillagerQuestsMain"
+		],
+		"client": [
+			"net.villagerquests.VillagerQuestsClient"
+		],
+		"modmenu": [
+			"net.villagerquests.config.ModMenuIntegration"
+		],
+		"emi": [
+			"net.villagerquests.compat.VillagerQuestsEmiPlugin"
+		],
+		"rei_client": [
+			"net.villagerquests.compat.VillagerQuestsReiPlugin"
+		]
+	},
+	"mixins": [
+		"villagerquests.mixins.json"
+	],
+	"depends": {
+		"java": ">=17",
+		"minecraft": ">=${minecraft_version}",
+		"fabric-api": ">=${fabric_version}",
+		"fabricloader": ">=${loader_version}",
+		"cloth-config2": ">=${cloth_config_version}",
+		"libz": "*",
+		"ftbquests": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	},
+	"custom": {
+		"mc-publish": {
+			"modrinth": "83TKyAar",
+			"curseforge": 534368
+		}
+	}
 }

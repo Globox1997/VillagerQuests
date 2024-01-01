@@ -32,7 +32,9 @@ bin/
 
 run/
 
-# other
+# java
 
-src/main/resources/data/villagerquests/quests/
-test/
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr

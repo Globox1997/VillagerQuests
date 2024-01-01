@@ -47,10 +47,10 @@ public class QuestEntityModel<T extends MerchantEntity> extends EntityModel<T> {
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
         this.question.visible = false;
         this.exclamation.visible = false;
-        if (this.questionMark)
+        if (this.questionMark) {
             this.question.visible = true;
-        else
+        } else {
             this.exclamation.visible = true;
-
+        }
     }
 }

@@ -47,6 +47,7 @@ jobs:
             fabric-api | depends | *
             cloth-config | depends | *
             libz | depends | *
+            ftbquests | depends | *
 
           changelog-file: CHANGELOG.md
 
