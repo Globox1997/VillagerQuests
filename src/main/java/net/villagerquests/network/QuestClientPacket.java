@@ -93,13 +93,6 @@ public class QuestClientPacket {
         MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
     }
 
-    // public static void writeC2SClosePacket(MerchantEntity merchantEntity) {
-    // PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-    // buf.writeInt(merchantEntity.getId());
-    // CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.CLOSE_SCREEN, new PacketByteBuf(buf));
-    // MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
-    // }
-
     public static void writeC2SAcceptQuestPacket(long questId, boolean acceptQuest) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeLong(questId);

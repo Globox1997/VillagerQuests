@@ -13,6 +13,11 @@ import net.villagerquests.network.QuestServerPacket;
 public class VillagerQuestsMain implements ModInitializer {
 
     public static final Logger LOGGER = LogManager.getLogger("VillagerQuests");
+    // Todo:
+    // - Check questmarkset on finish/accept/complete
+    // - Change visibility / accept / finish quest of team
+    // - Op Screen Quest Selection
+    // - Timer on Quests
 
     @Override
     public void onInitialize() {
