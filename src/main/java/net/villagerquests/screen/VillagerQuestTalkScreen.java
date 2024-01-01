@@ -46,7 +46,7 @@ public class VillagerQuestTalkScreen extends Screen {
         this.addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, button -> {
             QuestClientPacket.writeC2STalkPacket(this.merchantEntity.getId(), this.questId);
             this.client.setScreen(null);
-        }).dimensions(this.width / 2 - 25, 210, 50, 20).build());
+        }).dimensions(this.width / 2 - 25, 216, 50, 20).build());
 
         int i = (this.width - this.backgroundWidth) / 2;
         int j = (this.height - this.backgroundHeight) / 2;
@@ -54,32 +54,66 @@ public class VillagerQuestTalkScreen extends Screen {
         this.descriptionWidget = this.addDrawableChild(new DescriptionWidget(i + 70, j, 200, 160, this.revealText, this.textRenderer));
     }
 
-    // Todo:
-    // When bold whole line is bold
-    // When style in inner word, spaces will get removed
-
     @Override
     public void tick() {
         timer++;
-        if (timer % 6 == 0) {
-            if (talkText.size() > lineRevealCount) {
-                if (!talkText.get(lineRevealCount).getString().equals("")) {
+        if (timer % 8 == 0) {
+            villagerTalk(true);
+        }
+        super.tick();
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        villagerTalk(false);
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    // Todo:
+    // When bold whole line is bold
+    // When style in inner word, spaces will get removed
+    private void villagerTalk(boolean playTalkSound) {
+        if (talkText.size() > lineRevealCount) {
+            if (!talkText.get(lineRevealCount).getString().equals("")) {
+                if (playTalkSound) {
                     this.client.player.playSound(SoundEvents.ENTITY_VILLAGER_AMBIENT, SoundCategory.VOICE, 1.0f, 0.7f + this.client.world.getRandom().nextFloat() * 0.6f);
                     ((MerchantAccessor) this.merchantEntity).setTalkTime(8);
-
-                } else {
-                    revealText.add(talkText.get(lineRevealCount));
                 }
-                if (this.words.isEmpty() && !talkText.get(lineRevealCount).getString().equals("")) {
-                    if (talkText.get(lineRevealCount).copy().getSiblings().isEmpty()) {
+            } else {
+                revealText.add(talkText.get(lineRevealCount));
+            }
+            if (this.words.isEmpty() && !talkText.get(lineRevealCount).getString().equals("")) {
+                if (talkText.get(lineRevealCount).copy().getSiblings().isEmpty()) {
 
-                        String allWords = talkText.get(lineRevealCount).getString();
-                        String[] specificWords = allWords.split(" ");
-                        int oldIndex = 0;
-                        for (int u = 0; u < specificWords.length; u++) {
-                            int index = oldIndex = allWords.indexOf(specificWords[u], oldIndex);
-                            if (index > 0) {
-                                if (Character.isWhitespace(allWords.charAt(index - 1))) {
+                    String allWords = talkText.get(lineRevealCount).getString();
+                    String[] specificWords = allWords.split(" ");
+                    int oldIndex = 0;
+                    for (int u = 0; u < specificWords.length; u++) {
+                        int index = oldIndex = allWords.indexOf(specificWords[u], oldIndex);
+                        if (index > 0) {
+                            if (Character.isWhitespace(allWords.charAt(index - 1))) {
+                                for (int o = 1; o < allWords.length(); o++) {
+                                    if (0 <= index - o && Character.isWhitespace(allWords.charAt(index - o))) {
+                                        specificWords[u] = " " + specificWords[u];
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        oldIndex += specificWords[u].length();
+                        this.words.add(Text.of(specificWords[u]));
+                    }
+                } else {
+                    for (int i = 0; i < talkText.get(lineRevealCount).copy().getSiblings().size(); i++) {
+                        if (talkText.get(lineRevealCount).copy().getSiblings().get(i).getStyle().isEmpty()) {
+
+                            String allWords = talkText.get(lineRevealCount).copy().getSiblings().get(i).getString();
+                            String[] specificWords = allWords.split(" ");
+                            int oldIndex = 0;
+                            for (int u = 0; u < specificWords.length; u++) {
+                                int index = oldIndex = allWords.indexOf(specificWords[u], oldIndex);
+                                if (index > 0 && Character.isWhitespace(allWords.charAt(index - 1))) {
                                     for (int o = 1; o < allWords.length(); o++) {
                                         if (0 <= index - o && Character.isWhitespace(allWords.charAt(index - o))) {
                                             specificWords[u] = " " + specificWords[u];
@@ -88,55 +122,31 @@ public class VillagerQuestTalkScreen extends Screen {
                                         }
                                     }
                                 }
+                                oldIndex += specificWords[u].length();
+                                this.words.add(Text.of(specificWords[u]));
                             }
-                            oldIndex += specificWords[u].length();
-                            this.words.add(Text.of(specificWords[u]));
-                        }
-                    } else {
-                        for (int i = 0; i < talkText.get(lineRevealCount).copy().getSiblings().size(); i++) {
-                            if (talkText.get(lineRevealCount).copy().getSiblings().get(i).getStyle().isEmpty()) {
-
-                                String allWords = talkText.get(lineRevealCount).copy().getSiblings().get(i).getString();
-                                String[] specificWords = allWords.split(" ");
-                                int oldIndex = 0;
-                                for (int u = 0; u < specificWords.length; u++) {
-                                    int index = oldIndex = allWords.indexOf(specificWords[u], oldIndex);
-                                    if (index > 0 && Character.isWhitespace(allWords.charAt(index - 1))) {
-                                        for (int o = 1; o < allWords.length(); o++) {
-                                            if (0 <= index - o && Character.isWhitespace(allWords.charAt(index - o))) {
-                                                specificWords[u] = " " + specificWords[u];
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    oldIndex += specificWords[u].length();
-                                    this.words.add(Text.of(specificWords[u]));
-                                }
-                            } else {
-                                this.words.add(talkText.get(lineRevealCount).copy().getSiblings().get(i));
-                            }
+                        } else {
+                            this.words.add(talkText.get(lineRevealCount).copy().getSiblings().get(i));
                         }
                     }
-                }
-
-                if (!this.words.isEmpty()) {
-                    if (this.revealText.size() == 0 || this.lineRevealCount >= this.revealText.size()) {
-                        this.revealText.add(this.words.get(0));
-                    } else {
-                        MutableText text = this.revealText.get(this.lineRevealCount).copy();
-                        text.append(this.words.get(0));
-                        this.revealText.set(this.lineRevealCount, text);
-                    }
-                    this.words.remove(0);
-                }
-                if (this.words.isEmpty()) {
-                    this.descriptionWidget.setScrollY(this.descriptionWidget.getMaxScrollY());
-                    this.lineRevealCount++;
                 }
             }
+
+            if (!this.words.isEmpty()) {
+                if (this.revealText.size() == 0 || this.lineRevealCount >= this.revealText.size()) {
+                    this.revealText.add(this.words.get(0));
+                } else {
+                    MutableText text = this.revealText.get(this.lineRevealCount).copy();
+                    text.append(this.words.get(0));
+                    this.revealText.set(this.lineRevealCount, text);
+                }
+                this.words.remove(0);
+            }
+            if (this.words.isEmpty()) {
+                this.descriptionWidget.setScrollY(this.descriptionWidget.getMaxScrollY());
+                this.lineRevealCount++;
+            }
         }
-        super.tick();
     }
 
     @Override
