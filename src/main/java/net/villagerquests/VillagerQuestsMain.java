@@ -16,6 +16,8 @@ public class VillagerQuestsMain implements ModInitializer {
     // Todo:
     // - Check questmarkset on finish/accept/complete
     // - Change visibility / accept / finish quest of team
+    // - When other team member finished the quest, check quest screen for green box
+    //   might need to add an exclamation mark so the user can see it is finished but has to get completed
     // - Op Screen Quest Selection
     // - Timer on Quests
 
