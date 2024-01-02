@@ -3,6 +3,9 @@ package net.villagerquests.init;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.libz.registry.TabRegistry;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
@@ -30,5 +33,8 @@ public class RenderInit {
         TabRegistry.registerOtherTab(new QuestTab(Text.translatable("screen.villagerquests"), QUEST_TAB_ICON, 1, VillagerQuestScreen.class), MerchantScreen.class);
 
         EntityModelLayerRegistry.registerModelLayer(QUEST_LAYER, QuestEntityModel::getTexturedModelData);
+
+        ResourceManagerHelper.registerBuiltinResourcePack(new Identifier("villagerquests", "villagerquest_theme"), FabricLoader.getInstance().getModContainer("villagerquests").orElseThrow(),
+                ResourcePackActivationType.DEFAULT_ENABLED);
     }
 }
