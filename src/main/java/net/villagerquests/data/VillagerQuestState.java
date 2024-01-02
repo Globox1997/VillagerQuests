@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
@@ -70,20 +69,20 @@ public class VillagerQuestState extends PersistentState {
         return state;
     }
 
-    public static VillagerQuestPlayerData getPlayerVillagerQuestState(ServerPlayerEntity serverPlayerEntity) {
-        VillagerQuestState serverState = getServerVillagerQuestState(serverPlayerEntity.getServer());
+    public static VillagerQuestPlayerData getPlayerVillagerQuestState(MinecraftServer server, UUID playerUuid) {
+        VillagerQuestState serverState = getServerVillagerQuestState(server);
 
-        VillagerQuestPlayerData villagerQuestPlayerData = serverState.players.computeIfAbsent(serverPlayerEntity.getUuid(), uuid -> new VillagerQuestPlayerData());
+        VillagerQuestPlayerData villagerQuestPlayerData = serverState.players.computeIfAbsent(playerUuid, uuid -> new VillagerQuestPlayerData());
         return villagerQuestPlayerData;
     }
 
-    public static void updatePlayerVillagerQuestMarkType(ServerPlayerEntity serverPlayerEntity, UUID uuid, int questMarkType) {
-        getPlayerVillagerQuestState(serverPlayerEntity).getMerchantQuestMarkMap().put(uuid, questMarkType);
+    public static void updatePlayerVillagerQuestMarkType(MinecraftServer server, UUID playerUuid, UUID villagerUuid, int questMarkType) {
+        getPlayerVillagerQuestState(server, playerUuid).getMerchantQuestMarkMap().put(villagerUuid, questMarkType);
     }
 
-    public static void removeUuidFromServerVillagerQuestState(MinecraftServer server, UUID uuid) {
+    public static void removeUuidFromServerVillagerQuestState(MinecraftServer server, UUID villagerUuid) {
         getServerVillagerQuestState(server).players.forEach((playerUuid, villagerQuestPlayerData) -> {
-            villagerQuestPlayerData.getMerchantQuestMarkMap().remove(uuid);
+            villagerQuestPlayerData.getMerchantQuestMarkMap().remove(villagerUuid);
         });
     }
 

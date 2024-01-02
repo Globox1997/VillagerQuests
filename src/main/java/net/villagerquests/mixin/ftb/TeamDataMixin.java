@@ -31,7 +31,7 @@ public class TeamDataMixin {
         if ((Object) reward.getQuest() instanceof QuestAccessor questAccessor && questAccessor.isVillagerQuest()) {
             int questMarkType = QuestHelper.getVillagerQuestMarkType(serverPlayerEntity, questAccessor.getVillagerQuestUuid());
 
-            VillagerQuestState.updatePlayerVillagerQuestMarkType(serverPlayerEntity, questAccessor.getVillagerQuestUuid(), questMarkType);
+            VillagerQuestState.updatePlayerVillagerQuestMarkType(serverPlayerEntity.getServer(), serverPlayerEntity.getUuid(), questAccessor.getVillagerQuestUuid(), questMarkType);
             if (serverPlayerEntity.getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
                 QuestServerPacket.writeS2CMerchantQuestMarkPacket(serverPlayerEntity, merchantEntity.getId(), questMarkType);
             }

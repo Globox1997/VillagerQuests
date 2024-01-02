@@ -1,5 +1,6 @@
 package net.villagerquests.mixin.ftb;
 
+import java.util.Iterator;
 import java.util.UUID;
 
 import org.spongepowered.asm.mixin.Final;
@@ -14,14 +15,17 @@ import dev.ftb.mods.ftblibrary.config.ConfigGroup;
 import dev.ftb.mods.ftbquests.events.QuestProgressEventData;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.task.Task;
+import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.villagerquests.access.MerchantAccessor;
 import net.villagerquests.access.QuestAccessor;
 import net.villagerquests.data.VillagerQuestState;
 import net.villagerquests.network.QuestServerPacket;
+import net.villagerquests.util.QuestHelper;
 
 @SuppressWarnings("unused")
 @Mixin(Task.class)
@@ -34,14 +38,20 @@ public class TaskMixin {
 
     @Inject(method = "onCompleted", at = @At(value = "INVOKE", target = "Ldev/ftb/mods/ftbquests/quest/Quest;onCompleted(Ldev/ftb/mods/ftbquests/events/QuestProgressEventData;)V"), cancellable = true, remap = false)
     private final void onCompletedMixin(QuestProgressEventData<?> data, CallbackInfo info) {
-        if (((QuestAccessor) (Object) quest).isVillagerQuest()) {
-            for (int i = 0; i < data.getOnlineMembers().size(); i++) {
-                ServerPlayerEntity serverPlayerEntity = data.getOnlineMembers().get(i);
+        if ((Object) quest instanceof QuestAccessor questAccessor && questAccessor.isVillagerQuest()) {
+            if (data.getOnlineMembers().size() > 0) {
+                MinecraftServer server = data.getOnlineMembers().get(0).getServer();
+                Iterator<UUID> iterator = FTBTeamsAPI.api().getManager().getTeamByID(data.getTeamData().getTeamId()).get().getMembers().iterator();
+                while (iterator.hasNext()) {
+                    UUID uuid = iterator.next();
+                    int questMarkType = 2;
 
-                VillagerQuestState.updatePlayerVillagerQuestMarkType(serverPlayerEntity, ((QuestAccessor) (Object) quest).getVillagerQuestUuid(), 2);
-                // ((MerchantAccessor) serverPlayerEntity).addMerchantQuestMark(((QuestAccessor) (Object) quest).getVillagerQuestUuid(), 2);
-                if (serverPlayerEntity.getServerWorld().getEntity(((QuestAccessor) (Object) quest).getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
-                    QuestServerPacket.writeS2CMerchantQuestMarkPacket(serverPlayerEntity, merchantEntity.getId(), 2);
+                    if (server.getPlayerManager().getPlayer(uuid) != null) {
+                        if (server.getPlayerManager().getPlayer(uuid).getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
+                            QuestServerPacket.writeS2CMerchantQuestMarkPacket(server.getPlayerManager().getPlayer(uuid), merchantEntity.getId(), questMarkType);
+                        }
+                    }
+                    VillagerQuestState.updatePlayerVillagerQuestMarkType(server, uuid, questAccessor.getVillagerQuestUuid(), questMarkType);
                 }
             }
 

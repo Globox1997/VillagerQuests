@@ -90,10 +90,10 @@ public class QuestServerPacket {
                         UUID uuid = iterator.next();
                         if (server.getPlayerManager().getPlayer(uuid) != null) {
                             if (server.getPlayerManager().getPlayer(uuid).getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
-                                writeS2CMerchantQuestMarkPacket(player, merchantEntity.getId(), questMarkType);
+                                writeS2CMerchantQuestMarkPacket(server.getPlayerManager().getPlayer(uuid), merchantEntity.getId(), questMarkType);
                             }
                         }
-                        VillagerQuestState.updatePlayerVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid(), questMarkType);
+                        VillagerQuestState.updatePlayerVillagerQuestMarkType(server, uuid, questAccessor.getVillagerQuestUuid(), questMarkType);
                     }
                 }
             });
@@ -127,17 +127,17 @@ public class QuestServerPacket {
                             }
                             if (server.getPlayerManager().getPlayer(uuid) != null) {
                                 if (server.getPlayerManager().getPlayer(uuid).getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
-                                    writeS2CMerchantQuestMarkPacket(player, merchantEntity.getId(), questMarkType);
+                                    writeS2CMerchantQuestMarkPacket(server.getPlayerManager().getPlayer(uuid), merchantEntity.getId(), questMarkType);
                                 }
                             }
-                            VillagerQuestState.updatePlayerVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid(), questMarkType);
+                            VillagerQuestState.updatePlayerVillagerQuestMarkType(server, uuid, questAccessor.getVillagerQuestUuid(), questMarkType);
                         }
                     } else {
                         int questMarkType = QuestHelper.getVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid());
                         if (player.getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
                             writeS2CMerchantQuestMarkPacket(player, merchantEntity.getId(), questMarkType);
                         }
-                        VillagerQuestState.updatePlayerVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid(), questMarkType);
+                        VillagerQuestState.updatePlayerVillagerQuestMarkType(server, player.getUuid(), questAccessor.getVillagerQuestUuid(), questMarkType);
                     }
                 }
             });
@@ -165,12 +165,12 @@ public class QuestServerPacket {
         });
 
         ServerPlayNetworking.registerGlobalReceiver(UPDATE_MERCHANT_QUEST_MARK, (server, player, handler, buffer, sender) -> {
-            UUID uuid = buffer.readUuid();
+            UUID villagerUuid = buffer.readUuid();
             server.execute(() -> {
-                if (player.getServerWorld().getEntity(uuid) instanceof MerchantEntity merchantEntity) {
+                if (player.getServerWorld().getEntity(villagerUuid) instanceof MerchantEntity merchantEntity) {
                     server.getPlayerManager().getPlayerList().forEach(serverPlayerEntity -> {
-                        int questMarkType = QuestHelper.getVillagerQuestMarkType(player, uuid);
-                        VillagerQuestState.updatePlayerVillagerQuestMarkType(player, uuid, questMarkType);
+                        int questMarkType = QuestHelper.getVillagerQuestMarkType(serverPlayerEntity, villagerUuid);
+                        VillagerQuestState.updatePlayerVillagerQuestMarkType(server, serverPlayerEntity.getUuid(), villagerUuid, questMarkType);
                     });
                 }
             });

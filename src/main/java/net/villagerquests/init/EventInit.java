@@ -2,6 +2,8 @@ package net.villagerquests.init;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import dev.architectury.hooks.level.entity.PlayerHooks;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
@@ -60,11 +62,16 @@ public class EventInit {
         });
 
         TeamEvent.PLAYER_LOGGED_IN.register((playerLoggedInAfterTeamEvent) -> {
-            VillagerQuestState.getPlayerVillagerQuestState(playerLoggedInAfterTeamEvent.getPlayer()).getMerchantQuestMarkMap().forEach((uuid, questMarkType) -> {
-                if (questMarkType == -1) {
-                    questMarkType = QuestHelper.getVillagerQuestMarkType(playerLoggedInAfterTeamEvent.getPlayer(), uuid);
+            Iterator<Map.Entry<UUID, Integer>> iterator = VillagerQuestState
+                    .getPlayerVillagerQuestState(playerLoggedInAfterTeamEvent.getPlayer().getServer(), playerLoggedInAfterTeamEvent.getPlayer().getUuid()).getMerchantQuestMarkMap().entrySet()
+                    .iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<UUID, Integer> entry = iterator.next();
+                if (entry.getValue() == -1) {
+                    VillagerQuestState.updatePlayerVillagerQuestMarkType(playerLoggedInAfterTeamEvent.getPlayer().getServer(), playerLoggedInAfterTeamEvent.getPlayer().getUuid(), entry.getKey(),
+                            QuestHelper.getVillagerQuestMarkType(playerLoggedInAfterTeamEvent.getPlayer(), entry.getKey()));
                 }
-            });
+            }
         });
     }
 

@@ -79,7 +79,7 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
     public void onStartedTrackingBy(ServerPlayerEntity player) {
         super.onStartedTrackingBy(player);
         int questMarkType = 0;
-        HashMap<UUID, Integer> merchantQuestMarkMap = VillagerQuestState.getPlayerVillagerQuestState(player).getMerchantQuestMarkMap();
+        HashMap<UUID, Integer> merchantQuestMarkMap = VillagerQuestState.getPlayerVillagerQuestState(player.getServer(), player.getUuid()).getMerchantQuestMarkMap();
         if (merchantQuestMarkMap.containsKey(this.getUuid())) {
             questMarkType = merchantQuestMarkMap.get(this.getUuid());
         } else {
