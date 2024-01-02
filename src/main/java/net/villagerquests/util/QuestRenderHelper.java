@@ -28,47 +28,50 @@ public class QuestRenderHelper {
 
     public static void renderQuestMark(MerchantEntity merchantEntity, MatrixStack matrixStack, EntityRenderDispatcher dispatcher, TextRenderer textRenderer,
             VertexConsumerProvider vertexConsumerProvider, QuestEntityModel<MerchantEntity> questEntityModel, boolean hasLabel, int i) {
-        if (ConfigInit.CONFIG.showQuestIcon && Math.sqrt(dispatcher.getSquaredDistanceToCamera(merchantEntity)) < ConfigInit.CONFIG.iconDistance
-                && merchantEntity.getWorld().getBlockState(merchantEntity.getBlockPos().up(2)).isAir()) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            PlayerEntity player = client.player;
+        if (ConfigInit.CONFIG.showQuestIcon) {
             int questMarkType = ((MerchantAccessor) merchantEntity).getQuestMarkType();
-            if (player != null && questMarkType != 0) {
-                matrixStack.push();
-                float height = ConfigInit.CONFIG.flatQuestIcon ? merchantEntity.getHeight() + 1.1F : merchantEntity.getHeight() + 2.0F;
-                matrixStack.translate(0.0D, height, 0.0D);
+            if (questMarkType > 0 && Math.sqrt(dispatcher.getSquaredDistanceToCamera(merchantEntity)) < ConfigInit.CONFIG.iconDistance
+                    && merchantEntity.getWorld().getBlockState(merchantEntity.getBlockPos().up(2)).isAir()) {
+                MinecraftClient client = MinecraftClient.getInstance();
+                PlayerEntity player = client.player;
 
-                if (hasLabel) {
-                    matrixStack.translate(0.0D, 0.3D, 0.0D);
-                }
-                matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(toEulerXyzDegrees(dispatcher.getRotation()).y()));
+                if (player != null) {
+                    matrixStack.push();
+                    float height = ConfigInit.CONFIG.flatQuestIcon ? merchantEntity.getHeight() + 1.1F : merchantEntity.getHeight() + 2.0F;
+                    matrixStack.translate(0.0D, height, 0.0D);
 
-                if (ConfigInit.CONFIG.flatQuestIcon) {
-                    matrixStack.scale(-0.1F, -0.1F, 0.1F);
-                } else {
-                    matrixStack.scale(-1.0F, -1.0F, 1.0F);
-                }
-                Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
-                VertexConsumer vertexConsumers = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutoutNoCull(QUEST_TEXTURE));
-
-                if (ConfigInit.CONFIG.flatQuestIcon) {
-                    Text text = Text.of("?");
-                    if (questMarkType == 2) {
-                        text = Text.of("!");
+                    if (hasLabel) {
+                        matrixStack.translate(0.0D, 0.3D, 0.0D);
                     }
-                    float h = (float) (-textRenderer.getWidth(text) / 2);
-                    textRenderer.draw(text, h, 0.0F, 0xFFFBD500, false, matrix4f, vertexConsumerProvider, TextLayerType.NORMAL, 0, i);
-                } else {
-                    questEntityModel.questionMark = true;
-                    if (questMarkType == 2) {
-                        questEntityModel.questionMark = false;
+                    matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(toEulerXyzDegrees(dispatcher.getRotation()).y()));
+
+                    if (ConfigInit.CONFIG.flatQuestIcon) {
+                        matrixStack.scale(-0.1F, -0.1F, 0.1F);
+                    } else {
+                        matrixStack.scale(-1.0F, -1.0F, 1.0F);
                     }
-                    questEntityModel.render(matrixStack, vertexConsumers, 15728880, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
-                    questEntityModel.setAngles(merchantEntity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+                    Matrix4f matrix4f = matrixStack.peek().getPositionMatrix();
+                    VertexConsumer vertexConsumers = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutoutNoCull(QUEST_TEXTURE));
+
+                    if (ConfigInit.CONFIG.flatQuestIcon) {
+                        Text text = Text.of("?");
+                        if (questMarkType == 2) {
+                            text = Text.of("!");
+                        }
+                        float h = (float) (-textRenderer.getWidth(text) / 2);
+                        textRenderer.draw(text, h, 0.0F, 0xFFFBD500, false, matrix4f, vertexConsumerProvider, TextLayerType.NORMAL, 0, i);
+                    } else {
+                        questEntityModel.questionMark = true;
+                        if (questMarkType == 2) {
+                            questEntityModel.questionMark = false;
+                        }
+                        questEntityModel.render(matrixStack, vertexConsumers, 15728880, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
+                        questEntityModel.setAngles(merchantEntity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+                    }
+                    matrixStack.pop();
                 }
-                matrixStack.pop();
+
             }
-
         }
     }
 
