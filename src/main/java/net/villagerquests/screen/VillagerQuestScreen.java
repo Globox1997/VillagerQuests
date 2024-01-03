@@ -1,6 +1,7 @@
 package net.villagerquests.screen;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.village.VillagerData;
 import net.villagerquests.access.QuestAccessor;
+import net.villagerquests.access.TeamDataAccessor;
 import net.villagerquests.init.RenderInit;
 import net.villagerquests.network.QuestClientPacket;
 import net.villagerquests.screen.widget.DescriptionWidget;
@@ -94,7 +96,7 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
                     }
                     removeQuest(this.selectedQuest);
                 } else {
-                    ((QuestAccessor) (Object) this.selectedQuest).setAccepted(true);
+                    ((TeamDataAccessor) teamData).setQuestStarted(this.selectedQuest.id, new Date());
                     QuestClientPacket.writeC2SAcceptQuestPacket(this.selectedQuest.id, true);
                     this.acceptButton.active = false;
                     this.declineButton.active = true;
@@ -107,7 +109,7 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
 
         this.declineButton = this.addDrawableChild(new VillagerQuestScreen.DeclineButton(i + 247, j + 140, (button) -> {
             if (this.selectedQuest != null) {
-                ((QuestAccessor) (Object) this.selectedQuest).setAccepted(false);
+                ((TeamDataAccessor) teamData).setQuestStarted(this.selectedQuest.id, null);
                 QuestClientPacket.writeC2SAcceptQuestPacket(this.selectedQuest.id, false);
                 this.declineButton.visible = false;
                 this.acceptButton.visible = false;
@@ -131,7 +133,7 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
                         this.declineButton.active = true;
                         this.declineButton.visible = true;
                     } else {
-                        if (((QuestAccessor) (Object) this.selectedQuest).isAccepted()) {
+                        if (this.teamData.isStarted(this.selectedQuest)) {
                             this.acceptButton.setMessage(Text.translatable("screen.villagerquests.completeButton"));
                             this.acceptButton.active = false;
 

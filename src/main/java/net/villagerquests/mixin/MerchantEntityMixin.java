@@ -71,7 +71,10 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
     @Inject(method = "onDeath", at = @At(value = "TAIL"))
     private void onDeathMixin(DamageSource damageSource, CallbackInfo info) {
         if (!this.getWorld().isClient()) {
-            VillagerQuestState.removeUuidFromServerVillagerQuestState(this.getWorld().getServer(), uuid);
+            QuestHelper.removeVillagerQuestFromQuest(this.getUuid());
+            VillagerQuestState.removeUuidFromServerVillagerQuestState(this.getWorld().getServer(), this.getUuid());
+        } else {
+            ((MerchantAccessor) this).setQuestMarkType(0);
         }
     }
 

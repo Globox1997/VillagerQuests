@@ -14,10 +14,6 @@ public interface QuestAccessor {
 
     public void setVillagerQuestUuid(UUID uuid);
 
-    public boolean isAccepted();
-
-    public void setAccepted(boolean accept);
-
     public boolean isQuestVisible(TeamData data);
 
 }

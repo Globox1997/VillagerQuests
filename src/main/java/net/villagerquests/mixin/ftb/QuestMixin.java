@@ -32,7 +32,6 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     private boolean villagerQuest;
     @Nullable
     private UUID villagerUuid;
-    private boolean acceptedQuest;
 
     @Shadow(remap = false)
     private boolean invisible;
@@ -59,7 +58,6 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     private void initMixin(long id, Chapter chapter, CallbackInfo info) {
         villagerQuest = false;
         villagerUuid = null;
-        acceptedQuest = false;
     }
 
     @Inject(method = "writeData", at = @At("TAIL"))
@@ -68,7 +66,6 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
         if (villagerQuest) {
             nbt.putUuid("villageruuid", villagerUuid);
         }
-        nbt.putBoolean("AcceptedQuest", acceptedQuest);
     }
 
     @Inject(method = "readData", at = @At("TAIL"))
@@ -77,7 +74,6 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
         if (villagerQuest) {
             villagerUuid = nbt.getUuid("villageruuid");
         }
-        acceptedQuest = nbt.getBoolean("AcceptedQuest");
     }
 
     @Inject(method = "writeNetData", at = @At("TAIL"))
@@ -86,7 +82,6 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
         if (villagerQuest) {
             buffer.writeUuid(villagerUuid);
         }
-        buffer.writeBoolean(acceptedQuest);
     }
 
     @Inject(method = "readNetData", at = @At("TAIL"))
@@ -95,7 +90,6 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
         if (villagerQuest) {
             villagerUuid = buffer.readUuid();
         }
-        acceptedQuest = buffer.readBoolean();
     }
 
     @Environment(EnvType.CLIENT) // maybe have to remove client annotation
@@ -118,7 +112,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
 
     @Inject(method = "isVisible", at = @At("RETURN"), cancellable = true, remap = false)
     private void isVisibleMixin(TeamData data, CallbackInfoReturnable<Boolean> info) {
-        if (info.getReturnValue() && villagerQuest && !acceptedQuest) {
+        if (info.getReturnValue() && this.villagerQuest && !data.isStarted(this)) {
             info.setReturnValue(false);
         }
     }
@@ -144,22 +138,11 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
         this.villagerUuid = uuid;
     }
 
-    @Override
-    public boolean isAccepted() {
-        return this.acceptedQuest;
-    }
-
-    @Override
-    public void setAccepted(boolean accept) {
-        this.acceptedQuest = accept;
-    }
-
     /*
      * NOTICE
      * 
-     * Sadly FTB does not give out permissions so I had to redo this method.
-     * It is based on the isVisible method inside the Quest class.
-     * [Source]: https://github.com/FTBTeam/FTB-Quests/blob/main/common/src/main/java/dev/ftb/mods/ftbquests/quest/Quest.java#L722
+     * Sadly FTB does not give out permissions so I had to redo this method. It is based on the isVisible method inside the Quest class. [Source]:
+     * https://github.com/FTBTeam/FTB-Quests/blob/main/common/src/main/java/dev/ftb/mods/ftbquests/quest/Quest.java#L722
      * 
      */
     @Override

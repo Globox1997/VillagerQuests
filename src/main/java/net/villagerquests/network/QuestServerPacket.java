@@ -26,6 +26,7 @@ import net.minecraft.util.Identifier;
 import net.villagerquests.access.MerchantAccessor;
 import net.villagerquests.access.MerchantScreenHandlerAccessor;
 import net.villagerquests.access.QuestAccessor;
+import net.villagerquests.access.TeamDataAccessor;
 import net.villagerquests.data.VillagerQuestState;
 import net.villagerquests.ftb.VillagerTalkTask;
 import net.villagerquests.screen.VillagerQuestScreenHandler;
@@ -82,8 +83,7 @@ public class QuestServerPacket {
                 Quest quest = ServerQuestFile.INSTANCE.getQuest(questId);
                 TeamData teamData = TeamData.get(player);
                 if ((Object) quest instanceof QuestAccessor questAccessor && questAccessor.isQuestVisible(teamData)) {
-                    questAccessor.setAccepted(acceptQuest);
-
+                    ((TeamDataAccessor) teamData).setQuestStarted(questId, acceptQuest ? new Date() : null);
                     int questMarkType = QuestHelper.getVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid());
                     Iterator<UUID> iterator = FTBTeamsAPI.api().getManager().getTeamByID(teamData.getTeamId()).get().getMembers().iterator();
                     while (iterator.hasNext()) {
@@ -121,11 +121,9 @@ public class QuestServerPacket {
                         Iterator<UUID> iterator = FTBTeamsAPI.api().getManager().getTeamByID(data.getTeamId()).get().getMembers().iterator();
                         while (iterator.hasNext()) {
                             UUID uuid = iterator.next();
-                            int questMarkType = 2;
-                            if (uuid.equals(player.getUuid())) {
-                                questMarkType = QuestHelper.getVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid());
-                            }
+                            int questMarkType = -1;
                             if (server.getPlayerManager().getPlayer(uuid) != null) {
+                                questMarkType = QuestHelper.getVillagerQuestMarkType(server.getPlayerManager().getPlayer(uuid), questAccessor.getVillagerQuestUuid());
                                 if (server.getPlayerManager().getPlayer(uuid).getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
                                     writeS2CMerchantQuestMarkPacket(server.getPlayerManager().getPlayer(uuid), merchantEntity.getId(), questMarkType);
                                 }
@@ -167,11 +165,23 @@ public class QuestServerPacket {
         ServerPlayNetworking.registerGlobalReceiver(UPDATE_MERCHANT_QUEST_MARK, (server, player, handler, buffer, sender) -> {
             UUID villagerUuid = buffer.readUuid();
             server.execute(() -> {
-                if (player.getServerWorld().getEntity(villagerUuid) instanceof MerchantEntity merchantEntity) {
-                    server.getPlayerManager().getPlayerList().forEach(serverPlayerEntity -> {
-                        int questMarkType = QuestHelper.getVillagerQuestMarkType(serverPlayerEntity, villagerUuid);
-                        VillagerQuestState.updatePlayerVillagerQuestMarkType(server, serverPlayerEntity.getUuid(), villagerUuid, questMarkType);
-                    });
+                // Sync all online players
+                List<ServerPlayerEntity> list = server.getPlayerManager().getPlayerList();
+                for (int i = 0; i < list.size(); i++) {
+                    int questMarkType = -1;
+                    if (list.get(i).getServerWorld().getEntity(villagerUuid) != null) {
+                        questMarkType = QuestHelper.getVillagerQuestMarkType(list.get(i), villagerUuid);
+                        writeS2CMerchantQuestMarkPacket(list.get(i), list.get(i).getServerWorld().getEntity(villagerUuid).getId(), questMarkType);
+                    }
+                    VillagerQuestState.updatePlayerVillagerQuestMarkType(server, list.get(i).getUuid(), villagerUuid, questMarkType);
+                }
+                // Sync all offline players
+                Iterator<UUID> playerUuids = VillagerQuestState.getPlayerVillagerQuestState(server, villagerUuid).getMerchantQuestMarkMap().keySet().iterator();
+                while (playerUuids.hasNext()) {
+                    UUID playerUuid = playerUuids.next();
+                    if (server.getPlayerManager().getPlayer(playerUuid) == null) {
+                        VillagerQuestState.getPlayerVillagerQuestState(server, playerUuid).getMerchantQuestMarkMap().put(villagerUuid, -1);
+                    }
                 }
             });
         });
