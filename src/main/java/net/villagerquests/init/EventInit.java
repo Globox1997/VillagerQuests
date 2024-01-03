@@ -26,7 +26,7 @@ public class EventInit {
 
     public static void init() {
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (!world.isClient() && entity instanceof MerchantEntity merchantEntity) {
+            if (!world.isClient() && entity instanceof MerchantEntity merchantEntity && !merchantEntity.hasCustomer()) {
                 if (!PlayerHooks.isFake(player)) {
                     List<VillagerTalkTask> talkTasks = ServerQuestFile.INSTANCE.collect(VillagerTalkTask.class);
                     if (!talkTasks.isEmpty()) {
