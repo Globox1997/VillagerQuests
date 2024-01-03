@@ -76,10 +76,25 @@ public class VillagerQuestState extends PersistentState {
         return villagerQuestPlayerData;
     }
 
+    /*
+     * Updates quest mark for specific player
+     */
     public static void updatePlayerVillagerQuestMarkType(MinecraftServer server, UUID playerUuid, UUID villagerUuid, int questMarkType) {
         getPlayerVillagerQuestState(server, playerUuid).getMerchantQuestMarkMap().put(villagerUuid, questMarkType);
     }
 
+    /*
+     * Updates quest mark for all players
+     */
+    public static void updateUuidFromServerVillagerQuestState(MinecraftServer server, UUID villagerUuid, int questMarkType) {
+        getServerVillagerQuestState(server).players.forEach((playerUuid, villagerQuestPlayerData) -> {
+            villagerQuestPlayerData.getMerchantQuestMarkMap().put(villagerUuid, questMarkType);
+        });
+    }
+
+    /*
+     * Removes quest mark for all players
+     */
     public static void removeUuidFromServerVillagerQuestState(MinecraftServer server, UUID villagerUuid) {
         getServerVillagerQuestState(server).players.forEach((playerUuid, villagerQuestPlayerData) -> {
             villagerQuestPlayerData.getMerchantQuestMarkMap().remove(villagerUuid);
