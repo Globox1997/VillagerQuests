@@ -20,7 +20,6 @@
 		"ftb.client.NetworkManagerImplMixin",
 		"ftb.client.BooleanConfigMixin",
 		"ftb.client.StringConfigMixin",
-		"ftb.client.ConfigGroupMixin",
 		"ftb.client.ViewQuestPanelMixin",
 		"ftb.client.RewardButtonMixin",
 		"ftb.client.QuestButtonMixin",
