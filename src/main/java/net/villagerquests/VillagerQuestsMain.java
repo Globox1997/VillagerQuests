@@ -16,7 +16,7 @@ public class VillagerQuestsMain implements ModInitializer {
 
     // Todo:
     // - Op Screen Quest Selection
-    // - Timer on Quests
+    // - Check if consumes
 
     @Override
     public void onInitialize() {

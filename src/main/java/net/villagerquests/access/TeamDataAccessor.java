@@ -1,6 +1,7 @@
 package net.villagerquests.access;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -13,5 +14,7 @@ public interface TeamDataAccessor {
     public Long2LongOpenHashMap getStarted();
 
     public Long2LongOpenHashMap getCompleted();
+
+    public HashMap<Long, Long> getTimer();
 
 }

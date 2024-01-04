@@ -23,6 +23,7 @@
 		"ftb.client.ConfigGroupMixin",
 		"ftb.client.ViewQuestPanelMixin",
 		"ftb.client.RewardButtonMixin",
+		"ftb.client.QuestButtonMixin",
 		"client.MerchantScreenMixin",
 		"client.VillagerEntityRendererMixin",
 		"client.WanderingTraderEntityRendererMixin",

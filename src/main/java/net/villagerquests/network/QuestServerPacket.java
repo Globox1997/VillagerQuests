@@ -42,6 +42,7 @@ public class QuestServerPacket {
 
     public static final Identifier ACCEPT_QUEST = new Identifier("villagerquest", "accept_quest");
     public static final Identifier COMPLETE_QUEST = new Identifier("villagerquest", "complete_quest");
+    public static final Identifier FAIL_QUEST = new Identifier("villagerquest", "fail_quest");
     public static final Identifier OFFERS_TRADES = new Identifier("villagerquest", "offers_trades");
     public static final Identifier TALK = new Identifier("villagerquest", "talk");
     public static final Identifier COMPLETE_TALK = new Identifier("villagerquest", "complete_talk");
@@ -118,18 +119,7 @@ public class QuestServerPacket {
                         QuestProgressEventData questProgressEventData = new QuestProgressEventData<>(new Date(), data, quest, onlineMembers, notifiedPlayers);
                         quest.onCompleted(questProgressEventData);
 
-                        Iterator<UUID> iterator = FTBTeamsAPI.api().getManager().getTeamByID(data.getTeamId()).get().getMembers().iterator();
-                        while (iterator.hasNext()) {
-                            UUID uuid = iterator.next();
-                            int questMarkType = -1;
-                            if (server.getPlayerManager().getPlayer(uuid) != null) {
-                                questMarkType = QuestHelper.getVillagerQuestMarkType(server.getPlayerManager().getPlayer(uuid), questAccessor.getVillagerQuestUuid());
-                                if (server.getPlayerManager().getPlayer(uuid).getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
-                                    writeS2CMerchantQuestMarkPacket(server.getPlayerManager().getPlayer(uuid), merchantEntity.getId(), questMarkType);
-                                }
-                            }
-                            VillagerQuestState.updatePlayerVillagerQuestMarkType(server, uuid, questAccessor.getVillagerQuestUuid(), questMarkType);
-                        }
+                        QuestHelper.updateTeamQuestMark(server, data, questAccessor.getVillagerQuestUuid());
                     } else {
                         int questMarkType = QuestHelper.getVillagerQuestMarkType(player, questAccessor.getVillagerQuestUuid());
                         if (player.getServerWorld().getEntity(questAccessor.getVillagerQuestUuid()) instanceof MerchantEntity merchantEntity) {
@@ -239,6 +229,13 @@ public class QuestServerPacket {
         buf.writeInt(merchantEntityId);
         buf.writeLong(questId);
         CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(TALK, buf);
+        serverPlayerEntity.networkHandler.sendPacket(packet);
+    }
+
+    public static void writeS2CFailQuestPacket(ServerPlayerEntity serverPlayerEntity, long questId) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeLong(questId);
+        CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(FAIL_QUEST, buf);
         serverPlayerEntity.networkHandler.sendPacket(packet);
     }
 

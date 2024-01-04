@@ -16,6 +16,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.libz.api.Tab;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
@@ -32,6 +33,7 @@ import net.villagerquests.access.TeamDataAccessor;
 import net.villagerquests.init.RenderInit;
 import net.villagerquests.network.QuestClientPacket;
 import net.villagerquests.screen.widget.DescriptionWidget;
+import net.villagerquests.util.QuestRenderHelper;
 
 @Environment(EnvType.CLIENT)
 public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandler> implements Tab {
@@ -278,9 +280,6 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
                         if (this.textRenderer.getWidth(quest.getTitle()) > 82) {
                             context.drawText(this.textRenderer, Text.literal(this.textRenderer.trimToWidth(quest.getTitle().getString(), 78) + "..").setStyle(quest.getTitle().getStyle()), this.x + 9,
                                     k + 5, 0xFFFFFF, false);
-                            if (this.isPointWithinBounds(6, k - this.y, 87, 18, mouseX, mouseY)) {
-                                context.drawTooltip(this.textRenderer, quest.getTitle(), mouseX, mouseY);
-                            }
                         } else {
                             context.drawText(this.textRenderer, quest.getTitle(), this.x + 9, k + 5, 0xFFFFFF, false);
                         }
@@ -329,23 +328,31 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
             return this.index;
         }
 
-        // @Override
-        // public Tooltip getTooltip() {
-        // // if (((PlayerAccessor) playerEntity).getPlayerFinishedQuestIdList().contains(questId)) {
-        // // int refreshTicks = ((PlayerAccessor) playerEntity).getPlayerQuestRefreshTimerList().get(((PlayerAccessor) playerEntity).getPlayerFinishedQuestIdList().indexOf(questId));
-        // // if (refreshTicks != -1) {
-        // // refreshTicks = refreshTicks / 20;
-        // // String string;
-        // // if (refreshTicks >= 3600) {
-        // // string = String.format("%02d:%02d:%02d", refreshTicks / 3600, (refreshTicks % 3600) / 60, (refreshTicks % 60));
-        // // } else {
-        // // string = String.format("%02d:%02d", (refreshTicks % 3600) / 60, (refreshTicks % 60));
-        // // }
-        // // return Tooltip.of(Text.of(string));
-        // // }
-        // // }
-        // return super.getTooltip();
-        // }
+        @Override
+        public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+            super.render(context, mouseX, mouseY, delta);
+
+        }
+
+        @Override
+        protected void drawScrollableText(DrawContext context, TextRenderer textRenderer, int xMargin, int color) {
+            super.drawScrollableText(context, textRenderer, xMargin, color);
+            List<Text> list = new ArrayList<Text>();
+            if (client.textRenderer.getWidth(quest.getTitle()) > 82) {
+                list.add(quest.getTitle());
+            }
+            if (client.player != null && ((QuestAccessor) (Object) quest).getTimer() > 0) {
+                if (!((TeamDataAccessor) TeamData.get(client.player)).getTimer().isEmpty() && ((TeamDataAccessor) TeamData.get(client.player)).getTimer().containsKey(quest.id)) {
+                    list.add(QuestRenderHelper.getTimerText(((QuestAccessor) (Object) quest).getTimer()
+                            - Math.toIntExact(client.player.getWorld().getTime() - ((TeamDataAccessor) TeamData.get(client.player)).getTimer().get(quest.id))));
+                } else {
+                    list.add(QuestRenderHelper.getTimerText(((QuestAccessor) (Object) quest).getTimer()));
+                }
+            }
+            if (!list.isEmpty()) {
+                context.drawTooltip(textRenderer, descriptionList, xMargin, color);
+            }
+        }
 
     }
 

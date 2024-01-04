@@ -4,6 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.font.TextRenderer.TextLayerType;
@@ -16,12 +18,14 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.villagerquests.access.MerchantAccessor;
 import net.villagerquests.feature.QuestEntityModel;
 import net.villagerquests.init.ConfigInit;
 
+@Environment(EnvType.CLIENT)
 public class QuestRenderHelper {
 
     private static final Identifier QUEST_TEXTURE = new Identifier("villagerquests:textures/entity/quest_mark.png");
@@ -75,7 +79,14 @@ public class QuestRenderHelper {
         }
     }
 
-    // Could get moved to libz since usage in TalkBubbles
+    public static Text getTimerText(int ticks) {
+        int seconds = ticks / 20;
+        if (seconds >= 3600) {
+            return Text.translatable("ftbquests.quest.timer", String.format("%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60))).formatted(Formatting.GRAY);
+        } else {
+            return Text.translatable("ftbquests.quest.timer", String.format("%02d:%02d", (seconds % 3600) / 60, (seconds % 60))).formatted(Formatting.GRAY);
+        }
+    }
 
     private static Vector3f toEulerXyzDegrees(Quaternionf quaternionf) {
         Vector3f vec3f = toEulerXyz(quaternionf);

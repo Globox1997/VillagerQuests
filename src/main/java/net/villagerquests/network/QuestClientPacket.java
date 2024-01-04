@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
 import dev.ftb.mods.ftbquests.quest.Quest;
+import dev.ftb.mods.ftbquests.quest.QuestObject;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 import dev.ftb.mods.ftbquests.util.TextUtils;
@@ -17,6 +18,7 @@ import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.villagerquests.access.MerchantAccessor;
+import net.villagerquests.ftb.FailQuestToast;
 import net.villagerquests.ftb.VillagerTalkTask;
 import net.villagerquests.screen.VillagerQuestOpScreen;
 import net.villagerquests.screen.VillagerQuestTalkScreen;
@@ -76,6 +78,15 @@ public class QuestClientPacket {
                             client.setScreen(new VillagerQuestTalkScreen(merchantEntity, questId, villagerTalkTask.getTalkTextList().stream().map(TextUtils::parseRawText).toList()));
                         }
                     }
+                }
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.FAIL_QUEST, (client, handler, buf, sender) -> {
+            long questId = buf.readLong();
+            client.execute(() -> {
+                QuestObject object = ClientQuestFile.INSTANCE.get(questId);
+                if (object != null) {
+                    client.getToastManager().add(new FailQuestToast(object));
                 }
             });
         });

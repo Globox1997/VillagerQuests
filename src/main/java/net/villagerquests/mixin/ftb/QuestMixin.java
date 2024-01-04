@@ -32,6 +32,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     private boolean villagerQuest;
     @Nullable
     private UUID villagerUuid;
+    private int timer;
 
     @Shadow(remap = false)
     private boolean invisible;
@@ -56,40 +57,45 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
 
     @Inject(method = "<init>", at = @At("TAIL"), remap = false)
     private void initMixin(long id, Chapter chapter, CallbackInfo info) {
-        villagerQuest = false;
-        villagerUuid = null;
+        this.villagerQuest = false;
+        this.villagerUuid = null;
+        this.timer = 0;
     }
 
     @Inject(method = "writeData", at = @At("TAIL"))
     private void writeDataMixin(NbtCompound nbt, CallbackInfo info) {
-        nbt.putBoolean("villagerquest", villagerQuest);
-        if (villagerQuest) {
-            nbt.putUuid("villageruuid", villagerUuid);
+        nbt.putBoolean("villagerquest", this.villagerQuest);
+        if (this.villagerQuest) {
+            nbt.putUuid("villageruuid", this.villagerUuid);
         }
+        nbt.putInt("Timer", this.timer);
     }
 
     @Inject(method = "readData", at = @At("TAIL"))
     private void readDataMixin(NbtCompound nbt, CallbackInfo info) {
-        villagerQuest = nbt.getBoolean("villagerquest");
-        if (villagerQuest) {
-            villagerUuid = nbt.getUuid("villageruuid");
+        this.villagerQuest = nbt.getBoolean("villagerquest");
+        if (this.villagerQuest) {
+            this.villagerUuid = nbt.getUuid("villageruuid");
         }
+        this.timer = nbt.getInt("Timer");
     }
 
     @Inject(method = "writeNetData", at = @At("TAIL"))
     private void writeNetDataMixin(PacketByteBuf buffer, CallbackInfo info) {
-        buffer.writeBoolean(villagerQuest);
-        if (villagerQuest) {
-            buffer.writeUuid(villagerUuid);
+        buffer.writeBoolean(this.villagerQuest);
+        if (this.villagerQuest) {
+            buffer.writeUuid(this.villagerUuid);
         }
+        buffer.writeInt(this.timer);
     }
 
     @Inject(method = "readNetData", at = @At("TAIL"))
     private void readNetDataMixin(PacketByteBuf buffer, CallbackInfo info) {
-        villagerQuest = buffer.readBoolean();
-        if (villagerQuest) {
-            villagerUuid = buffer.readUuid();
+        this.villagerQuest = buffer.readBoolean();
+        if (this.villagerQuest) {
+            this.villagerUuid = buffer.readUuid();
         }
+        this.timer = buffer.readInt();
     }
 
     @Environment(EnvType.CLIENT) // maybe have to remove client annotation
@@ -99,7 +105,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
         villagerQuest.addBool("villager_quest", this.villagerQuest, (v) -> {
             this.villagerQuest = v;
         }, false).setNameKey("ftbquests.quest.misc.villager_quest");
-        villagerQuest.addString("villager_uuid", villagerUuid != null ? villagerUuid.toString() : "", v -> {
+        villagerQuest.addString("villager_uuid", this.villagerUuid != null ? this.villagerUuid.toString() : "", v -> {
             try {
                 v = UUID.fromString(v).toString();
                 this.villagerUuid = UUID.fromString(v);
@@ -108,6 +114,9 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
                 this.villagerUuid = null;
             }
         }, "").setNameKey("ftbquests.quest.misc.villager_uuid");
+        villagerQuest.addInt("timer", this.timer, (v) -> {
+            this.timer = v;
+        }, 0, 0, Integer.MAX_VALUE).setNameKey("ftbquests.quest.misc.timer");
     }
 
     @Inject(method = "isVisible", at = @At("RETURN"), cancellable = true, remap = false)
@@ -142,7 +151,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
      * NOTICE
      * 
      * Sadly FTB does not give out permissions so I had to redo this method. It is based on the isVisible method inside the Quest class. [Source]:
-     * https://github.com/FTBTeam/FTB-Quests/blob/main/common/src/main/java/dev/ftb/mods/ftbquests/quest/Quest.java#L722
+     * https://github.com/FTBTeam/FTB-Quests/blob/main/common/src/main/java/dev/ftb/ mods/ftbquests/quest/Quest.java#L722
      * 
      */
     @Override
@@ -170,6 +179,11 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
 
         }
         return true;
+    }
+
+    @Override
+    public int getTimer() {
+        return this.timer;
     }
 
 }

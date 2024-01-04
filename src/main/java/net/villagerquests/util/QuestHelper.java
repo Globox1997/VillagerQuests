@@ -9,9 +9,14 @@ import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.quest.reward.Reward;
+import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
+import net.minecraft.entity.passive.MerchantEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.villagerquests.access.QuestAccessor;
 import net.villagerquests.access.TeamDataAccessor;
+import net.villagerquests.data.VillagerQuestState;
+import net.villagerquests.network.QuestServerPacket;
 
 public class QuestHelper {
 
@@ -60,12 +65,12 @@ public class QuestHelper {
         return questMarkType;
     }
 
-    public static void removeVillagerQuestFromQuest(UUID uuid) {
+    public static void removeVillagerQuestFromQuest(UUID villagerUuid) {
         for (int i = 0; i < ServerQuestFile.INSTANCE.getAllChapters().size(); i++) {
             List<Quest> quests = ServerQuestFile.INSTANCE.getAllChapters().get(i).getQuests();
             for (int u = 0; u < quests.size(); u++) {
                 Quest quest = quests.get(u);
-                if (((QuestAccessor) (Object) quest).isVillagerQuest() && ((QuestAccessor) (Object) quest).getVillagerQuestUuid().equals(uuid)) {
+                if (((QuestAccessor) (Object) quest).isVillagerQuest() && ((QuestAccessor) (Object) quest).getVillagerQuestUuid().equals(villagerUuid)) {
 
                     ((QuestAccessor) (Object) quest).setVillagerQuest(false);
                     ((QuestAccessor) (Object) quest).setVillagerQuestUuid(null);
@@ -76,6 +81,21 @@ public class QuestHelper {
                     }
                 }
             }
+        }
+    }
+
+    public static void updateTeamQuestMark(MinecraftServer server, TeamData data, UUID VillagerQuestUuid) {
+        Iterator<UUID> iterator = FTBTeamsAPI.api().getManager().getTeamByID(data.getTeamId()).get().getMembers().iterator();
+        while (iterator.hasNext()) {
+            UUID uuid = iterator.next();
+            int questMarkType = -1;
+            if (server.getPlayerManager().getPlayer(uuid) != null) {
+                questMarkType = QuestHelper.getVillagerQuestMarkType(server.getPlayerManager().getPlayer(uuid), VillagerQuestUuid);
+                if (server.getPlayerManager().getPlayer(uuid).getServerWorld().getEntity(VillagerQuestUuid) instanceof MerchantEntity merchantEntity) {
+                    QuestServerPacket.writeS2CMerchantQuestMarkPacket(server.getPlayerManager().getPlayer(uuid), merchantEntity.getId(), questMarkType);
+                }
+            }
+            VillagerQuestState.updatePlayerVillagerQuestMarkType(server, uuid, VillagerQuestUuid, questMarkType);
         }
     }
 

@@ -16,4 +16,6 @@ public interface QuestAccessor {
 
     public boolean isQuestVisible(TeamData data);
 
+    public int getTimer();
+
 }

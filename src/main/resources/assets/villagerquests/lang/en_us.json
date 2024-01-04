@@ -8,16 +8,20 @@
     "ftbquests.task.ftbquests.kill.z": "Z Position",
     "ftbquests.task.ftbquests.kill.radius": "Radius",
 
-    "ftbquests.quest.villager_quest": "Villager Quest",
-    "ftbquests.quest.misc.villager_quest": "Villager Quest",
-    "ftbquests.quest.misc.villager_uuid": "Villager UUID",
-    "ftbquests.quest.misc.villager_uuid.tooltip.uuid": "UUID: %s",
-
     "ftbquests.task.ftbquests.villager_talk": "Villager Talk",
     "ftbquests.task.ftbquests.villager_talk.title": "Talk with the Villager",
     "ftbquests.task.ftbquests.villager_talk.villager_uuid": "Villager UUID",
     "ftbquests.task.ftbquests.villager_talk.villager_uuid.tooltip.uuid": "UUID: %s",
     "ftbquests.task.ftbquests.villager_talk.talk_text": "Talk Text",
+
+    "ftbquests.quest.villager_quest": "Villager Quest",
+    "ftbquests.quest.misc.villager_quest": "Villager Quest",
+    "ftbquests.quest.misc.villager_uuid": "Villager UUID",
+    "ftbquests.quest.misc.villager_uuid.tooltip.uuid": "UUID: %s",
+    "ftbquests.quest.misc.timer": "Timer",
+
+    "ftbquests.quest.failed": "Quest failed!",
+    "ftbquests.quest.timer": "Time: %s",
 
     "screen.villagerquests": "Villager Quests",
     "screen.villagerquests.acceptButton": "Accept",
