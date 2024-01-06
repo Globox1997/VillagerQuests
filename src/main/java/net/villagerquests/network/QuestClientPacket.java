@@ -145,4 +145,11 @@ public class QuestClientPacket {
         CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.COMPLETE_TALK, new PacketByteBuf(buf));
         MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
     }
+
+    public static void writeC2SCloseScreenPacket(int merchantEntityId) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(merchantEntityId);
+        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.CLOSE_SCREEN, new PacketByteBuf(buf));
+        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
+    }
 }

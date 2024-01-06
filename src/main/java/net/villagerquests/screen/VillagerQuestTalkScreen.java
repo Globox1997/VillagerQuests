@@ -162,4 +162,10 @@ public class VillagerQuestTalkScreen extends Screen {
         return false;
     }
 
+    @Override
+    public void close() {
+        super.close();
+        QuestClientPacket.writeC2SCloseScreenPacket(this.merchantEntity.getId());
+    }
+
 }

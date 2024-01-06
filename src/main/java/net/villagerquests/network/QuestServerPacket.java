@@ -35,6 +35,7 @@ import net.villagerquests.util.QuestHelper;
 public class QuestServerPacket {
 
     public static final Identifier SET_SCREEN = new Identifier("villagerquest", "set_screen");
+    public static final Identifier CLOSE_SCREEN = new Identifier("villagerquest", "close_screen");
     public static final Identifier SET_QUEST_OFFERER = new Identifier("villagerquest", "set_quest_offerer");
     public static final Identifier SET_MERCHANT_QUEST_MARK = new Identifier("villagerquest", "set_merchant_quest_mark");
 
@@ -184,8 +185,18 @@ public class QuestServerPacket {
                     ServerQuestFile.INSTANCE.getQuest(questId).getTasks().forEach(task -> {
                         if (task instanceof VillagerTalkTask villagerTalkTask) {
                             villagerTalkTask.talk(TeamData.get(player), merchantEntity);
+                            merchantEntity.setCustomer(null);
                         }
                     });
+                }
+            });
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(CLOSE_SCREEN, (server, player, handler, buffer, sender) -> {
+            int merchantEntityId = buffer.readInt();
+            server.execute(() -> {
+                if (player.getServerWorld().getEntityById(merchantEntityId) instanceof MerchantEntity merchantEntity) {
+                    merchantEntity.setCustomer(null);
                 }
             });
         });

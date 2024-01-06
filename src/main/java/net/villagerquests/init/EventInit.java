@@ -41,8 +41,10 @@ public class EventInit {
 
                         while (iterator.hasNext()) {
                             VillagerTalkTask task = iterator.next();
-                            if (data.getProgress(task) < task.getMaxProgress() && data.canStartTasks(task.getQuest()) && task.getVillagerUuid().equals(merchantEntity.getUuid())) {
+                            if (data.getProgress(task) < task.getMaxProgress() && data.canStartTasks(task.getQuest()) && task.getVillagerUuid() != null
+                                    && task.getVillagerUuid().equals(merchantEntity.getUuid())) {
                                 QuestServerPacket.writeS2CTalkPacket((ServerPlayerEntity) player, entity.getId(), task.getQuest().id);
+                                merchantEntity.setCustomer(player);
                                 return ActionResult.CONSUME;
                             }
                         }
