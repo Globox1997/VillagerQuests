@@ -87,11 +87,14 @@ public class EventInit {
                     TeamData teamData = iterator.next();
                     if (((TeamDataAccessor) teamData).getTimer().size() > 0) {
                         List<Long> removalList = null;
-                        Iterator<Map.Entry<Long, Long>> timerIterator = ((TeamDataAccessor) teamData).getTimer().entrySet().iterator();
+                        Iterator<Map.Entry<Long, Long>> timerIterator = new ArrayList<>(((TeamDataAccessor) teamData).getTimer().entrySet()).iterator();
                         while (timerIterator.hasNext()) {
                             Map.Entry<Long, Long> entry = timerIterator.next();
                             if (teamData.getFile().getQuest(entry.getKey()) != null && !((TeamDataAccessor) teamData).getCompleted().containsKey((long) entry.getKey())) {
                                 int timer = ((QuestAccessor) (Object) teamData.getFile().getQuest(entry.getKey())).getTimer();
+                                if (timer <= 0) {
+                                    continue;
+                                }
                                 if (server.getOverworld().getTime() > entry.getValue() + (long) timer) {
                                     ((TeamDataAccessor) teamData).setQuestStarted(entry.getKey(), null);
                                     teamData.getFile().getQuest(entry.getKey()).getTasks().forEach(task -> {
@@ -119,23 +122,6 @@ public class EventInit {
                                 ((TeamDataAccessor) teamData).getTimer().remove(removalList.get(i));
                             }
                         }
-                        // ((TeamDataAccessor) teamData).getTimer().forEach((questId, acceptedTime) -> {
-                        // if (teamData.getFile().getQuest(questId) != null && !((TeamDataAccessor) teamData).getCompleted().containsKey((long) questId)) {
-                        // int timer = ((QuestAccessor) (Object) teamData.getFile().getQuest(questId)).getTimer();
-                        // if (server.getOverworld().getTime() > acceptedTime + (long) timer) {
-                        // ((TeamDataAccessor) teamData).setQuestStarted(questId, null);
-                        // teamData.getFile().getQuest(questId).getTasks().forEach(task -> {
-                        // teamData.resetProgress(task);
-                        // });
-                        // teamData.clearCachedProgress();
-                        // teamData.markDirty();
-                        // new ObjectCompletedResetMessage(teamData.getTeamId(), questId).sendTo(teamData.getOnlineMembers());
-                        // if (((QuestAccessor) (Object) teamData.getFile().getQuest(questId)).isVillagerQuest()) {
-                        // QuestHelper.updateTeamQuestMark(server, teamData, ((QuestAccessor) (Object) teamData.getFile().getQuest(questId)).getVillagerQuestUuid());
-                        // }
-                        // }
-                        // }
-                        // });
                     }
                 }
             }
