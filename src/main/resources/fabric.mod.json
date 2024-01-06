@@ -42,7 +42,7 @@
 		"fabricloader": ">=${loader_version}",
 		"cloth-config2": ">=${cloth_config_version}",
 		"libz": "*",
-		"ftbquests": "2001.1.4"
+		"ftbquests": "<=2001.3.0"
 	},
 	"suggests": {
 		"another-mod": "*"
