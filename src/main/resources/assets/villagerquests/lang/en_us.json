@@ -40,5 +40,6 @@
     "text.autoconfig.villagerquests.option.villagerQuestBoxSize": "Villager Quest Box Size",
     "text.autoconfig.villagerquests.option.showQuestIcon": "Show Quest Icon",
     "text.autoconfig.villagerquests.option.flatQuestIcon": "Flat Quest Icon",
-    "text.autoconfig.villagerquests.option.iconDistance": "Quest Icon Distance"
+    "text.autoconfig.villagerquests.option.iconDistance": "Quest Icon Distance",
+    "text.autoconfig.villagerquests.option.changeTeamGuiColor": "Change Team Gui Color"
 }

@@ -17,5 +17,7 @@ public class VillagerQuestsConfig implements ConfigData {
     public boolean flatQuestIcon = true;
     @Comment("Squared distance showing up quest icon")
     public int iconDistance = 30;
+    @Comment("Changes team gui color to a grey color")
+    public boolean changeTeamGuiColor = true;
 
 }
