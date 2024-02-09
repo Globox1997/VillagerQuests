@@ -65,7 +65,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     @Inject(method = "writeData", at = @At("TAIL"))
     private void writeDataMixin(NbtCompound nbt, CallbackInfo info) {
         nbt.putBoolean("villagerquest", this.villagerQuest);
-        if (this.villagerQuest) {
+        if (this.villagerUuid != null) {
             nbt.putUuid("villageruuid", this.villagerUuid);
         }
         nbt.putInt("Timer", this.timer);
@@ -74,7 +74,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     @Inject(method = "readData", at = @At("TAIL"))
     private void readDataMixin(NbtCompound nbt, CallbackInfo info) {
         this.villagerQuest = nbt.getBoolean("villagerquest");
-        if (this.villagerQuest) {
+        if (nbt.contains("villageruuid")) {
             this.villagerUuid = nbt.getUuid("villageruuid");
         }
         this.timer = nbt.getInt("Timer");
@@ -150,8 +150,8 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     /*
      * NOTICE
      * 
-     * Sadly FTB does not give out permissions so I had to redo this method. It is based on the isVisible method inside the Quest class. [Source]:
-     * https://github.com/FTBTeam/FTB-Quests/blob/main/common/src/main/java/dev/ftb/ mods/ftbquests/quest/Quest.java#L722
+     * Sadly FTB does not give out permissions so I had to redo this method. It is based on the isVisible method inside the Quest class. 
+     * [Source]: https://github.com/FTBTeam/FTB-Quests/blob/main/common/src/main/java/dev/ftb/ mods/ftbquests/quest/Quest.java#L722
      * 
      */
     @Override
