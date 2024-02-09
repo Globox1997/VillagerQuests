@@ -24,12 +24,6 @@
 		],
 		"modmenu": [
 			"net.villagerquests.config.ModMenuIntegration"
-		],
-		"emi": [
-			"net.villagerquests.compat.VillagerQuestsEmiPlugin"
-		],
-		"rei_client": [
-			"net.villagerquests.compat.VillagerQuestsReiPlugin"
 		]
 	},
 	"mixins": [
