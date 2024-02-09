@@ -58,8 +58,10 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
 
     @Inject(method = "readCustomDataFromNbt", at = @At(value = "TAIL"))
     public void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
-        this.changeableName = nbt.getBoolean("ChangeableName");
-        this.offersTrades = nbt.getBoolean("OffersTrades");
+        if (nbt.contains("ChangeableName")) {
+            this.changeableName = nbt.getBoolean("ChangeableName");
+            this.offersTrades = nbt.getBoolean("OffersTrades");
+        }
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At(value = "TAIL"))
