@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import dev.ftb.mods.ftblibrary.config.ConfigCallback;
 import dev.ftb.mods.ftblibrary.config.ConfigFromString;
 import dev.ftb.mods.ftblibrary.config.StringConfig;
+import dev.ftb.mods.ftblibrary.ui.Widget;
 import dev.ftb.mods.ftblibrary.ui.input.MouseButton;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -31,14 +32,14 @@ public abstract class StringConfigMixin extends ConfigFromString<String> {
     }
 
     @Override
-    public void onClicked(MouseButton button, ConfigCallback callback) {
+    public void onClicked(Widget clicked, MouseButton button, ConfigCallback callback) {
         if (button.isRight() && this.value.equals("")) {
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.crosshairTarget != null && client.crosshairTarget.getType() == HitResult.Type.ENTITY) {
                 this.value = ((EntityHitResult) client.crosshairTarget).getEntity().getUuid().toString();
             }
         }
-        super.onClicked(button, callback);
+        super.onClicked(clicked, button, callback);
     }
 
 }

@@ -39,10 +39,10 @@ dependencies {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 	// FTB
-	modImplementation ("dev.architectury:architectury-fabric:9.1.12")
-    modImplementation ("curse.maven:ftb-quests-fabric-438496:4760285")
-    modImplementation ("curse.maven:ftb-teams-fabric-438497:4623115")
-    modImplementation ("curse.maven:ftb-library-fabric-438495:4720055")
+	modImplementation ("dev.architectury:architectury-fabric:9.2.14")
+    modImplementation ("curse.maven:ftb-quests-fabric-438496:5363569")
+    modImplementation ("curse.maven:ftb-teams-fabric-438497:5267188")
+    modImplementation ("curse.maven:ftb-library-fabric-438495:5364189")
     modImplementation ("curse.maven:item-filters-309674:4838265")
 }
 
