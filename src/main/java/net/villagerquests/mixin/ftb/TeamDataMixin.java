@@ -89,7 +89,7 @@ public class TeamDataMixin implements TeamDataAccessor {
     @Inject(method = "setStarted", at = @At("HEAD"), cancellable = true, remap = false)
     private void setStartedMixin(long questId, @Nullable Date time, CallbackInfoReturnable<Boolean> info) {
         if (file.getQuest(questId) != null) {
-            if (!this.getOnlineMembers().isEmpty()) {
+            if (file.isServerSide() && !this.getOnlineMembers().isEmpty()) {
                 if (time == null) {
                     this.timer.remove(questId);
                 } else {
