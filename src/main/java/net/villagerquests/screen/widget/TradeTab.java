@@ -20,7 +20,7 @@ public class TradeTab extends InventoryTab {
 
     @Override
     public boolean shouldShow(MinecraftClient client) {
-        if (!((MerchantAccessor) ((MerchantAccessor) client.player).getCurrentOfferer()).getOffersTrades()) {
+        if (((MerchantAccessor) client.player).getCurrentOfferer() == null || !((MerchantAccessor) ((MerchantAccessor) client.player).getCurrentOfferer()).getOffersTrades()) {
             return false;
         }
         return super.shouldShow(client);
