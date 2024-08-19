@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import dev.architectury.hooks.level.entity.PlayerHooks;
+import dev.architectury.networking.NetworkManager;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.net.ObjectCompletedResetMessage;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
@@ -104,7 +105,7 @@ public class EventInit {
                                     });
                                     teamData.clearCachedProgress();
                                     teamData.markDirty();
-                                    new ObjectCompletedResetMessage(teamData.getTeamId(), entry.getKey()).sendTo(teamData.getOnlineMembers());
+                                    NetworkManager.sendToPlayers(teamData.getOnlineMembers(), new ObjectCompletedResetMessage(teamData.getTeamId(), entry.getKey()));
                                     if (((QuestAccessor) (Object) teamData.getFile().getQuest(entry.getKey())).isVillagerQuest()) {
                                         QuestHelper.updateTeamQuestMark(server, teamData, ((QuestAccessor) (Object) teamData.getFile().getQuest(entry.getKey())).getVillagerQuestUuid());
                                     }

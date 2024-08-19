@@ -1,18 +1,5 @@
 package net.villagerquests.mixin.ftb;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
 import dev.ftb.mods.ftblibrary.config.ConfigGroup;
 import dev.ftb.mods.ftblibrary.config.Tristate;
 import dev.ftb.mods.ftbquests.quest.Chapter;
@@ -23,8 +10,21 @@ import dev.ftb.mods.ftbquests.quest.task.Task;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.registry.RegistryWrapper;
 import net.villagerquests.access.QuestAccessor;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.List;
+import java.util.UUID;
 
 @Mixin(Quest.class)
 public abstract class QuestMixin extends QuestObject implements QuestAccessor {
@@ -63,7 +63,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     }
 
     @Inject(method = "writeData", at = @At("TAIL"))
-    private void writeDataMixin(NbtCompound nbt, CallbackInfo info) {
+    private void writeDataMixin(NbtCompound nbt, RegistryWrapper.WrapperLookup provider, CallbackInfo info) {
         nbt.putBoolean("villagerquest", this.villagerQuest);
         if (this.villagerUuid != null) {
             nbt.putUuid("villageruuid", this.villagerUuid);
@@ -72,7 +72,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     }
 
     @Inject(method = "readData", at = @At("TAIL"))
-    private void readDataMixin(NbtCompound nbt, CallbackInfo info) {
+    private void readDataMixin(NbtCompound nbt, RegistryWrapper.WrapperLookup provider, CallbackInfo info) {
         this.villagerQuest = nbt.getBoolean("villagerquest");
         if (nbt.contains("villageruuid")) {
             this.villagerUuid = nbt.getUuid("villageruuid");
@@ -81,7 +81,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     }
 
     @Inject(method = "writeNetData", at = @At("TAIL"))
-    private void writeNetDataMixin(PacketByteBuf buffer, CallbackInfo info) {
+    private void writeNetDataMixin(RegistryByteBuf buffer, CallbackInfo info) {
         buffer.writeBoolean(this.villagerQuest);
         if (this.villagerQuest) {
             buffer.writeUuid(this.villagerUuid);
@@ -90,7 +90,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     }
 
     @Inject(method = "readNetData", at = @At("TAIL"))
-    private void readNetDataMixin(PacketByteBuf buffer, CallbackInfo info) {
+    private void readNetDataMixin(RegistryByteBuf buffer, CallbackInfo info) {
         this.villagerQuest = buffer.readBoolean();
         if (this.villagerQuest) {
             this.villagerUuid = buffer.readUuid();
@@ -149,10 +149,10 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
 
     /*
      * NOTICE
-     * 
-     * Sadly FTB does not give out permissions so I had to redo this method. It is based on the isVisible method inside the Quest class. 
+     *
+     * Sadly FTB does not give out permissions so I had to redo this method. It is based on the isVisible method inside the Quest class.
      * [Source]: https://github.com/FTBTeam/FTB-Quests/blob/main/common/src/main/java/dev/ftb/ mods/ftbquests/quest/Quest.java#L722
-     * 
+     *
      */
     @Override
     public boolean isQuestVisible(TeamData data) {
@@ -171,7 +171,7 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
                     }
                 }
             }
-            if (hideUntilDepsVisible.get(chapter.hideQuestUntilDepsVisible()) && !data.areDependenciesComplete((Quest) (Object) this)) {
+            if (hideUntilDepsVisible.get(chapter.isHideQuestUntilDepsVisible()) && !data.areDependenciesComplete((Quest) (Object) this)) {
                 return false;
             } else if (this.dependencies.size() > 0 && !this.dependencies.get(0).isVisible(data)) {
                 return false;

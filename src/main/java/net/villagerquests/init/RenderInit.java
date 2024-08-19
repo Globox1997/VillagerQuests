@@ -20,11 +20,11 @@ import net.villagerquests.screen.widget.TradeTab;
 @Environment(EnvType.CLIENT)
 public class RenderInit {
 
-    private static final Identifier TRADE_TAB_ICON = new Identifier("villagerquests:textures/gui/trade_tab_icon.png");
-    private static final Identifier QUEST_TAB_ICON = new Identifier("villagerquests:textures/gui/quest_tab_icon.png");
-    public static final Identifier VILLAGERQUEST_SCREEN_AND_ICONS = new Identifier("villagerquests:textures/gui/screen_and_icons.png");
+    private static final Identifier TRADE_TAB_ICON = Identifier.of("villagerquests:textures/gui/trade_tab_icon.png");
+    private static final Identifier QUEST_TAB_ICON = Identifier.of("villagerquests:textures/gui/quest_tab_icon.png");
+    public static final Identifier VILLAGERQUEST_SCREEN_AND_ICONS = Identifier.of("villagerquests:textures/gui/screen_and_icons.png");
 
-    public static final EntityModelLayer QUEST_LAYER = new EntityModelLayer(new Identifier("villagerquests:quest_layer"), "quest_layer");
+    public static final EntityModelLayer QUEST_LAYER = new EntityModelLayer(Identifier.of("villagerquests:quest_layer"), "quest_layer");
 
     public static void init() {
         HandledScreens.register(ScreenInit.VILLAGERQUEST_SCREEN_HANDLER_TYPE, VillagerQuestScreen::new);
@@ -34,7 +34,7 @@ public class RenderInit {
 
         EntityModelLayerRegistry.registerModelLayer(QUEST_LAYER, QuestEntityModel::getTexturedModelData);
 
-        ResourceManagerHelper.registerBuiltinResourcePack(new Identifier("villagerquests", "villagerquest_theme"), FabricLoader.getInstance().getModContainer("villagerquests").orElseThrow(),
+        ResourceManagerHelper.registerBuiltinResourcePack(Identifier.of("villagerquests", "villagerquest_theme"), FabricLoader.getInstance().getModContainer("villagerquests").orElseThrow(),
                 ResourcePackActivationType.DEFAULT_ENABLED);
     }
 }

@@ -28,7 +28,7 @@ import net.villagerquests.init.ConfigInit;
 @Environment(EnvType.CLIENT)
 public class QuestRenderHelper {
 
-    private static final Identifier QUEST_TEXTURE = new Identifier("villagerquests:textures/entity/quest_mark.png");
+    private static final Identifier QUEST_TEXTURE = Identifier.of("villagerquests:textures/entity/quest_mark.png");
 
     public static void renderQuestMark(MerchantEntity merchantEntity, MatrixStack matrixStack, EntityRenderDispatcher dispatcher, TextRenderer textRenderer,
             VertexConsumerProvider vertexConsumerProvider, QuestEntityModel<MerchantEntity> questEntityModel, boolean hasLabel, int i) {
@@ -50,7 +50,7 @@ public class QuestRenderHelper {
                     matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(toEulerXyzDegrees(dispatcher.getRotation()).y()));
 
                     if (ConfigInit.CONFIG.flatQuestIcon) {
-                        matrixStack.scale(-0.1F, -0.1F, 0.1F);
+                        matrixStack.scale(0.1F, -0.1F, 0.1F);
                     } else {
                         matrixStack.scale(-1.0F, -1.0F, 1.0F);
                     }
@@ -65,11 +65,8 @@ public class QuestRenderHelper {
                         float h = (float) (-textRenderer.getWidth(text) / 2);
                         textRenderer.draw(text, h, 0.0F, 0xFFFBD500, false, matrix4f, vertexConsumerProvider, TextLayerType.NORMAL, 0, i);
                     } else {
-                        questEntityModel.questionMark = true;
-                        if (questMarkType == 2) {
-                            questEntityModel.questionMark = false;
-                        }
-                        questEntityModel.render(matrixStack, vertexConsumers, 15728880, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
+                        questEntityModel.questionMark = questMarkType != 2;
+                        questEntityModel.render(matrixStack, vertexConsumers, 15728880, OverlayTexture.DEFAULT_UV);
                         questEntityModel.setAngles(merchantEntity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
                     }
                     matrixStack.pop();

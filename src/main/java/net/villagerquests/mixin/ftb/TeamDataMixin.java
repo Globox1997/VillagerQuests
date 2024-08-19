@@ -1,24 +1,5 @@
 package net.villagerquests.mixin.ftb;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
 import dev.ftb.mods.ftblibrary.snbt.SNBTCompoundTag;
 import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
 import dev.ftb.mods.ftbquests.quest.Quest;
@@ -37,6 +18,18 @@ import net.villagerquests.access.TeamDataAccessor;
 import net.villagerquests.data.VillagerQuestState;
 import net.villagerquests.network.QuestServerPacket;
 import net.villagerquests.util.QuestHelper;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import java.util.*;
 
 @Mixin(TeamData.class)
 public class TeamDataMixin implements TeamDataAccessor {
@@ -181,7 +174,7 @@ public class TeamDataMixin implements TeamDataAccessor {
     }
 
     @Inject(method = "write", at = @At("TAIL"), remap = false)
-    private void writeMixin(PacketByteBuf buffer, boolean self, CallbackInfo info) {
+    private void writeMixin(PacketByteBuf buffer, CallbackInfo info) {
         buffer.writeInt(this.timer.size());
         Iterator<Map.Entry<Long, Long>> iterator = this.timer.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -191,8 +184,10 @@ public class TeamDataMixin implements TeamDataAccessor {
         }
     }
 
-    @Inject(method = "read", at = @At("TAIL"), remap = false)
-    private void readMixin(PacketByteBuf buffer, boolean self, CallbackInfo info) {
+
+
+    @Inject(method = "readNetData", at = @At("TAIL"), remap = false)
+    private void readNetDataMixin(PacketByteBuf buffer, CallbackInfo info) {
         this.timer.clear();
         int count = buffer.readInt();
         for (int i = 0; i < count; i++) {

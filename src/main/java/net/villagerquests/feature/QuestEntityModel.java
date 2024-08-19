@@ -38,7 +38,7 @@ public class QuestEntityModel<T extends MerchantEntity> extends EntityModel<T> {
     }
 
     @Override
-    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, int color) {
         this.exclamation.render(matrices, vertices, light, overlay);
         this.question.render(matrices, vertices, light, overlay);
     }

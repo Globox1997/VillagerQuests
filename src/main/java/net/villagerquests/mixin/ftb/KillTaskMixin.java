@@ -8,8 +8,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -17,6 +19,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
 import dev.ftb.mods.ftbquests.quest.task.KillTask;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -24,9 +27,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(KillTask.class)
 public class KillTaskMixin {
 
+    @Unique
     private RegistryKey<World> dimension;
+    @Unique
     private boolean ignoreDimension;
+    @Unique
     private boolean location;
+    @Unique
     private int x, y, z, radius;
 
     @Inject(method = "<init>", at = @At("TAIL"), remap = false)
@@ -39,18 +46,18 @@ public class KillTaskMixin {
     }
 
     @Inject(method = "writeData", at = @At("TAIL"))
-    private void writeDataMixin(NbtCompound nbt, CallbackInfo info) {
+    private void writeDataMixin(NbtCompound nbt, RegistryWrapper.WrapperLookup provider, CallbackInfo info) {
         nbt.putBoolean("location", location);
         nbt.putString("dimension", dimension.getValue().toString());
         nbt.putBoolean("ignore_dimension", ignoreDimension);
-        nbt.putIntArray("position", new int[] { x, y, z });
+        nbt.putIntArray("position", new int[]{x, y, z});
         nbt.putInt("radius", radius);
     }
 
     @Inject(method = "readData", at = @At("TAIL"))
-    private void readDataMixin(NbtCompound nbt, CallbackInfo info) {
+    private void readDataMixin(NbtCompound nbt, RegistryWrapper.WrapperLookup provider, CallbackInfo info) {
         location = nbt.getBoolean("location");
-        dimension = RegistryKey.of(RegistryKeys.WORLD, new Identifier(nbt.getString("dimension")));
+        dimension = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(nbt.getString("dimension")));
         ignoreDimension = nbt.getBoolean("ignore_dimension");
 
         int[] pos = nbt.getIntArray("position");
@@ -64,7 +71,7 @@ public class KillTaskMixin {
     }
 
     @Inject(method = "writeNetData", at = @At("TAIL"))
-    private void writeNetDataMixin(PacketByteBuf buffer, CallbackInfo info) {
+    private void writeNetDataMixin(RegistryByteBuf buffer, CallbackInfo info) {
         buffer.writeBoolean(location);
         buffer.writeIdentifier(dimension.getValue());
         buffer.writeBoolean(ignoreDimension);
@@ -75,7 +82,7 @@ public class KillTaskMixin {
     }
 
     @Inject(method = "readNetData", at = @At("TAIL"))
-    private void readNetDataMixin(PacketByteBuf buffer, CallbackInfo info) {
+    private void readNetDataMixin(RegistryByteBuf buffer, CallbackInfo info) {
         location = buffer.readBoolean();
         dimension = RegistryKey.of(RegistryKeys.WORLD, buffer.readIdentifier());
         ignoreDimension = buffer.readBoolean();
@@ -88,7 +95,7 @@ public class KillTaskMixin {
     @Environment(EnvType.CLIENT)
     @Inject(method = "fillConfigGroup", at = @At("TAIL"), remap = false)
     private void fillConfigGroupMixin(ConfigGroup config, CallbackInfo info) {
-        config.addString("dim", dimension.getValue().toString(), v -> dimension = RegistryKey.of(RegistryKeys.WORLD, new Identifier(v)), "minecraft:overworld");
+        config.addString("dim", dimension.getValue().toString(), v -> dimension = RegistryKey.of(RegistryKeys.WORLD, Identifier.of(v)), "minecraft:overworld");
         config.addBool("ignore_dim", ignoreDimension, v -> ignoreDimension = v, true);
         config.addBool("location", location, v -> location = v, false);
         config.addInt("x", x, v -> x = v, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);

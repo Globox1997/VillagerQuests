@@ -1,92 +1,94 @@
 package net.villagerquests.network;
 
-import java.util.Iterator;
-import java.util.UUID;
-
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
 import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.QuestObject;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 import dev.ftb.mods.ftbquests.util.TextUtils;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.passive.MerchantEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.villagerquests.access.MerchantAccessor;
 import net.villagerquests.ftb.FailQuestToast;
 import net.villagerquests.ftb.VillagerTalkTask;
+import net.villagerquests.network.packet.*;
 import net.villagerquests.screen.VillagerQuestOpScreen;
 import net.villagerquests.screen.VillagerQuestTalkScreen;
+
+import java.util.Iterator;
+import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
 public class QuestClientPacket {
 
     public static void init() {
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_QUEST_OFFERER, (client, handler, buf, sender) -> {
-            int id = buf.readInt();
-            client.execute(() -> {
-                if (client.world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
-                    merchantEntity.setCustomer(client.player);
+        ClientPlayNetworking.registerGlobalReceiver(QuestOffererPacket.PACKET_ID, (payload, context) -> {
+            int id = payload.mobId();
+            context.client().execute(() -> {
+                if (context.client().world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
+                    merchantEntity.setCustomer(context.player());
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.SET_MERCHANT_QUEST_MARK, (client, handler, buf, sender) -> {
-            int id = buf.readInt();
-            int questMarkType = buf.readInt();
-            client.execute(() -> {
-                if (client.world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
+
+        ClientPlayNetworking.registerGlobalReceiver(QuestMarkPacket.PACKET_ID, (payload, context) -> {
+            int id = payload.mobId();
+            int questMarkType = payload.questMarkType();
+            context.client().execute(() -> {
+                if (context.client().world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
                     ((MerchantAccessor) merchantEntity).setQuestMarkType(questMarkType);
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.OP_MERCHANT_SCREEN_PACKET, (client, handler, buf, sender) -> {
-            int id = buf.readInt();
-            boolean defaultChangeableName = buf.readBoolean();
-            boolean defaultInvincibility = buf.readBoolean();
-            boolean defaultOffersTrades = buf.readBoolean();
 
-            client.execute(() -> {
-                if (client.player != null && client.player.isCreativeLevelTwoOp() && client.world != null && client.world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
-                    client.setScreen(new VillagerQuestOpScreen(merchantEntity, defaultChangeableName, defaultInvincibility, defaultOffersTrades));
+        ClientPlayNetworking.registerGlobalReceiver(FailQuestPacket.PACKET_ID, (payload, context) -> {
+            long questId = payload.questId();
+            context.client().execute(() -> {
+                QuestObject object = ClientQuestFile.INSTANCE.get(questId);
+                if (object != null) {
+                    context.client().getToastManager().add(new FailQuestToast(object));
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.OFFERS_TRADES, (client, handler, buf, sender) -> {
-            int id = buf.readInt();
-            boolean offersTrades = buf.readBoolean();
-            client.execute(() -> {
-                if (client.world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
+
+        ClientPlayNetworking.registerGlobalReceiver(OffersTradesPacket.PACKET_ID, (payload, context) -> {
+            int id = payload.mobId();
+            boolean offersTrades = payload.offersTrades();
+            context.client().execute(() -> {
+                if (context.client().world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
                     ((MerchantAccessor) merchantEntity).setOffersTrades(offersTrades);
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.TALK, (client, handler, buf, sender) -> {
-            int id = buf.readInt();
-            long questId = buf.readLong();
-            client.execute(() -> {
-                if (client.world.getEntityById(id) instanceof MerchantEntity merchantEntity && ClientQuestFile.INSTANCE.get(questId) instanceof Quest quest) {
+
+        ClientPlayNetworking.registerGlobalReceiver(QuestTalkPacket.PACKET_ID, (payload, context) -> {
+            int id = payload.mobId();
+            long questId = payload.questId();
+            context.client().execute(() -> {
+                if (context.client().world.getEntityById(id) instanceof MerchantEntity merchantEntity && ClientQuestFile.INSTANCE.get(questId) instanceof Quest quest) {
                     Iterator<Task> iterator = quest.getTasks().iterator();
                     TeamData teamData = ClientQuestFile.INSTANCE.selfTeamData;
                     while (iterator.hasNext()) {
                         Task task = iterator.next();
                         if (task instanceof VillagerTalkTask villagerTalkTask && teamData.getProgress(task) < task.getMaxProgress() && teamData.canStartTasks(task.getQuest())) {
-                            client.setScreen(new VillagerQuestTalkScreen(merchantEntity, questId, villagerTalkTask.getTalkTextList().stream().map(TextUtils::parseRawText).toList()));
+                            context.client().setScreen(new VillagerQuestTalkScreen(merchantEntity, questId, villagerTalkTask.getTalkTextList().stream().map(line -> TextUtils.parseRawText(line, task.getQuest().holderLookup())).toList()));
                         }
                     }
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(QuestServerPacket.FAIL_QUEST, (client, handler, buf, sender) -> {
-            long questId = buf.readLong();
-            client.execute(() -> {
-                QuestObject object = ClientQuestFile.INSTANCE.get(questId);
-                if (object != null) {
-                    client.getToastManager().add(new FailQuestToast(object));
+
+        ClientPlayNetworking.registerGlobalReceiver(OpMerchantScreenPacket.PACKET_ID, (payload, context) -> {
+            int id = payload.mobId();
+            boolean defaultChangeableName = payload.defaultChangeableName();
+            boolean defaultInvincibility = payload.defaultInvincibility();
+            boolean defaultOffersTrades = payload.defaultOffersTrades();
+
+            context.client().execute(() -> {
+                if (context.client().player != null && context.client().player.isCreativeLevelTwoOp() && context.client().world != null && context.client().world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
+                    context.client().setScreen(new VillagerQuestOpScreen(merchantEntity, defaultChangeableName, defaultInvincibility, defaultOffersTrades));
                 }
             });
         });
@@ -94,62 +96,32 @@ public class QuestClientPacket {
 
     public static void writeC2SScreenPacket(MerchantEntity merchantEntity, int mouseX, int mouseY, boolean villagerScreen) {
         ((MerchantAccessor) merchantEntity).setOffersTrades(true);
-
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(merchantEntity.getId());
-        buf.writeInt(mouseX);
-        buf.writeInt(mouseY);
-        buf.writeBoolean(villagerScreen);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.SET_SCREEN, buf);
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
-    }
-
-    public static void writeC2SAcceptQuestPacket(long questId, boolean acceptQuest) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeLong(questId);
-        buf.writeBoolean(acceptQuest);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.ACCEPT_QUEST, new PacketByteBuf(buf));
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
-    }
-
-    public static void writeC2SCompleteQuestPacket(long questId) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeLong(questId);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.COMPLETE_QUEST, new PacketByteBuf(buf));
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
-    }
-
-    public static void writeC2SOpMerchantPacket(int merchantEntityId, String merchantName, boolean changeableName, boolean invincibility, boolean hasAi, boolean offersTrades) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(merchantEntityId);
-        buf.writeString(merchantName);
-        buf.writeBoolean(changeableName);
-        buf.writeBoolean(invincibility);
-        buf.writeBoolean(hasAi);
-        buf.writeBoolean(offersTrades);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.OP_MERCHANT_PACKET, new PacketByteBuf(buf));
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
-    }
-
-    public static void writeC2SUpdateMerchantQuestMark(UUID uuid) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeUuid(uuid);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.UPDATE_MERCHANT_QUEST_MARK, new PacketByteBuf(buf));
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
-    }
-
-    public static void writeC2STalkPacket(int merchantEntityId, long questId) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(merchantEntityId);
-        buf.writeLong(questId);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.COMPLETE_TALK, new PacketByteBuf(buf));
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
+        ClientPlayNetworking.send(new ScreenPacket(merchantEntity.getId(), mouseX, mouseY, villagerScreen));
     }
 
     public static void writeC2SCloseScreenPacket(int merchantEntityId) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeInt(merchantEntityId);
-        CustomPayloadC2SPacket packet = new CustomPayloadC2SPacket(QuestServerPacket.CLOSE_SCREEN, new PacketByteBuf(buf));
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
+        ClientPlayNetworking.send(new CloseScreenPacket(merchantEntityId));
     }
+
+    public static void writeC2SUpdateMerchantQuestMark(UUID uuid) {
+        ClientPlayNetworking.send(new UpdateQuestMarkPacket(uuid));
+    }
+
+    public static void writeC2SAcceptQuestPacket(long questId, boolean acceptQuest) {
+        ClientPlayNetworking.send(new AcceptQuestPacket(questId, acceptQuest));
+    }
+
+    public static void writeC2SCompleteQuestPacket(long questId) {
+        ClientPlayNetworking.send(new CompleteQuestPacket(questId));
+    }
+
+    public static void writeC2STalkPacket(int merchantEntityId, long questId) {
+        ClientPlayNetworking.send(new CompleteTalkQuestPacket(merchantEntityId, questId));
+    }
+
+    public static void writeC2SOpMerchantPacket(int merchantEntityId, String merchantName, boolean changeableName, boolean invincibility, boolean hasAi, boolean offersTrades) {
+        ClientPlayNetworking.send(new OpMerchantPacket(merchantEntityId, merchantName, changeableName, invincibility, hasAi, offersTrades));
+    }
+
+
 }

@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.registry.RegistryWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import net.fabricmc.api.EnvType;
@@ -56,8 +58,8 @@ public class VillagerTalkTask extends Task {
     }
 
     @Override
-    public void writeData(NbtCompound nbt) {
-        super.writeData(nbt);
+    public void writeData(NbtCompound nbt, RegistryWrapper.WrapperLookup provider) {
+        super.writeData(nbt, provider);
         if (villagerUuid != null) {
             nbt.putUuid("villageruuid", villagerUuid);
             nbt.putString("villagername", villagerName);
@@ -77,8 +79,8 @@ public class VillagerTalkTask extends Task {
     }
 
     @Override
-    public void readData(NbtCompound nbt) {
-        super.readData(nbt);
+    public void readData(NbtCompound nbt, RegistryWrapper.WrapperLookup provider) {
+        super.readData(nbt, provider);
         if (nbt.contains("villageruuid")) {
             villagerUuid = nbt.getUuid("villageruuid");
             villagerName = nbt.getString("villagername");
@@ -93,7 +95,7 @@ public class VillagerTalkTask extends Task {
     }
 
     @Override
-    public void writeNetData(PacketByteBuf buffer) {
+    public void writeNetData(RegistryByteBuf buffer) {
         super.writeNetData(buffer);
         buffer.writeBoolean(villagerUuid != null);
         if (villagerUuid != null) {
@@ -107,7 +109,7 @@ public class VillagerTalkTask extends Task {
     }
 
     @Override
-    public void readNetData(PacketByteBuf buffer) {
+    public void readNetData(RegistryByteBuf buffer) {
         super.readNetData(buffer);
         if (buffer.readBoolean()) {
             villagerUuid = buffer.readUuid();

@@ -1,22 +1,23 @@
 package net.villagerquests.data;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
 
 public class VillagerQuestState extends PersistentState {
 
     private HashMap<UUID, VillagerQuestPlayerData> players = new HashMap<>();
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         NbtCompound playersNbt = new NbtCompound();
         players.forEach((uuid, villagerQuestPlayerData) -> {
 
@@ -62,12 +63,18 @@ public class VillagerQuestState extends PersistentState {
         return villagerQuestState;
     }
 
-    public static VillagerQuestState getServerVillagerQuestState(MinecraftServer server) {
-        PersistentStateManager persistentStateManager = server.getWorld(World.OVERWORLD).getPersistentStateManager();
-        VillagerQuestState state = persistentStateManager.getOrCreate(VillagerQuestState::createFromNbt, VillagerQuestState::new, "villagerquest");
-        state.markDirty();
-        return state;
-    }
+     public static VillagerQuestState getServerVillagerQuestState(MinecraftServer server) {
+         PersistentStateManager persistentStateManager = server.getWorld(World.OVERWORLD).getPersistentStateManager();
+         VillagerQuestState state = persistentStateManager.getOrCreate(VillagerQuestState.getPersistentStateType(), "villagerquest");
+         state.markDirty();
+         return state;
+     }
+
+
+
+         public static PersistentState.Type<VillagerQuestState> getPersistentStateType() {
+         return new PersistentState.Type<VillagerQuestState>(VillagerQuestState::new, (nbt, registryLookup) -> createFromNbt( nbt), null);
+     }
 
     public static VillagerQuestPlayerData getPlayerVillagerQuestState(MinecraftServer server, UUID playerUuid) {
         VillagerQuestState serverState = getServerVillagerQuestState(server);
@@ -100,5 +107,6 @@ public class VillagerQuestState extends PersistentState {
             villagerQuestPlayerData.getMerchantQuestMarkMap().remove(villagerUuid);
         });
     }
+
 
 }

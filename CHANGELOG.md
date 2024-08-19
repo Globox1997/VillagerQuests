@@ -1,6 +1,6 @@
 ### Added:
 - 
 ### Fixed:
-- Fixed numismatic overhaul crash
+- 
 ### Changed:
-- Updated to latest ftb quest version
+- Updated to mc 1.21.1

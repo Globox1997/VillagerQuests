@@ -8,7 +8,7 @@ import net.villagerquests.ftb.VillagerTalkTask;
 
 public class TaskInit {
 
-    public static TaskType VILLAGER_TALK = TaskTypes.register(new Identifier("ftbquests", "villager_talk"), VillagerTalkTask::new, () -> Icon.getIcon("minecraft:item/diamond_boots"));
+    public static TaskType VILLAGER_TALK = TaskTypes.register(Identifier.of("ftbquests", "villager_talk"), VillagerTalkTask::new, () -> Icon.getIcon("minecraft:item/diamond_boots"));
 
     public static void init() {
     }

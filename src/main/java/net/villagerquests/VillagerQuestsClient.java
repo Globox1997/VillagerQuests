@@ -11,7 +11,7 @@ import net.villagerquests.network.QuestClientPacket;
 @Environment(EnvType.CLIENT)
 public class VillagerQuestsClient implements ClientModInitializer {
 
-    public static final EntityModelLayer QUEST_LAYER = new EntityModelLayer(new Identifier("villagerquests:quest_layer"), "quest_layer");
+    public static final EntityModelLayer QUEST_LAYER = new EntityModelLayer(Identifier.of("villagerquests:quest_layer"), "quest_layer");
 
     @Override
     public void onInitializeClient() {

@@ -42,8 +42,8 @@ public abstract class MerchantEntityMixin extends PassiveEntity implements Merch
     }
 
     @Inject(method = "initDataTracker", at = @At("TAIL"))
-    protected void initDataTrackerMixin(CallbackInfo info) {
-        this.dataTracker.startTracking(TALK_TIME_LEFT, 0);
+    protected void initDataTrackerMixin(DataTracker.Builder builder, CallbackInfo info) {
+        builder.add(TALK_TIME_LEFT, 0);
     }
 
     @Inject(method = "setCustomer", at = @At("HEAD"))

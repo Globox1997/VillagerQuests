@@ -10,8 +10,8 @@ public class VillagerQuestsConfig implements ConfigData {
 
     @Comment("in ticks")
     public int villagerQuestGlowTime = 60;
-    @Comment("Area to look for glowing Villager")
-    public int villagerQuestBoxSize = 32;
+//    @Comment("Area to look for glowing Villager")
+//    public int villagerQuestBoxSize = 32;
     public boolean showQuestIcon = true;
     @Comment("Flat or 3d icon")
     public boolean flatQuestIcon = true;
@@ -19,5 +19,6 @@ public class VillagerQuestsConfig implements ConfigData {
     public int iconDistance = 30;
     @Comment("Changes team gui color to a grey color")
     public boolean changeTeamGuiColor = true;
+    public boolean villagerTalkSound = true;
 
 }

@@ -47,16 +47,16 @@ public class VillagerQuestOpScreen extends Screen {
         this.villagerTextFieldWidget.setText(this.merchantEntity.getName().getString());
         this.addSelectableChild(this.villagerTextFieldWidget);
 
-        this.changeableNameWidget = new CheckboxWidget(this.width / 2 - 152, 76, 20, 20, Text.translatable("screen.villagerquests.changeableNameWidget"), this.defaultChangeableName);
+        this.changeableNameWidget = CheckboxWidget.builder(Text.translatable("screen.villagerquests.changeableNameWidget"), this.textRenderer).checked(this.defaultChangeableName).maxWidth(120).pos(this.width / 2 - 152, 76).build();
         this.addSelectableChild(this.changeableNameWidget);
 
-        this.invincibilityWidget = new CheckboxWidget(this.width / 2 - 152, 102, 20, 20, Text.translatable("screen.villagerquests.invincibilityWidget"), this.defaultInvincibility);
+        this.invincibilityWidget = CheckboxWidget.builder(Text.translatable("screen.villagerquests.invincibilityWidget"), this.textRenderer).checked(this.defaultInvincibility).maxWidth(120).pos(this.width / 2 - 152, 102).build();
         this.addSelectableChild(this.invincibilityWidget);
 
-        this.hasAiWidget = new CheckboxWidget(this.width / 2 - 152, 128, 20, 20, Text.translatable("screen.villagerquests.hasAiWidget"), !this.merchantEntity.isAiDisabled());
+        this.hasAiWidget = CheckboxWidget.builder(Text.translatable("screen.villagerquests.hasAiWidget"), this.textRenderer).checked(!this.merchantEntity.isAiDisabled()).maxWidth(120).pos(this.width / 2 - 152, 128).build();
         this.addSelectableChild(this.hasAiWidget);
 
-        this.offersTradesWidget = new CheckboxWidget(this.width / 2 - 152, 154, 20, 20, Text.translatable("screen.villagerquests.offersTradesWidget"), this.defaultOffersTrades);
+        this.offersTradesWidget = CheckboxWidget.builder(Text.translatable("screen.villagerquests.offersTradesWidget"), this.textRenderer).checked(this.defaultOffersTrades).maxWidth(120).pos(this.width / 2 - 152, 154).build();
         this.addSelectableChild(this.offersTradesWidget);
 
         // this.addDrawableChild(ButtonWidget.builder(Text.translatable("screen.villagerquests.questsWidget"), button -> {
@@ -79,22 +79,14 @@ public class VillagerQuestOpScreen extends Screen {
     }
 
     @Override
-    public void tick() {
-        this.villagerTextFieldWidget.tick();
-
-    }
-
-    @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
+        super.render(context, mouseX, mouseY, delta);
         context.drawTextWithShadow(this.textRenderer, VILLAGER_NAME_TEXT, this.width / 2 - 153, 40, 0xA0A0A0);
         this.villagerTextFieldWidget.render(context, mouseX, mouseY, delta);
         this.changeableNameWidget.render(context, mouseX, mouseY, delta);
         this.invincibilityWidget.render(context, mouseX, mouseY, delta);
         this.hasAiWidget.render(context, mouseX, mouseY, delta);
         this.offersTradesWidget.render(context, mouseX, mouseY, delta);
-
-        super.render(context, mouseX, mouseY, delta);
     }
 
 }

@@ -65,19 +65,19 @@ public class DescriptionWidget extends ScrollableWidget {
 
                             int imageX = this.getX();
                             int imageY = this.ySpace;
-                            int width = imageComponent.width;
-                            int height = imageComponent.height;
+                            int width = imageComponent.getWidth();
+                            int height = imageComponent.getHeight();
 
-                            if (imageComponent.fit) {
-                                float scale = (float) this.width / imageComponent.width;
+                            if (imageComponent.isFit()) {
+                                float scale = (float) this.width / imageComponent.getWidth();
                                 width *= scale;
                                 height *= scale;
-                            } else if (imageComponent.align == 1) {
+                            } else if (imageComponent.getAlign().ordinal() == 1) {
                                 imageX += this.width / 2 - width / 2;
-                            } else if (imageComponent.align == 2) {
+                            } else if (imageComponent.getAlign().ordinal() == 2) {
                                 imageX += this.width - width;
                             }
-                            imageComponent.image.draw(context, imageX, imageY, width, height);
+                            imageComponent.getImage().draw(context, imageX, imageY, width, height);
                             this.ySpace += height + 2;
 
                             isImageComponent = true;
@@ -105,7 +105,7 @@ public class DescriptionWidget extends ScrollableWidget {
     }
 
     @Override
-    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         context.enableScissor(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height);
         context.getMatrices().push();
         context.getMatrices().translate(0.0, -getScrollY(), 0.0);
@@ -115,18 +115,20 @@ public class DescriptionWidget extends ScrollableWidget {
         this.renderOverlay(context);
     }
 
+
     @Override
     protected void renderOverlay(DrawContext context) {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if (!this.visible) {
             return false;
         }
-        this.setScrollY(this.getScrollY() - amount * this.getDeltaYPerScroll());
+        this.setScrollY(this.getScrollY() - verticalAmount * this.getDeltaYPerScroll());
         return true;
     }
+
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {

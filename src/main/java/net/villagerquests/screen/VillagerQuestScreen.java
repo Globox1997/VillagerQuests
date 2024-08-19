@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import dev.architectury.networking.NetworkManager;
 import dev.ftb.mods.ftbquests.client.ClientQuestFile;
 import dev.ftb.mods.ftbquests.net.ClaimRewardMessage;
 import dev.ftb.mods.ftbquests.quest.Quest;
@@ -94,7 +95,7 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
                     Iterator<Reward> iterator = this.selectedQuest.getRewards().iterator();
                     while (iterator.hasNext()) {
                         Reward reward = iterator.next();
-                        new ClaimRewardMessage(reward.id, true).sendToServer();
+                        NetworkManager.sendToServer(new ClaimRewardMessage(reward.id, true));
                     }
                     removeQuest(this.selectedQuest);
                 } else {
@@ -219,15 +220,14 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         int i = this.questList.size();
         if (this.canScroll(i)) {
             int j = i - 7;
-            this.indexStartOffset = (int) ((double) this.indexStartOffset - amount);
+            this.indexStartOffset = (int) ((double) this.indexStartOffset - verticalAmount);
             this.indexStartOffset = MathHelper.clamp((int) this.indexStartOffset, (int) 0, (int) j);
         }
-
-        return super.mouseScrolled(mouseX, mouseY, amount);
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
     private boolean canScroll(int listSize) {
@@ -263,7 +263,6 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
         if (!this.questList.isEmpty()) {
             this.renderScrollbar(context, this.x, this.y, this.questList);
@@ -329,12 +328,6 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
         }
 
         @Override
-        public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-            super.render(context, mouseX, mouseY, delta);
-
-        }
-
-        @Override
         protected void drawScrollableText(DrawContext context, TextRenderer textRenderer, int xMargin, int color) {
             super.drawScrollableText(context, textRenderer, xMargin, color);
             List<Text> list = new ArrayList<Text>();
@@ -364,7 +357,7 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
         }
 
         @Override
-        public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+        protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
             MinecraftClient minecraftClient = MinecraftClient.getInstance();
             context.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
             RenderSystem.enableBlend();
@@ -375,6 +368,7 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
             int i = this.active ? 0xFFFFFF : 0xA0A0A0;
             this.drawMessage(context, minecraftClient.textRenderer, i | MathHelper.ceil(this.alpha * 255.0f) << 24);
         }
+
 
         private int getTextureY() {
             int i = 1;
@@ -397,7 +391,7 @@ public class VillagerQuestScreen extends HandledScreen<VillagerQuestScreenHandle
         }
 
         @Override
-        public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+        protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
             context.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
             RenderSystem.enableBlend();
             RenderSystem.enableDepthTest();

@@ -1,8 +1,5 @@
 package net.villagerquests.screen;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
@@ -12,13 +9,18 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.screen.ScreenTexts;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.villagerquests.access.MerchantAccessor;
+import net.villagerquests.init.ConfigInit;
 import net.villagerquests.network.QuestClientPacket;
 import net.villagerquests.screen.widget.DescriptionWidget;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class VillagerQuestTalkScreen extends Screen {
@@ -75,8 +77,8 @@ public class VillagerQuestTalkScreen extends Screen {
     private void villagerTalk(boolean playTalkSound) {
         if (talkText.size() > lineRevealCount) {
             if (!talkText.get(lineRevealCount).getString().equals("")) {
-                if (playTalkSound) {
-                    this.client.player.playSound(SoundEvents.ENTITY_VILLAGER_AMBIENT, SoundCategory.VOICE, 1.0f, 0.7f + this.client.world.getRandom().nextFloat() * 0.6f);
+                if (playTalkSound && ConfigInit.CONFIG.villagerTalkSound) {
+                    this.client.player.playSound(SoundEvents.ENTITY_VILLAGER_AMBIENT, 1.0f, 0.7f + this.client.world.getRandom().nextFloat() * 0.6f);
                     ((MerchantAccessor) this.merchantEntity).setTalkTime(8);
                 }
             } else {
@@ -133,7 +135,7 @@ public class VillagerQuestTalkScreen extends Screen {
             }
 
             if (!this.words.isEmpty()) {
-                if (this.revealText.size() == 0 || this.lineRevealCount >= this.revealText.size()) {
+                if (this.revealText.isEmpty() || this.lineRevealCount >= this.revealText.size()) {
                     this.revealText.add(this.words.get(0));
                 } else {
                     MutableText text = this.revealText.get(this.lineRevealCount).copy();
@@ -151,9 +153,10 @@ public class VillagerQuestTalkScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
         super.render(context, mouseX, mouseY, delta);
-        InventoryScreen.drawEntity(context, this.width / 2 - this.backgroundWidth / 2, this.height / 2 + 70, 50, this.width / 2 - this.backgroundWidth / 2 - 120, this.height / 2 - 140,
+
+
+        InventoryScreen.drawEntity(context, this.width / 2 - this.backgroundWidth / 2, this.height / 2 + 40, 50f, new Vector3f(0, 0, 0), new Quaternionf().rotationXYZ(0, (float) Math.toRadians(this.merchantEntity.getHeadYaw() + 46.40625f) * 3.16f, (float) Math.PI), null,
                 this.merchantEntity);
     }
 
