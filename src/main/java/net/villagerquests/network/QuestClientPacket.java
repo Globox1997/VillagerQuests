@@ -56,11 +56,12 @@ public class QuestClientPacket {
         ClientPlayNetworking.registerGlobalReceiver(OffersTradesPacket.PACKET_ID, (payload, context) -> {
             int id = payload.mobId();
             boolean offersTrades = payload.offersTrades();
-            context.client().execute(() -> {
-                if (context.client().world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
-                    ((MerchantAccessor) merchantEntity).setOffersTrades(offersTrades);
-                }
-            });
+            // context.client().execute(() -> {
+            if (context.client().world.getEntityById(id) instanceof MerchantEntity merchantEntity) {
+                ((MerchantAccessor) context.player()).setCurrentOfferer(merchantEntity);
+                ((MerchantAccessor) merchantEntity).setOffersTrades(offersTrades);
+            }
+            // });
         });
 
         ClientPlayNetworking.registerGlobalReceiver(QuestTalkPacket.PACKET_ID, (payload, context) -> {
