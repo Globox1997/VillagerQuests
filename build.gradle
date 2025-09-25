@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.7-SNAPSHOT'
+	id 'fabric-loom' version '1.11-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -40,9 +40,9 @@ dependencies {
 	}
 	// FTB
 	modImplementation ("dev.architectury:architectury-fabric:13.0.8")
-    modImplementation ("curse.maven:ftb-quests-fabric-438496:5882271")
-    modImplementation ("curse.maven:ftb-teams-fabric-438497:5882218")
-    modImplementation ("curse.maven:ftb-library-fabric-438495:5893688")
+    modImplementation ("curse.maven:ftb-quests-fabric-438496:7029247")
+    modImplementation ("curse.maven:ftb-teams-fabric-438497:6930909")
+    modImplementation ("curse.maven:ftb-library-fabric-438495:7029001")
 //    modImplementation ("curse.maven:item-filters-309674:4838265")
 }
 
@@ -69,8 +69,10 @@ java {
 }
 
 jar {
+	inputs.property "archivesName", project.base.archivesName
+
 	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
+		rename { "${it}_${inputs.properties.archivesName}"}
 	}
 }
 
