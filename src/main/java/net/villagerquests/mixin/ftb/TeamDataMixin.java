@@ -7,7 +7,7 @@ import dev.ftb.mods.ftbquests.quest.QuestObject;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbquests.quest.reward.Reward;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
-import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
@@ -19,10 +19,7 @@ import net.villagerquests.data.VillagerQuestState;
 import net.villagerquests.network.QuestServerPacket;
 import net.villagerquests.util.QuestHelper;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -34,7 +31,9 @@ import java.util.*;
 @Mixin(TeamData.class)
 public class TeamDataMixin implements TeamDataAccessor {
 
+    @Unique
     private boolean acceptQuest = false;
+    @Unique
     private HashMap<Long, Long> timer;
 
     @Shadow(remap = false)
@@ -44,11 +43,11 @@ public class TeamDataMixin implements TeamDataAccessor {
     @Shadow(remap = false)
     @Mutable
     @Final
-    private Long2LongOpenHashMap started;
+    private Long2LongMap started;
     @Shadow(remap = false)
     @Mutable
     @Final
-    private Long2LongOpenHashMap completed;
+    private Long2LongMap completed;
     @Shadow(remap = false)
     @Mutable
     @Final
@@ -203,12 +202,12 @@ public class TeamDataMixin implements TeamDataAccessor {
     }
 
     @Override
-    public Long2LongOpenHashMap getStarted() {
+    public Long2LongMap getStarted() {
         return this.started;
     }
 
     @Override
-    public Long2LongOpenHashMap getCompleted() {
+    public Long2LongMap getCompleted() {
         return this.completed;
     }
 

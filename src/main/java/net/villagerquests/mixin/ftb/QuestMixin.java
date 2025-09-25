@@ -14,10 +14,7 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.registry.RegistryWrapper;
 import net.villagerquests.access.QuestAccessor;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -29,13 +26,16 @@ import java.util.UUID;
 @Mixin(Quest.class)
 public abstract class QuestMixin extends QuestObject implements QuestAccessor {
 
+    @Unique
     private boolean villagerQuest;
     @Nullable
+    @Unique
     private UUID villagerUuid;
+    @Unique
     private int timer;
 
     @Shadow(remap = false)
-    private boolean invisible;
+    private boolean invisibleUntilCompleted;
     @Shadow(remap = false)
     private int invisibleUntilTasks;
     @Shadow(remap = false)
@@ -157,10 +157,10 @@ public abstract class QuestMixin extends QuestObject implements QuestAccessor {
     @Override
     public boolean isQuestVisible(TeamData data) {
         if (!data.isCompleted(this)) {
-            if (invisible && invisibleUntilTasks == 0) {
+            if (invisibleUntilCompleted && invisibleUntilTasks == 0) {
                 return false;
             }
-            if (invisible) {
+            if (invisibleUntilCompleted) {
                 int taskCount = 0;
                 for (int i = 0; i < tasks.size(); i++) {
                     if (data.isCompleted(tasks.get(i))) {

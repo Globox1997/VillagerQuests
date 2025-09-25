@@ -21,10 +21,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.UUID;
+import java.util.*;
 
 @SuppressWarnings("rawtypes")
 @Mixin(ServerQuestFile.class)
@@ -37,10 +34,10 @@ public class ServerQuestFileMixin {
 
     // Maybe this has to get removed.
     // When player is offline and other team members finish the quest
-    @Redirect(method = "lambda$playerLoggedIn$4", at = @At(value = "INVOKE", target = "Ldev/ftb/mods/ftbquests/quest/Quest;onCompleted(Ldev/ftb/mods/ftbquests/events/QuestProgressEventData;)V"), remap = false)
-    private static void playerLoggedInMixin(Quest quest, QuestProgressEventData questProgressEventData, TeamData data, ServerPlayerEntity player, Quest iteratingQuest) {
+    @Redirect(method = "lambda$checkQuestBookOnLogin$4", at = @At(value = "INVOKE", target = "Ldev/ftb/mods/ftbquests/quest/Quest;onCompleted(Ldev/ftb/mods/ftbquests/events/QuestProgressEventData;)V"), remap = false)
+    private static void playerLoggedInMixin(Quest quest, QuestProgressEventData questProgressEventData, TeamData data, Date date, Collection<ServerPlayerEntity> collection, List<ServerPlayerEntity> list, ServerPlayerEntity player, Quest iteratingQuest) {
         if (!((QuestAccessor) (Object) iteratingQuest).isVillagerQuest()) {
-            quest.onCompleted(new QuestProgressEventData<>(new Date(), data, iteratingQuest, data.getOnlineMembers(), Collections.singletonList(player)));
+            quest.onCompleted(new QuestProgressEventData(date, data, quest, collection, list));
         }
     }
 

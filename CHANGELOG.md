@@ -1,6 +1,6 @@
 ### Added:
 - 
 ### Fixed:
-- Fixed non trading crash
-### Changed:
 - 
+### Changed:
+- Updated to latest ftb quests
