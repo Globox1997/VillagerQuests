@@ -1,15 +1,10 @@
 package net.villagerquests.init;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import dev.architectury.hooks.level.entity.PlayerHooks;
 import dev.architectury.networking.NetworkManager;
 import dev.ftb.mods.ftbquests.api.FTBQuestsAPI;
 import dev.ftb.mods.ftbquests.net.ObjectCompletedResetMessage;
+import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
 import dev.ftb.mods.ftbquests.quest.TeamData;
 import dev.ftb.mods.ftbteams.api.event.TeamEvent;
@@ -28,6 +23,8 @@ import net.villagerquests.ftb.VillagerTalkTask;
 import net.villagerquests.network.QuestServerPacket;
 import net.villagerquests.screen.VillagerQuestScreenHandler;
 import net.villagerquests.util.QuestHelper;
+
+import java.util.*;
 
 public class EventInit {
 
@@ -84,51 +81,45 @@ public class EventInit {
         });
 
         ServerTickEvents.END_SERVER_TICK.register((server) -> {
-            if (server.getOverworld().getTime() % 20 == 0) {
-                Iterator<TeamData> iterator = FTBQuestsAPI.api().getQuestFile(false).getAllTeamData().iterator();
-                while (iterator.hasNext()) {
-                    TeamData teamData = iterator.next();
-                    if (((TeamDataAccessor) teamData).getTimer().size() > 0) {
-                        List<Long> removalList = null;
-                        Iterator<Map.Entry<Long, Long>> timerIterator = new ArrayList<>(((TeamDataAccessor) teamData).getTimer().entrySet()).iterator();
-                        while (timerIterator.hasNext()) {
-                            Map.Entry<Long, Long> entry = timerIterator.next();
-                            if (teamData.getFile().getQuest(entry.getKey()) != null && !((TeamDataAccessor) teamData).getCompleted().containsKey((long) entry.getKey())) {
-                                int timer = ((QuestAccessor) (Object) teamData.getFile().getQuest(entry.getKey())).getTimer();
-                                if (timer <= 0) {
-                                    continue;
-                                }
-                                if (server.getOverworld().getTime() > entry.getValue() + (long) timer) {
-                                    ((TeamDataAccessor) teamData).setQuestStarted(entry.getKey(), null);
-                                    teamData.getFile().getQuest(entry.getKey()).getTasks().forEach(task -> {
-                                        teamData.resetProgress(task);
-                                    });
-                                    teamData.clearCachedProgress();
-                                    teamData.markDirty();
-                                    NetworkManager.sendToPlayers(teamData.getOnlineMembers(), new ObjectCompletedResetMessage(teamData.getTeamId(), entry.getKey()));
-                                    if (((QuestAccessor) (Object) teamData.getFile().getQuest(entry.getKey())).isVillagerQuest()) {
-                                        QuestHelper.updateTeamQuestMark(server, teamData, ((QuestAccessor) (Object) teamData.getFile().getQuest(entry.getKey())).getVillagerQuestUuid());
-                                    }
-                                    removalList = new ArrayList<Long>();
-                                    removalList.add(entry.getKey());
+            long overWorldTime = server.getOverworld().getTime();
+            if (overWorldTime % 20 == 0) {
+                for (TeamData rawTeamData : FTBQuestsAPI.api().getQuestFile(false).getAllTeamData()) {
+                    TeamDataAccessor teamData = ((TeamDataAccessor) rawTeamData);
+                    HashMap<Long, Long> teamDataTimer = teamData.getTimer();
+                    if (teamDataTimer.isEmpty()) continue;
+                    Iterator<Map.Entry<Long, Long>> timerIterator = teamDataTimer.entrySet().iterator();
+                    while (timerIterator.hasNext()) {
+                        var entry = timerIterator.next();
+                        Quest rawQuest = rawTeamData.getFile().getQuest(entry.getKey());
+                        if (rawQuest == null) continue;
+                        if (teamData.getCompleted().containsKey((long) entry.getKey())) continue;
+                        QuestAccessor questAccessor = ((QuestAccessor) (Object) rawQuest);
 
-                                    List<ServerPlayerEntity> list = teamData.getOnlineMembers().stream().toList();
-                                    for (int i = 0; i < list.size(); i++) {
-                                        QuestServerPacket.writeS2CFailQuestPacket(list.get(i), entry.getKey());
-                                    }
-                                }
-
-                            }
+                        if (questAccessor == null) continue;
+                        int questDataTimer = questAccessor.getTimer();
+                        if (questDataTimer <= 0) {
+                            continue;
                         }
-                        if (removalList != null && !removalList.isEmpty()) {
-                            for (int i = 0; i < removalList.size(); i++) {
-                                ((TeamDataAccessor) teamData).getTimer().remove(removalList.get(i));
+                        if (overWorldTime > entry.getValue() + (long) questDataTimer) {
+                            teamData.setQuestStarted(entry.getKey(), null);
+                            rawQuest.getTasks().forEach(rawTeamData::resetProgress);
+                            rawTeamData.clearCachedProgress();
+                            rawTeamData.markDirty();
+                            NetworkManager.sendToPlayers(rawTeamData.getOnlineMembers(), new ObjectCompletedResetMessage(rawTeamData.getTeamId(), entry.getKey()));
+                            if (questAccessor.isVillagerQuest()) {
+                                QuestHelper.updateTeamQuestMark(server, rawTeamData, questAccessor.getVillagerQuestUuid());
                             }
+
+                            List<ServerPlayerEntity> list = rawTeamData.getOnlineMembers().stream().toList();
+                            for (ServerPlayerEntity serverPlayer : list) {
+                                QuestServerPacket.writeS2CFailQuestPacket(serverPlayer, entry.getKey());
+                            }
+
+                            timerIterator.remove();
                         }
                     }
                 }
             }
         });
     }
-
 }
